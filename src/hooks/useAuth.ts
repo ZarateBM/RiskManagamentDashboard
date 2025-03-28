@@ -1,0 +1,36 @@
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { authService } from '@/services/authservice';
+
+export const useAuth = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const login = async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await authService.login({ email, password });
+      
+      if (response.success) {
+        router.push('/dashboard');
+      } else {
+        setError('Credenciales inválidas');
+      }
+    } catch (error ) {
+        if (error instanceof Error) {
+          setError(error.message);
+        }
+        else {
+          setError('Error desconocido');
+        }
+      setError('Error al iniciar sesión');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { login, isLoading, error };
+};
