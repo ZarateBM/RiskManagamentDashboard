@@ -14,7 +14,7 @@ export default function ReportsAnalytics() {
     <div className="space-y-4">
       <div className="flex flex-col justify-between gap-4 md:flex-row">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Reportes y Análisis</h2>
+          <h2 className="text-2xl font-bold tracking-tight primary-title">Reportes y Análisis</h2>
           <p className="text-muted-foreground">Generación de informes y análisis de tendencias</p>
         </div>
         <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ export default function ReportsAnalytics() {
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Tiempo de Resolución por Categoría</h3>
+                <h3 className="text-lg font-medium primary-text">Tiempo de Resolución por Categoría</h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">

@@ -108,7 +108,7 @@ export default function EnvironmentalMonitoring() {
     <div className="space-y-4">
       <div className="flex flex-col justify-between gap-4 md:flex-row">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Monitoreo Ambiental</h2>
+          <h2 className="text-2xl font-bold tracking-tight primary-title">Monitoreo Ambiental</h2>
           <p className="text-muted-foreground">
             Seguimiento en tiempo real de las condiciones ambientales del cuarto de comunicaciones
           </p>

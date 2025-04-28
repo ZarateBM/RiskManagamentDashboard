@@ -462,7 +462,7 @@ export default function ProtocolsProcedures() {
     <div className="space-y-4">
       <div className="flex flex-col justify-between gap-4 md:flex-row">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Protocolos y Procedimientos</h2>
+          <h2 className="text-2xl font-bold tracking-tight primary-title">Protocolos y Procedimientos</h2>
           <p className="text-muted-foreground">Guías paso a paso para resolver incidentes comunes</p>
         </div>
         <div className="flex items-center gap-2">

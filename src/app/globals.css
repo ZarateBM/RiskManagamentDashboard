@@ -9,6 +9,9 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .fixed.inset-0.z-50.bg-black\/80[data-state="open"] {
+    background-color: rgba(65, 173, 231, 0.164); /* Celeste (#41ADE7) con 80% de opacidad */
+  }
 }
 
 @layer base {
@@ -46,6 +49,8 @@ body {
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --primary-blue: #41ADE7; 
+    --dark-blue: #204C6F;    
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -83,3 +88,45 @@ body {
   }
 }
 
+.bg-primary-blue {
+  background-color: var(--primary-blue);
+}
+
+.bg-dark-blue {
+  background-color: var(--dark-blue);
+}
+
+.bg-gray{
+  background-color: #666;
+}
+
+.link {
+  color: #0090D8;
+  text-decoration: none;
+}
+.link:hover {
+  text-decoration: underline;
+  color: #0C344E;
+}
+
+.primary-title{
+  color: #41ADE7;
+}
+
+.primary-text{
+  color: #666;
+}
+
+p,span{
+  color: #666!important;
+}
+
+
+div, button, input, card, footer {
+  border-color: #d1d5db!important;
+  
+}
+
+[role="dialog"] {
+  background-color: #fff;
+}

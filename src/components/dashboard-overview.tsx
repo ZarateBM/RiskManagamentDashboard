@@ -17,15 +17,18 @@ export default function DashboardOverview() {
   const [activeTab, setActiveTab] = useState("overview")
 
   return (
-    <div className="flex flex-col">
-      <div className="border-b">
-        <div className="flex h-16 items-center px-4">
-          <div className="flex items-center gap-2 font-semibold">
-            <Server className="h-6 w-6" />
-            <span>Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</span>
+    <div className="grid min-h-screen grid-rows-[auto_1fr_auto] grid-areas-layout">
+      <div className="border-b ">
+        <div className="flex h-16 items-center px-4 bg-primary-blue">
+          <img src="firma-tipografica-ucr.svg" alt="Logo UCR" />
+        </div>
+        <div className="flex h-16 items-center px-4 bg-dark-blue ">
+          <div className="flex items-center gap-2 font-semibold text-white">
+            <Server className="h-6 w-6 color-white" />
+            <h6 >Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</h6>
           </div>
-          <div className="ml-auto flex items-center gap-4">
-            <Button variant="outline" size="sm">
+          <div className="ml-auto flex items-center gap-4 ">
+            <Button className="text-white" variant="outline" size="sm">
               <Bell className="mr-2 h-4 w-4" />
               Notificaciones
             </Button>
@@ -281,6 +284,14 @@ export default function DashboardOverview() {
           </Tabs>
         </div>
       </div>
+      <footer className="flex items-center justify-between border-t p-4 bg-gray">
+        <div className="flex items-center gap-2">
+          <img src="firma-tipografica-ucr.svg" alt="Logo UCR" className="h-8" />
+          <h6 className="text-sm text-white">Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</h6>
+        </div>
+
+
+      </footer>
     </div>
   )
 }
