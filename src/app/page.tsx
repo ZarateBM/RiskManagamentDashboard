@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -10,9 +10,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
+import { useRouter } from "next/navigation"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("")
+  const router = useRouter();
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -22,6 +24,10 @@ export default function LoginForm() {
     e.preventDefault()
     await login(email, password)
   }
+
+  useEffect(() => {
+    router.push("/dashboard")
+  }, [])
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">
