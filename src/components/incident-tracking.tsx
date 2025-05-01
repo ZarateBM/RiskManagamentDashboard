@@ -71,13 +71,17 @@ const incidentData = [
 export default function IncidentTracking() {
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("Todos")
-  const [statusFilter, setStatusFilter] = useState("Todos")
+  const [statusFilter, setStatusFilter] = useState("Ninguno")
 
-  // Filtrar los incidentes según los criterios
+
   const filteredIncidents = incidentData.filter((incident) => {
-    const matchesSearch = incident.title.toLowerCase().includes(searchTerm.toLowerCase())
+    if (statusFilter === "Ninguno" && searchTerm === "") {
+      return false
+    }
+    
+    const matchesSearch = searchTerm === "" || incident.title.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = categoryFilter === "Todos" || incident.category === categoryFilter
-    const matchesStatus = statusFilter === "Todos" || incident.status === statusFilter
+    const matchesStatus = statusFilter === "Todos" || incident.status === statusFilter || statusFilter === "Ninguno"
 
     return matchesSearch && matchesCategory && matchesStatus
   })
@@ -247,6 +251,7 @@ export default function IncidentTracking() {
                   <SelectValue placeholder="Estado" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="Ninguno">Ninguno</SelectItem>
                   <SelectItem value="Todos">Todos los estados</SelectItem>
                   <SelectItem value="Pendiente">Pendiente</SelectItem>
                   <SelectItem value="En proceso">En proceso</SelectItem>
@@ -255,155 +260,166 @@ export default function IncidentTracking() {
               </Select>
             </div>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Incidente</TableHead>
-                <TableHead>Categoría</TableHead>
-                <TableHead>Severidad</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Fecha Reportado</TableHead>
-                <TableHead>Asignado a</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredIncidents.map((incident) => (
-                <TableRow key={incident.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      {incident.icon}
-                      {incident.title}
-                    </div>
-                  </TableCell>
-                  <TableCell>{incident.category}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getSeverityColor(incident.severity)}>
-                      {incident.severity}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(incident.status)}>
-                      {incident.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{formatDate(incident.dateReported)}</TableCell>
-                  <TableCell>{incident.assignedTo}</TableCell>
-                  <TableCell className="text-right">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          Gestionar
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[600px]">
-                        <DialogHeader>
-                          <DialogTitle>Gestión de Incidente</DialogTitle>
-                          <DialogDescription>Detalles y seguimiento del incidente</DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">{incident.title}</h3>
-                            <Badge variant="outline" className={getStatusColor(incident.status)}>
-                              {incident.status}
-                            </Badge>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Calendar className="h-4 w-4" />
-                                <span>Reportado: {formatDate(incident.dateReported)}</span>
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <UserCircle className="h-4 w-4" />
-                                <span>Asignado a: {incident.assignedTo}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="rounded-md border p-3">
-                            <h4 className="mb-2 font-medium">Descripción</h4>
-                            <p className="text-sm">{incident.description}</p>
-                          </div>
-                          <div>
-                            <h4 className="mb-2 font-medium">Historial de Acciones</h4>
-                            <div className="space-y-2">
-                              <div className="rounded-md border p-2">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-sm font-medium">Actualización de estado</p>
-                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                    <Clock className="h-3 w-3" />
-                                    <span>Hace 2 horas</span>
-                                  </div>
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                  Se cambió el estado de Pendiente a En proceso
-                                </p>
-                              </div>
-                              <div className="rounded-md border p-2">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-sm font-medium">Asignación</p>
-                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                    <Clock className="h-3 w-3" />
-                                    <span>Hace 1 día</span>
-                                  </div>
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                  Incidente asignado a {incident.assignedTo}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="update-comment">Agregar Comentario</Label>
-                            <Textarea id="update-comment" placeholder="Escriba un comentario o actualización..." />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="update-status">Actualizar Estado</Label>
-                              <Select>
-                                <SelectTrigger id="update-status">
-                                  <SelectValue placeholder={incident.status} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pendiente">Pendiente</SelectItem>
-                                  <SelectItem value="en-proceso">En proceso</SelectItem>
-                                  <SelectItem value="resuelto">Resuelto</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="update-assigned">Reasignar</Label>
-                              <Select>
-                                <SelectTrigger id="update-assigned">
-                                  <SelectValue placeholder={incident.assignedTo} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="ti">Departamento TI</SelectItem>
-                                  <SelectItem value="mantenimiento">Mantenimiento</SelectItem>
-                                  <SelectItem value="seguridad">Seguridad</SelectItem>
-                                  <SelectItem value="electrico">Ing. Eléctrico</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button variant="outline">Cancelar</Button>
-                          <Button>Guardar Cambios</Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </TableCell>
+          
+          {statusFilter === "Ninguno" && searchTerm === "" ? (
+            <div className="text-center py-8 text-muted-foreground primary-text">
+              Escribe en el campo de búsqueda o selecciona otro filtro para ver los incidentes
+            </div>
+          ) : filteredIncidents.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground primary-text">
+              No se encontraron incidentes con los filtros aplicados
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Incidente</TableHead>
+                  <TableHead>Categoría</TableHead>
+                  <TableHead>Severidad</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Fecha Reportado</TableHead>
+                  <TableHead>Asignado a</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredIncidents.map((incident) => (
+                  <TableRow key={incident.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {incident.icon}
+                        {incident.title}
+                      </div>
+                    </TableCell>
+                    <TableCell>{incident.category}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getSeverityColor(incident.severity)}>
+                        {incident.severity}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getStatusColor(incident.status)}>
+                        {incident.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatDate(incident.dateReported)}</TableCell>
+                    <TableCell>{incident.assignedTo}</TableCell>
+                    <TableCell className="text-right">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            Gestionar
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[600px]">
+                          <DialogHeader>
+                            <DialogTitle>Gestión de Incidente</DialogTitle>
+                            <DialogDescription>Detalles y seguimiento del incidente</DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-lg font-semibold">{incident.title}</h3>
+                              <Badge variant="outline" className={getStatusColor(incident.status)}>
+                                {incident.status}
+                              </Badge>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Calendar className="h-4 w-4" />
+                                  <span>Reportado: {formatDate(incident.dateReported)}</span>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <UserCircle className="h-4 w-4" />
+                                  <span>Asignado a: {incident.assignedTo}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="rounded-md border p-3">
+                              <h4 className="mb-2 font-medium">Descripción</h4>
+                              <p className="text-sm">{incident.description}</p>
+                            </div>
+                            <div>
+                              <h4 className="mb-2 font-medium">Historial de Acciones</h4>
+                              <div className="space-y-2">
+                                <div className="rounded-md border p-2">
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-sm font-medium">Actualización de estado</p>
+                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                      <Clock className="h-3 w-3" />
+                                      <span>Hace 2 horas</span>
+                                    </div>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    Se cambió el estado de Pendiente a En proceso
+                                  </p>
+                                </div>
+                                <div className="rounded-md border p-2">
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-sm font-medium">Asignación</p>
+                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                      <Clock className="h-3 w-3" />
+                                      <span>Hace 1 día</span>
+                                    </div>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    Incidente asignado a {incident.assignedTo}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="update-comment">Agregar Comentario</Label>
+                              <Textarea id="update-comment" placeholder="Escriba un comentario o actualización..." />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="update-status">Actualizar Estado</Label>
+                                <Select>
+                                  <SelectTrigger id="update-status">
+                                    <SelectValue placeholder={incident.status} />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="pendiente">Pendiente</SelectItem>
+                                    <SelectItem value="en-proceso">En proceso</SelectItem>
+                                    <SelectItem value="resuelto">Resuelto</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="update-assigned">Reasignar</Label>
+                                <Select>
+                                  <SelectTrigger id="update-assigned">
+                                    <SelectValue placeholder={incident.assignedTo} />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="ti">Departamento TI</SelectItem>
+                                    <SelectItem value="mantenimiento">Mantenimiento</SelectItem>
+                                    <SelectItem value="seguridad">Seguridad</SelectItem>
+                                    <SelectItem value="electrico">Ing. Eléctrico</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline">Cancelar</Button>
+                            <Button>Guardar Cambios</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground primary-text">
-            Mostrando {filteredIncidents.length} de {incidentData.length} incidentes
+        <div className="text-sm text-muted-foreground primary-text">
+            Mostrando {filteredIncidents.length} de {incidentData.length} riesgos
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
@@ -418,4 +434,3 @@ export default function IncidentTracking() {
     </div>
   )
 }
-
