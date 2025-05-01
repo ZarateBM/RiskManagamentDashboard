@@ -93,14 +93,19 @@ const riskData = [
 export default function RiskManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("Todos")
-  const [impactFilter, setImpactFilter] = useState("Todos")
+  const [impactFilter, setImpactFilter] = useState("Ninguno")
 
   // Filtrar los riesgos según los criterios
   const filteredRisks = riskData.filter((risk) => {
     const matchesSearch = risk.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = categoryFilter === "Todos" || risk.category === categoryFilter
     const matchesImpact = impactFilter === "Todos" || risk.impact === impactFilter
-
+    
+    // Si impactFilter es "Ninguno", solo mostrar resultados cuando hay un término de búsqueda
+    if (impactFilter === "Ninguno") {
+      return searchTerm.length > 0 && matchesSearch && matchesCategory
+    }
+    
     return matchesSearch && matchesCategory && matchesImpact
   })
 
@@ -257,6 +262,7 @@ export default function RiskManagement() {
                   <SelectValue placeholder="Impacto" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="Ninguno">Ninguno</SelectItem>
                   <SelectItem value="Todos">Todos los impactos</SelectItem>
                   <SelectItem value="Crítico">Crítico</SelectItem>
                   <SelectItem value="Alto">Alto</SelectItem>
@@ -280,106 +286,120 @@ export default function RiskManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredRisks.map((risk) => (
-                <TableRow key={risk.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      {risk.icon}
-                      {risk.name}
-                    </div>
-                  </TableCell>
-                  <TableCell>{risk.category}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getImpactColor(risk.impact)}>
-                      {risk.impact}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{risk.probability}</TableCell>
-                  <TableCell>
-                    <Badge variant={risk.status === "Activo" ? "default" : "outline"}>{risk.status}</Badge>
-                  </TableCell>
-                  <TableCell className="max-w-[200px] truncate">{risk.mitigation}</TableCell>
-                  <TableCell>{risk.responsible}</TableCell>
-                  <TableCell className="text-right">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <FileText className="mr-2 h-4 w-4" />
-                          Detalles
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[600px]">
-                        <DialogHeader>
-                          <DialogTitle>Detalles del Riesgo</DialogTitle>
-                          <DialogDescription>Información completa y acciones de mitigación</DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <h4 className="mb-2 font-semibold">Nombre del Riesgo</h4>
-                              <p>{risk.name}</p>
-                            </div>
-                            <div>
-                              <h4 className="mb-2 font-semibold">Categoría</h4>
-                              <p>{risk.category}</p>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-3 gap-4">
-                            <div>
-                              <h4 className="mb-2 font-semibold">Impacto</h4>
-                              <Badge variant="outline" className={getImpactColor(risk.impact)}>
-                                {risk.impact}
-                              </Badge>
-                            </div>
-                            <div>
-                              <h4 className="mb-2 font-semibold">Probabilidad</h4>
-                              <p>{risk.probability}</p>
-                            </div>
-                            <div>
-                              <h4 className="mb-2 font-semibold">Estado</h4>
-                              <Badge variant={risk.status === "Activo" ? "default" : "outline"}>{risk.status}</Badge>
-                            </div>
-                          </div>
-                          <div>
-                            <h4 className="mb-2 font-semibold">Medidas de Mitigación</h4>
-                            <p>{risk.mitigation}</p>
-                          </div>
-                          <div>
-                            <h4 className="mb-2 font-semibold">Responsable</h4>
-                            <p>{risk.responsible}</p>
-                          </div>
-                          <div>
-                            <h4 className="mb-2 font-semibold">Historial de Acciones</h4>
-                            <div className="space-y-2">
-                              <div className="rounded-md border p-2">
-                                <p className="text-sm font-medium">15/03/2025 - Revisión de medidas</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Se verificó la efectividad de las medidas implementadas.
-                                </p>
+              {filteredRisks.length > 0 ? (
+                filteredRisks.map((risk) => (
+                  <TableRow key={risk.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {risk.icon}
+                        {risk.name}
+                      </div>
+                    </TableCell>
+                    <TableCell>{risk.category}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getImpactColor(risk.impact)}>
+                        {risk.impact}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{risk.probability}</TableCell>
+                    <TableCell>
+                      <Badge variant={risk.status === "Activo" ? "default" : "outline"}>{risk.status}</Badge>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate">{risk.mitigation}</TableCell>
+                    <TableCell>{risk.responsible}</TableCell>
+                    <TableCell className="text-right">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <FileText className="mr-2 h-4 w-4" />
+                            Detalles
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[600px]">
+                          <DialogHeader>
+                            <DialogTitle>Detalles del Riesgo</DialogTitle>
+                            <DialogDescription>Información completa y acciones de mitigación</DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-6 py-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                              <div>
+                                <h4 className="mb-1 text-sm font-semibold text-muted-foreground">Nombre del Riesgo</h4>
+                                <p className="text-base">{risk.name}</p>
                               </div>
-                              <div className="rounded-md border p-2">
-                                <p className="text-sm font-medium">01/03/2025 - Implementación inicial</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Se registró el riesgo y se definieron las medidas de mitigación.
-                                </p>
+                              <div>
+                                <h4 className="mb-1 text-sm font-semibold text-muted-foreground">Categoría</h4>
+                                <p className="text-base">{risk.category}</p>
                               </div>
                             </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                              <div>
+                                <h4 className="mb-1 text-sm font-semibold text-muted-foreground">Impacto</h4>
+                                <Badge variant="outline" className={getImpactColor(risk.impact)}>{risk.impact}</Badge>
+                              </div>
+                              <div>
+                                <h4 className="mb-1 text-sm font-semibold text-muted-foreground">Probabilidad</h4>
+                                <p>{risk.probability}</p>
+                              </div>
+                              <div>
+                                <h4 className="mb-1 text-sm font-semibold text-muted-foreground">Estado</h4>
+                                <Badge variant={risk.status === "Activo" ? "default" : "outline"}>{risk.status}</Badge>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                              <div>
+                                <h4 className="mb-1 text-sm font-semibold text-muted-foreground">Medidas de Mitigación</h4>
+                                <p>{risk.mitigation}</p>
+                              </div>
+                              <div>
+                                <h4 className="mb-1 text-sm font-semibold text-muted-foreground">Responsable</h4>
+                                <p>{risk.responsible}</p>
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="mb-3 text-sm font-semibold text-muted-foreground">Historial de Acciones</h4>
+                              <div className="space-y-3">
+                                <div className="rounded-md border p-3">
+                                  <p className="text-sm font-medium">15/03/2025 - Revisión de medidas</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Se verificó la efectividad de las medidas implementadas.
+                                  </p>
+                                </div>
+                                <div className="rounded-md border p-3">
+                                  <p className="text-sm font-medium">01/03/2025 - Implementación inicial</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Se registró el riesgo y se definieron las medidas de mitigación.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <DialogFooter>
-                          <Button variant="outline">Editar</Button>
-                          <Button>Actualizar Estado</Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+
+                          <DialogFooter>
+                            <Button variant="outline">Editar</Button>
+                            <Button>Actualizar Estado</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+                    {impactFilter === "Ninguno" && searchTerm === "" ? (
+                      "Escriba en el campo de búsqueda para ver los riesgos"
+                    ) : (
+                      "No se encontraron riesgos que coincidan con los criterios de búsqueda"
+                    )}
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground primary-text">
             Mostrando {filteredRisks.length} de {riskData.length} riesgos
           </div>
           <div className="flex gap-2">
@@ -395,4 +415,3 @@ export default function RiskManagement() {
     </div>
   )
 }
-
