@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -6,7 +7,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { AlertTriangle, Bell, Droplets, FileText, Lock, Server, Shield, Thermometer, Waves, Zap } from "lucide-react"
+import { 
+  AlertTriangle, 
+  Bell, 
+  Droplets, 
+  FileText, 
+  Lock, 
+  Server, 
+  Shield, 
+  Thermometer, 
+  Waves, 
+  Zap,
+  Plus 
+} from "lucide-react"
 import RiskManagement from "@/components/risk-management"
 import IncidentTracking from "@/components/incident-tracking"
 import EnvironmentalMonitoring from "@/components/environmental-monitoring"
@@ -15,6 +28,10 @@ import ProtocolsProcedures from "@/components/protocols-procedures"
 
 export default function DashboardOverview() {
   const [activeTab, setActiveTab] = useState("overview")
+  const [showRisks, setShowRisks] = useState(false)
+  const [showAlerts, setShowAlerts] = useState(false)
+  const [showActions, setShowActions] = useState(false)
+  const [showStats, setShowStats] = useState(false)
 
   return (
     <div className="grid min-h-screen grid-rows-[auto_1fr_auto] grid-areas-layout">
@@ -29,7 +46,7 @@ export default function DashboardOverview() {
           </div>
           <div className="ml-auto flex items-center gap-4 ">
             <Button className="text-white" variant="outline" size="sm">
-              <Bell className="mr-2 h-4 w-4" />
+              <Bell className="mr-2 h-4 w-4 text-white" />
               Notificaciones
             </Button>
           </div>
@@ -42,7 +59,7 @@ export default function DashboardOverview() {
               <TabsTrigger value="overview">Vista General</TabsTrigger>
               <TabsTrigger value="risks">Gestión de Riesgos</TabsTrigger>
               <TabsTrigger value="incidents">Seguimiento de Incidentes</TabsTrigger>
-              <TabsTrigger value="monitoring">Monitoreo Ambiental</TabsTrigger>
+              {/* <TabsTrigger value="monitoring">Monitoreo Ambiental</TabsTrigger> */}
               <TabsTrigger value="reports">Reportes y Análisis</TabsTrigger>
               <TabsTrigger value="protocols">Protocolos</TabsTrigger>
             </TabsList>
@@ -91,178 +108,212 @@ export default function DashboardOverview() {
               </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Card className="col-span-4">
-                  <CardHeader>
+                  <CardHeader className="cursor-pointer flex flex-row items-center justify-between" 
+                              onClick={() => setShowRisks(!showRisks)}>
                     <CardTitle>Resumen de Riesgos por Categoría</CardTitle>
+                    <Plus 
+                      className="h-5 w-5 transition-transform duration-200"
+                      style={{ color: "#41ADE7", transform: showRisks ? "rotate(45deg)" : "rotate(0deg)" }}
+                    />
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Waves className="mr-2 h-5 w-5 text-blue-500" />
-                          <span>Ambientales</span>
+                  {showRisks && (
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Waves className="mr-2 h-5 w-5 text-blue-500" />
+                            <span>Ambientales</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="bg-red-100">
+                              2 Críticos
+                            </Badge>
+                            <Badge variant="outline" className="bg-amber-100">
+                              1 Alto
+                            </Badge>
+                            <Badge variant="outline" className="bg-green-100">
+                              1 Medio
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Badge variant="outline" className="bg-red-100">
-                            2 Críticos
-                          </Badge>
-                          <Badge variant="outline" className="bg-amber-100">
-                            1 Alto
-                          </Badge>
-                          <Badge variant="outline" className="bg-green-100">
-                            1 Medio
-                          </Badge>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Lock className="mr-2 h-5 w-5 text-purple-500" />
+                            <span>Seguridad Física</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="bg-red-100">
+                              0 Críticos
+                            </Badge>
+                            <Badge variant="outline" className="bg-amber-100">
+                              2 Altos
+                            </Badge>
+                            <Badge variant="outline" className="bg-green-100">
+                              1 Medio
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Server className="mr-2 h-5 w-5 text-orange-500" />
+                            <span>Operativos</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="bg-red-100">
+                              1 Crítico
+                            </Badge>
+                            <Badge variant="outline" className="bg-amber-100">
+                              1 Alto
+                            </Badge>
+                            <Badge variant="outline" className="bg-green-100">
+                              1 Medio
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Shield className="mr-2 h-5 w-5 text-green-500" />
+                            <span>Digitales</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="bg-red-100">
+                              0 Críticos
+                            </Badge>
+                            <Badge variant="outline" className="bg-amber-100">
+                              1 Alto
+                            </Badge>
+                            <Badge variant="outline" className="bg-green-100">
+                              1 Medio
+                            </Badge>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Lock className="mr-2 h-5 w-5 text-purple-500" />
-                          <span>Seguridad Física</span>
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge variant="outline" className="bg-red-100">
-                            0 Críticos
-                          </Badge>
-                          <Badge variant="outline" className="bg-amber-100">
-                            2 Altos
-                          </Badge>
-                          <Badge variant="outline" className="bg-green-100">
-                            1 Medio
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Server className="mr-2 h-5 w-5 text-orange-500" />
-                          <span>Operativos</span>
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge variant="outline" className="bg-red-100">
-                            1 Crítico
-                          </Badge>
-                          <Badge variant="outline" className="bg-amber-100">
-                            1 Alto
-                          </Badge>
-                          <Badge variant="outline" className="bg-green-100">
-                            1 Medio
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Shield className="mr-2 h-5 w-5 text-green-500" />
-                          <span>Digitales</span>
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge variant="outline" className="bg-red-100">
-                            0 Críticos
-                          </Badge>
-                          <Badge variant="outline" className="bg-amber-100">
-                            1 Alto
-                          </Badge>
-                          <Badge variant="outline" className="bg-green-100">
-                            1 Medio
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
+                    </CardContent>
+                  )}
                 </Card>
                 <Card className="col-span-3">
-                  <CardHeader>
-                    <CardTitle>Alertas Recientes</CardTitle>
-                    <CardDescription>Últimas 24 horas</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <Alert className="border-amber-500">
-                        <AlertTriangle className="h-4 w-4 text-amber-500" />
-                        <AlertTitle className="ml-2">Humedad elevada</AlertTitle>
-                        <AlertDescription className="ml-6">
-                          La humedad ha superado el 60% durante las últimas 3 horas.
-                        </AlertDescription>
-                      </Alert>
-                      <Alert className="border-red-500">
-                        <AlertTriangle className="h-4 w-4 text-red-500" />
-                        <AlertTitle className="ml-2">Intento de acceso no autorizado</AlertTitle>
-                        <AlertDescription className="ml-6">
-                          Se detectó un intento de acceso con credenciales inválidas.
-                        </AlertDescription>
-                      </Alert>
-                      <Alert className="border-green-500">
-                        <Zap className="h-4 w-4 text-green-500" />
-                        <AlertTitle className="ml-2">UPS activado</AlertTitle>
-                        <AlertDescription className="ml-6">
-                          Fluctuación de energía detectada, UPS funcionando correctamente.
-                        </AlertDescription>
-                      </Alert>
+                  <CardHeader className="cursor-pointer flex flex-row items-center justify-between"
+                              onClick={() => setShowAlerts(!showAlerts)}>
+                    <div>
+                      <CardTitle>Alertas Recientes</CardTitle>
+                      <CardDescription>Últimas 24 horas</CardDescription>
                     </div>
-                  </CardContent>
+                    <Plus 
+                      className="h-5 w-5 transition-transform duration-200"
+                      style={{ color: "#41ADE7", transform: showAlerts ? "rotate(45deg)" : "rotate(0deg)" }}
+                    />
+                  </CardHeader>
+                  {showAlerts && (
+                    <CardContent>
+                      <div className="space-y-4">
+                        <Alert className="border-amber-500">
+                          <AlertTriangle className="h-4 w-4 text-amber-500" />
+                          <AlertTitle className="ml-2">Humedad elevada</AlertTitle>
+                          <AlertDescription className="ml-6">
+                            La humedad ha superado el 60% durante las últimas 3 horas.
+                          </AlertDescription>
+                        </Alert>
+                        <Alert className="border-red-500">
+                          <AlertTriangle className="h-4 w-4 text-red-500" />
+                          <AlertTitle className="ml-2">Intento de acceso no autorizado</AlertTitle>
+                          <AlertDescription className="ml-6">
+                            Se detectó un intento de acceso con credenciales inválidas.
+                          </AlertDescription>
+                        </Alert>
+                        <Alert className="border-green-500">
+                          <Zap className="h-4 w-4 text-green-500" />
+                          <AlertTitle className="ml-2">UPS activado</AlertTitle>
+                          <AlertDescription className="ml-6">
+                            Fluctuación de energía detectada, UPS funcionando correctamente.
+                          </AlertDescription>
+                        </Alert>
+                      </div>
+                    </CardContent>
+                  )}
                 </Card>
               </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Card className="col-span-4">
-                  <CardHeader>
-                    <CardTitle>Próximas Acciones</CardTitle>
-                    <CardDescription>Mantenimientos y revisiones programadas</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <div>
-                          <p className="font-medium">Mantenimiento preventivo UPS</p>
-                          <p className="text-sm text-muted-foreground">Responsable: Ing. Eléctrico</p>
-                        </div>
-                        <Badge>25/03/2025</Badge>
-                      </div>
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <div>
-                          <p className="font-medium">Revisión de sellos anti-humedad</p>
-                          <p className="text-sm text-muted-foreground">Responsable: Mantenimiento</p>
-                        </div>
-                        <Badge>28/03/2025</Badge>
-                      </div>
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <div>
-                          <p className="font-medium">Actualización de firmware</p>
-                          <p className="text-sm text-muted-foreground">Responsable: TI</p>
-                        </div>
-                        <Badge>02/04/2025</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Simulacro de contingencia</p>
-                          <p className="text-sm text-muted-foreground">Responsable: Seguridad</p>
-                        </div>
-                        <Badge>10/04/2025</Badge>
-                      </div>
+                  <CardHeader className="cursor-pointer flex flex-row items-center justify-between"
+                              onClick={() => setShowActions(!showActions)}>
+                    <div>
+                      <CardTitle>Próximas Acciones</CardTitle>
+                      <CardDescription>Mantenimientos y revisiones programadas</CardDescription>
                     </div>
-                  </CardContent>
+                    <Plus 
+                      className="h-5 w-5 transition-transform duration-200"
+                      style={{ color: "#41ADE7", transform: showActions ? "rotate(45deg)" : "rotate(0deg)" }}
+                    />
+                  </CardHeader>
+                  {showActions && (
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b pb-2">
+                          <div>
+                            <p className="font-medium">Mantenimiento preventivo UPS</p>
+                            <p className="text-sm text-muted-foreground">Responsable: Ing. Eléctrico</p>
+                          </div>
+                          <Badge>25/03/2025</Badge>
+                        </div>
+                        <div className="flex items-center justify-between border-b pb-2">
+                          <div>
+                            <p className="font-medium">Revisión de sellos anti-humedad</p>
+                            <p className="text-sm text-muted-foreground">Responsable: Mantenimiento</p>
+                          </div>
+                          <Badge>28/03/2025</Badge>
+                        </div>
+                        <div className="flex items-center justify-between border-b pb-2">
+                          <div>
+                            <p className="font-medium">Actualización de firmware</p>
+                            <p className="text-sm text-muted-foreground">Responsable: TI</p>
+                          </div>
+                          <Badge>02/04/2025</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">Simulacro de contingencia</p>
+                            <p className="text-sm text-muted-foreground">Responsable: Seguridad</p>
+                          </div>
+                          <Badge>10/04/2025</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  )}
                 </Card>
                 <Card className="col-span-3">
-                  <CardHeader>
-                    <CardTitle>Estadísticas de Incidentes</CardTitle>
-                    <CardDescription>Últimos 30 días</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex items-center justify-center">
-                    <div className="flex h-[180px] w-full items-end gap-2">
-                      <div className="relative flex h-40 w-full flex-col items-center">
-                        <div className="absolute bottom-0 h-[15%] w-6 rounded-t bg-green-500"></div>
-                        <span className="mt-2 text-xs">Sem 1</span>
-                      </div>
-                      <div className="relative flex h-40 w-full flex-col items-center">
-                        <div className="absolute bottom-0 h-[35%] w-6 rounded-t bg-amber-500"></div>
-                        <span className="mt-2 text-xs">Sem 2</span>
-                      </div>
-                      <div className="relative flex h-40 w-full flex-col items-center">
-                        <div className="absolute bottom-0 h-[25%] w-6 rounded-t bg-amber-500"></div>
-                        <span className="mt-2 text-xs">Sem 3</span>
-                      </div>
-                      <div className="relative flex h-40 w-full flex-col items-center">
-                        <div className="absolute bottom-0 h-[10%] w-6 rounded-t bg-green-500"></div>
-                        <span className="mt-2 text-xs">Sem 4</span>
-                      </div>
+                  <CardHeader className="cursor-pointer flex flex-row items-center justify-between"
+                              onClick={() => setShowStats(!showStats)}>
+                    <div>
+                      <CardTitle>Estadísticas de Incidentes</CardTitle>
+                      <CardDescription>Últimos 30 días</CardDescription>
                     </div>
-                  </CardContent>
+                    <Plus 
+                      className="h-5 w-5 transition-transform duration-200"
+                      style={{ color: "#41ADE7", transform: showStats ? "rotate(45deg)" : "rotate(0deg)" }}
+                    />
+                  </CardHeader>
+                  {showStats && (
+                    <CardContent className="flex items-center justify-center">
+                      <div className="flex h-[180px] w-full items-end gap-2">
+                        <div className="relative flex h-40 w-full flex-col items-center">
+                          <div className="absolute bottom-0 h-[15%] w-6 rounded-t bg-green-500"></div>
+                          <span className="mt-2 text-xs">Sem 1</span>
+                        </div>
+                        <div className="relative flex h-40 w-full flex-col items-center">
+                          <div className="absolute bottom-0 h-[35%] w-6 rounded-t bg-amber-500"></div>
+                          <span className="mt-2 text-xs">Sem 2</span>
+                        </div>
+                        <div className="relative flex h-40 w-full flex-col items-center">
+                          <div className="absolute bottom-0 h-[25%] w-6 rounded-t bg-amber-500"></div>
+                          <span className="mt-2 text-xs">Sem 3</span>
+                        </div>
+                        <div className="relative flex h-40 w-full flex-col items-center">
+                          <div className="absolute bottom-0 h-[10%] w-6 rounded-t bg-green-500"></div>
+                          <span className="mt-2 text-xs">Sem 4</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  )}
                 </Card>
               </div>
             </TabsContent>
@@ -289,10 +340,7 @@ export default function DashboardOverview() {
           <img src="firma-tipografica-ucr.svg" alt="Logo UCR" className="h-8" />
           <h6 className="text-sm text-white">Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</h6>
         </div>
-
-
       </footer>
     </div>
   )
 }
-

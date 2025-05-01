@@ -51,6 +51,7 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
     --primary-blue: #41ADE7; 
     --dark-blue: #204C6F;    
+    --primary-button: #0090D8;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -88,6 +89,9 @@ body {
   }
 }
 
+.bg-primary-button {
+  background-color: var(--primary-button);
+}
 .bg-primary-blue {
   background-color: var(--primary-blue);
 }
@@ -117,16 +121,18 @@ body {
   color: #666;
 }
 
-p,span{
+p,span,h4{
   color: #666!important;
 }
 
 
-div, button, input, card, footer {
+div, button, input, card, footer, tr {
   border-color: #d1d5db!important;
+  
   
 }
 
 [role="dialog"] {
   background-color: #fff;
 }
+

@@ -402,7 +402,7 @@ export default function IncidentTracking() {
           </Table>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground primary-text">
             Mostrando {filteredIncidents.length} de {incidentData.length} incidentes
           </div>
           <div className="flex gap-2">
