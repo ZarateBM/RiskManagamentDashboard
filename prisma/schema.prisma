@@ -1,0 +1,25 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuario {
+  idUsuario      Int      @id @default(autoincrement())
+  nombreCompleto String
+  correo         String   @unique
+  contraseña     String
+  mitigador      Boolean  @default(false)
+  rol            Rol
+  fechaCreacion  DateTime @default(now())
+  registroEstado Boolean  @default(true)
+}
+
+enum Rol {
+  ADMINISTRADOR
+  EDITOR
+  LECTOR
+}
