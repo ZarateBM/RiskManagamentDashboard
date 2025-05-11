@@ -148,7 +148,7 @@
 Después del primer despliegue, tendrás:
 
 * Usuario: `adminriskmanagement@ucr.ac.cr`
-* Contraseña: definida en el Seeder
+* Contraseña: admin123
 
 > Puedes cambiarla desde PostgreSQL:
 
