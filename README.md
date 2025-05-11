@@ -158,7 +158,8 @@ ALTER USER adminriskmanagement@ucr.ac.cr WITH PASSWORD 'tu_nueva_contraseña_seg
 
 ---
 ## ** Recursos**
-- [Documentación oficial de Coolify](https://coolify.io/docs)
 - [Soporte técnico de Hostinger](https://www.hostinger.com/support)
+- [Coolify Deploy](https://coolify.io/docs/builds/packs/dockerfile)  
+- [Dokploy Deployment Guide](https://docs.dokploy.com/docs/core/applications/build-type )
 
 
