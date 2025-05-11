@@ -2,6 +2,7 @@
 
 > ✅ **Stack basado en Next.js + PostgreSQL + Docker**
 > 🧩 Compatible con cualquier VPS o plataforma que permita contenedores (Coolify / Dokploy / Vercel)
+
 > ⚠️ **Se requiere un Ingeniero DevOps para realizar la instalación del sistema.**
 > Este proceso implica gestión avanzada de VPS, despliegue vía Docker, configuración de bases de datos públicas y variables de entorno sensibles.
 
