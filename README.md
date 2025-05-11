@@ -1,134 +1,163 @@
-# 🛠️ **Guía de Instalación del Sistema de Gestión de Riesgos (Hostinger + Coolify/Dokploy)**
+# 🛠️ **Guía de Instalación del Sistema de Gestión de Riesgos (Hostinger + Coolify o Dokploy)**
 
-> **Compatible también con Vercel o cualquier VPS que soporte Docker y Next.js**
+> ✅ **Stack basado en Next.js + PostgreSQL + Docker**
+> 🧩 Compatible con cualquier VPS o plataforma que permita contenedores (Coolify / Dokploy / Vercel)
+> ⚠️ **Se requiere un Ingeniero DevOps para realizar la instalación del sistema.**
+> Este proceso implica gestión avanzada de VPS, despliegue vía Docker, configuración de bases de datos públicas y variables de entorno sensibles.
+
 
 ---
 
 ## 🔧 **Tecnologías Utilizadas**
 
-| Tecnología     | Rol                                                         |
-| -------------- | ----------------------------------------------------------- |
-| **Next.js**    | Frontend + API Routes (SSR/SSG)                             |
-| **Prisma**     | ORM para manejar PostgreSQL                                 |
-| **Coolify**    | Plataforma de despliegue automática (Docker + GitHub + SSL) |
-| **PostgreSQL** | Base de datos principal                                     |
-| **S3/R2**      | Sistema de respaldo externo                                 |
+| Tecnología            | Rol                                                          |
+| --------------------- | ------------------------------------------------------------ |
+| **Next.js**           | Frontend + API Routes (SSR/SSG)                              |
+| **Prisma**            | ORM para manejar PostgreSQL                                  |
+| **Coolify / Dokploy** | Plataformas de despliegue automático (GitHub + Docker + SSL) |
+| **PostgreSQL**        | Base de datos principal                                      |
+| **S3/R2**             | Respaldo externo de base de datos                            |
 
 ---
 
-## 🚀 **Pasos Completos de Instalación en Hostinger VPS**
+## 🚀 **Pasos Completos en Hostinger**
 
-### 🔹 **1. Crear tu VPS en Hostinger**
+### 🔹 **1. Crear tu VPS**
 
-1. **Selecciona la Región más Cercana**:
+1. **Selecciona la Región más Cercana**
+   *(Ej. United States – Boston)*
 
-   * Ejemplo: `United States - Boston` (ver imagen).
-   * Esto optimiza la latencia y el rendimiento.
+2. **Escoge tu Sistema Operativo con Panel**
 
-2. **Escoge el Sistema Operativo con Panel**:
+   * Ir a **OS with Panel**
+   * Elige **Coolify** o **Dokploy** según preferencia:
 
-   * Ve a la pestaña **OS with Panel**.
-   * Selecciona **Coolify**  o **Dokploy** (recomendado).
-   * Ambas opciones ya incluyen Docker, PostgreSQL, SSL con Let’s Encrypt, etc.
+     * **Coolify**: Ideal si deseas una interfaz muy visual y completa.
+     * **Dokploy**: Más minimalista, excelente para flujos CI/CD rápidos.
+   * Ambos instalan:
 
-3. **Establece tu Contraseña Root**
+     * Docker
+     * PostgreSQL
+     * Certificados SSL
+     * Panel web de administración
 
-   * Este será tu acceso principal por SSH.
+3. **Define tu contraseña root**
 
-4. *(Opcional)* **Agrega una llave SSH**
+4. *(Opcional)* **Agrega llave SSH**
 
-   * Recomendado para conexiones más seguras y sin contraseña.
+5. *(Opcional)* Activa extras:
 
-5. *(Opcional)* **Activa Extras**
+   * Malware scanner (Gratis)
+   * Backups diarios (Pago, útil si no usarás S3/R2)
 
-   * **Malware Scanner**: Gratis.
-   * **Backups diarios**: Pago (útil, pero opcional si usarás S3/R2).
+6. **Selecciona Plan VPS**
 
-6. **Elige tu Plan VPS**
-   Recomendado mínimo:
+   * Recomendado mínimo: **KVM 2**
 
-   * **Plan KVM 2 o superior** (2 vCPU, 8GB RAM, 100GB NVMe).
-   * Este plan asegura fluidez con PostgreSQL, Coolify y el stack Next.js.
-
----
-
-### 🔹 **2. Configurar Coolify y la Base de Datos**
-
-1. **Accede a Coolify**:
-
-   * URL: `https://<IP_VPS>:3000`
-   * Usa las credenciales dadas en el panel.
-
-2. **Crear una nueva base de datos PostgreSQL** desde Coolify:
-
-   * Ve a **Resources > Database > Add New**.
-   * Crea una base llamada `risk_management`.
-   * **Marca la opción "Publicly Accessible"** (requerida para Prisma y despliegue remoto).
-   * Guarda el usuario y contraseña generados.
-
-3. **Configura Backup Automático con S3/R2** *(opcional pero recomendado)*:
-
-   * Ve a **Settings > Storage**.
-   * Agrega credenciales de tu bucket en AWS S3 o Cloudflare R2.
-   * Programa **backups automáticos diarios**.
+     * 2 vCPU, 8 GB RAM, 100 GB NVMe SSD
 
 ---
 
-### 🔹 **3. Desplegar el Proyecto desde GitHub**
+## 🧩 **2 Opciones de Plataforma: Coolify o Dokploy**
 
-1. **Conecta tu cuenta de GitHub en Coolify**
+### 🌿 Opción A: **Coolify**
 
-   * Ve a **Applications > Add New > Git Repository**.
-   * Autoriza Coolify a tu cuenta.
-   * Solicita acceso al repositorio privado [RiskManagamentDashboard](https://github.com/ZarateBM/RiskManagamentDashboard):
+1. **Accede a Coolify**
 
-     * Correo: `brandonzaratem2603@gmail.com`
+   * `https://<IP_VPS>:3000`
+   * Cambia la contraseña admin inicial.
 
-2. **Configura las Variables de Entorno (.env)**:
+2. **Crea Base de Datos PostgreSQL**
+
+   * En **Resources > Add New > Database**
+   * Nombre: `risk_management`
+   * ✅ Hacerla **pública**
+   * Guarda usuario/contraseña
+
+3. **Conecta GitHub**
+
+   * **Applications > Add New > Git Repository**
+   * Autoriza tu cuenta y selecciona el repositorio `RiskManagamentDashboard`
+   * Solicita acceso si es privado: `brandonzaratem2603@gmail.com`
+
+4. **Configura Variables de Entorno**
 
    ```env
-   DATABASE_URL="postgresql://admin_risk:<PASSWORD>@<HOST>:5432/risk_management"
+   DATABASE_URL="postgresql://admin:<PASS>@<HOST>:5432/risk_management"
    NEXTAUTH_SECRET="$(openssl rand -base64 32)"
    ```
 
-   * Sustituye `<PASSWORD>` y `<HOST>` con los datos del paso anterior.
-   * Estas variables se configuran en la sección **Environment Variables** de la app en Coolify.
+5. **Despliegue**
 
-3. **Iniciar el despliegue automático**
+   * Coolify detecta automáticamente el `Dockerfile` y realiza:
 
-   * Coolify detectará el `Dockerfile` y realizará:
+     * Build
+     * Migraciones (`prisma migrate deploy`)
+     * Seed (`prisma db seed`)
+   * Se configura HTTPS automáticamente si se añade dominio.
 
-     * Instalación de dependencias.
-     * Migraciones de base de datos (`prisma migrate deploy`).
-     * Carga inicial (`prisma db seed`).
+6. **Backup con S3/R2**
+
+   * Ve a **Settings > Storage**
+   * Agrega bucket de S3/R2 y activa copias automáticas.
 
 ---
 
-### 🔹 **4. Credenciales Iniciales del Sistema**
+### ⚙️ Opción B: **Dokploy**
 
-El `seeder` crea un usuario administrador por defecto:
+1. **Accede a Dokploy**
 
-```bash
-Correo: adminriskmanagement@ucr.ac.cr
-Contraseña: Generada automáticamente o definida en el seeder
-```
+   * `https://<IP_VPS>:3000`
+   * Cambia la contraseña del panel inicial.
 
-**Cambia la contraseña** al primer inicio de sesión o desde PostgreSQL:
+2. **Base de Datos**
+
+   * Ve a **Services > PostgreSQL**
+   * Crea instancia con nombre `risk_management`
+   * ✅ Asegúrate de marcarla como accesible públicamente
+   * Guarda usuario y host
+
+3. **Vincula Repositorio GitHub**
+
+   * **Applications > New Project > GitHub**
+   * Selecciona `RiskManagamentDashboard`
+   * Activa “Auto-deploy on Push” si deseas CI/CD
+
+4. **Configura las Variables de Entorno**
+
+   ```env
+   DATABASE_URL="postgresql://admin:<PASS>@<HOST>:5432/risk_management"
+   NEXTAUTH_SECRET="<clave>"
+   ```
+
+5. **Despliegue**
+
+   * Dokploy también detectará automáticamente el `Dockerfile`
+   * Despliega y ejecuta migraciones/seed
+
+6. **Backup con S3/R2**
+
+   * Ve a **Settings > Storage Providers**
+   * Integra tu bucket y programa respaldos diarios
+
+---
+
+## **Credenciales Iniciales del Sistema**
+
+Después del primer despliegue, tendrás:
+
+* Usuario: `adminriskmanagement@ucr.ac.cr`
+* Contraseña: definida en el Seeder
+
+> Puedes cambiarla desde PostgreSQL:
 
 ```sql
-ALTER USER adminriskmanagement@ucr.ac.cr WITH PASSWORD 'nueva_contraseña_segura';
+ALTER USER adminriskmanagement@ucr.ac.cr WITH PASSWORD 'tu_nueva_contraseña_segura';
 ```
 
 ---
+## ** Recursos**
+- [Documentación oficial de Coolify](https://coolify.io/docs)
+- [Soporte técnico de Hostinger](https://www.hostinger.com/support)
 
-## ✅ **Notas Finales y Recomendaciones**
-
-* Si usas dominio propio:
-  Ve a **Settings > Domains** en Coolify para agregar tu dominio y activar HTTPS con Let's Encrypt.
-
-* **Actualizaciones**:
-  Al estar conectado a GitHub, cada push al branch configurado desencadenará un nuevo despliegue automático.
-
-* **Monitorización**:
-  Coolify ofrece métricas básicas de CPU, RAM y errores del contenedor.
 
