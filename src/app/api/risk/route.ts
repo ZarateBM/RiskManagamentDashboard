@@ -4,6 +4,17 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const prisma = new PrismaClient()
 
+type RiesgoRequestBody = {
+  titulo: string
+  idCategoria: number
+  impacto: string
+  probabilidad: string
+  estado: string
+  responsableId: number
+  idUsuarioRegistro: number
+  registroEstado?: boolean // Opcional porque puede ser gestionado por default
+}
+
 // GET /api/risk
 export async function GET() {
   const riesgos = await prisma.riesgo.findMany({
@@ -21,7 +32,7 @@ export async function GET() {
 // POST /api/risk
 
 export async function POST(req: NextRequest) {
-    let body: any
+    let body: RiesgoRequestBody
     try {
       body = await req.json()
     } catch {
@@ -68,11 +79,10 @@ export async function POST(req: NextRequest) {
           estado,
           responsableId,
           idUsuarioRegistro,
-          // fechaRegistro y registroEstado usan sus defaults
         },
       })
       return NextResponse.json(nuevo, { status: 201 })
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error('Error al crear riesgo:', e)
       return NextResponse.json(
         { error: 'Error interno al crear el riesgo.' },
