@@ -27,7 +27,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <div className="flex h-16 items-center px-4 bg-primary-blue">
+          <img src="firma-tipografica-ucr.svg" alt="Logo UCR" />
+        </div>
         {children}
+        <footer className="flex items-center justify-between border-t p-4 bg-gray">
+        <div className="flex items-center gap-2">
+          <img src="firma-tipografica-ucr.svg" alt="Logo UCR" className="h-8" />
+          <h6 className="text-sm text-white">Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</h6>
+        </div>
+      </footer>
       </body>
     </html>
   );
