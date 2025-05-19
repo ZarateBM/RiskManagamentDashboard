@@ -1,6 +1,5 @@
 "use client"
 
-
 import { useState } from "react"
 import { 
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
@@ -21,16 +20,36 @@ import { FileText, Plus, Search, Filter } from "lucide-react"
 
 // Importamos nuestros hooks personalizados
 import { useRisk } from "../hooks/useRisk"
-import { useCategory } from "../hooks/useCategory"
+import { useCategory, Categoria } from "../hooks/useCategory"
 
 export default function RiskManagement() {
-   const [showCategories, setShowCategories] = useState(false)
+  const [showCategories, setShowCategories] = useState(false)
+  const [editOpen, setEditOpen] = useState<boolean>(false)
+  const [editForm, setEditForm] = useState<Partial<Categoria>>({})
 
   const risk = useRisk()
   const category = useCategory()
 
   // Obtener riesgos filtrados
   const filteredRisks = risk.getFilteredRisks()
+
+  // Manejar apertura de diálogo de edición
+  const handleEditClick = (cat: Categoria) => {
+    setEditForm(cat)
+    setEditOpen(true)
+  }
+
+  // Guardar cambios de categoría
+  const handleUpdateCategory = () => {
+    if (editForm.idCategoria && editForm.nombre) {
+      category.updateCategory(
+        editForm.idCategoria,
+        { nombre: editForm.nombre, descripcion: editForm.descripcion || "" }
+      )
+      setEditOpen(false)
+      setEditForm({})
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -309,7 +328,7 @@ export default function RiskManagement() {
       </Card>
 
       {/* Sección para gestionar categorías */}
-     <Card>
+      <Card>
         <CardHeader
           className="cursor-pointer flex flex-row items-center justify-between"
           onClick={() => setShowCategories(!showCategories)}
@@ -348,7 +367,13 @@ export default function RiskManagement() {
                       <TableCell>{cat.descripcion}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button size="sm" variant="outline">Editar</Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditClick(cat)}
+                          >
+                            Editar
+                          </Button>
                           <Button
                             size="sm"
                             variant="destructive"
@@ -365,6 +390,38 @@ export default function RiskManagement() {
             )}
           </CardContent>
         )}
+
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Editar Categoría</DialogTitle>
+              <DialogDescription>Modifica los datos de la categoría</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              {category.error && <p className="text-red-500 text-sm">{category.error}</p>}
+              <div className="space-y-2">
+                <Label htmlFor="edit-nombre">Nombre</Label>
+                <Input
+                  id="edit-nombre"
+                  value={editForm.nombre || ""}
+                  onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-descripcion">Descripción</Label>
+                <Textarea
+                  id="edit-descripcion"
+                  rows={4}
+                  value={editForm.descripcion || ""}
+                  onChange={e => setEditForm({ ...editForm, descripcion: e.target.value })}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={handleUpdateCategory}>Guardar Cambios</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Card>
     </div>
   )

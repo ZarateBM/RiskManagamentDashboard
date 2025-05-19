@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 
-// Tipado de los datos
 export type Risk = {
   idRiesgo: number
   titulo: string
