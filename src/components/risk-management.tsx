@@ -87,7 +87,7 @@ export default function RiskManagement() {
       }
     }
     
-    // Si no hay selección específica o no se encontró el riesgo, generamos un reporte de todos los riesgos filtrados
+
     return {
       title: 'Informe de Riesgos',
       content: {
@@ -255,16 +255,19 @@ export default function RiskManagement() {
                         >
                           <SelectTrigger id="estado"><SelectValue placeholder="Estado" /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Activo">Activo</SelectItem>
+                            <SelectItem value="Identificado">Identificado</SelectItem>
+                            <SelectItem value="Planificado">Planificado</SelectItem>
                             <SelectItem value="Mitigado">Mitigado</SelectItem>
-                            <SelectItem value="Resuelto">Resuelto</SelectItem>
+                            <SelectItem value="En monitoreo">En monitoreo</SelectItem>
+                            <SelectItem value="Cerrado">Cerrado</SelectItem>
+                            <SelectItem value="Reactivado">Reactivado</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="responsable">Responsable (ID)</Label>
+                        <Label htmlFor="responsable">Mitigador (ID)</Label>
                         <Input 
                           id="responsable" 
                           placeholder="ID usuario"
