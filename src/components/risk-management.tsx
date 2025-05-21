@@ -1,4 +1,4 @@
-"use client"
+"use client" 
 
 import { useState } from "react"
 import { 
@@ -16,16 +16,22 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { FileText, Plus, Search, Filter } from "lucide-react"
+import { FileText, Plus, Search, Filter, FileDown, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 // Importamos nuestros hooks personalizados
 import { useRisk } from "../hooks/useRisk"
 import { useCategory, Categoria } from "../hooks/useCategory"
 
+// Importamos el componente PdfGenerator
+import PdfGenerator, { PdfData } from "../components/PDF/PdfGenerator"
+
 export default function RiskManagement() {
   const [showCategories, setShowCategories] = useState(false)
   const [editOpen, setEditOpen] = useState<boolean>(false)
   const [editForm, setEditForm] = useState<Partial<Categoria>>({})
+  const [showPdfPreview, setShowPdfPreview] = useState<boolean>(false)
+  const [selectedRiskForPdf, setSelectedRiskForPdf] = useState<number | null>(null)
 
   const risk = useRisk()
   const category = useCategory()
@@ -51,6 +57,63 @@ export default function RiskManagement() {
     }
   }
 
+
+  const generatePdfData = (): PdfData => {
+  
+    if (selectedRiskForPdf) {
+      const selectedRisk = risk.riskData.find(r => r.idRiesgo === selectedRiskForPdf);
+      
+      if (selectedRisk) {
+        return {
+          title: `Informe de Riesgo: ${selectedRisk.titulo}`,
+          content: {
+            'ID': selectedRisk.idRiesgo,
+            'Categoría': selectedRisk.categoria?.nombre || 'No asignada',
+            'Impacto': selectedRisk.impacto,
+            'Probabilidad': selectedRisk.probabilidad,
+            'Estado': selectedRisk.estado,
+            'Fecha de Registro': new Date(selectedRisk.fechaRegistro).toLocaleDateString(),
+            'Registrado por': selectedRisk.registradoPor?.nombreCompleto || 'No especificado',
+            'Responsable': selectedRisk.responsable?.nombreCompleto || 'No asignado',
+            'Planes de Mitigación': selectedRisk.planesMitigar?.length 
+              ? selectedRisk.planesMitigar.map(p => p.nombre).join(", ") 
+              : "No hay planes de mitigación registrados",
+            'Planes de Evitación': selectedRisk.planesEvitar?.length 
+              ? selectedRisk.planesEvitar.map(p => p.nombre).join(", ") 
+              : "No hay planes de evitación registrados"
+          },
+          footer: `Generado el ${new Date().toLocaleDateString()} - Sistema de Gestión de Riesgos`
+        };
+      }
+    }
+    
+    // Si no hay selección específica o no se encontró el riesgo, generamos un reporte de todos los riesgos filtrados
+    return {
+      title: 'Informe de Riesgos',
+      content: {
+        'Fecha del informe': new Date().toLocaleDateString(),
+        'Total de riesgos': filteredRisks.length.toString(),
+        'Filtros aplicados': `${risk.categoryFilter !== 'Todos' ? 'Categoría: ' + risk.categoryFilter : ''} ${risk.impactFilter !== 'Ninguno' ? 'Impacto: ' + risk.impactFilter : ''}`.trim() || 'Ninguno',
+        'Término de búsqueda': risk.searchTerm || 'Ninguno'
+      },
+      items: filteredRisks.map(item => ({
+        'ID': item.idRiesgo,
+        'Título': item.titulo,
+        'Categoría': item.categoria?.nombre || '—',
+        'Impacto': item.impacto,
+        'Probabilidad': item.probabilidad,
+        'Estado': item.estado
+      })),
+      footer: `Generado el ${new Date().toLocaleDateString()} - Sistema de Gestión de Riesgos`
+    };
+  };
+
+  // Gestionar la generación de PDF para un riesgo específico
+  const handleGenerateSingleRiskPdf = (riskId: number) => {
+    setSelectedRiskForPdf(riskId);
+    setShowPdfPreview(true);
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -72,7 +135,13 @@ export default function RiskManagement() {
                     <DialogDescription>Complete la información de la categoría</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
-                    {category.error && <p className="text-red-500 text-sm">{category.error}</p>}
+                    {category.error && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{category.error}</AlertDescription>
+                      </Alert>
+                    )}
                     <div className="space-y-2">
                       <Label htmlFor="nombre">Nombre</Label>
                       <Input 
@@ -108,7 +177,13 @@ export default function RiskManagement() {
                     <DialogDescription>Complete todos los campos</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
-                    {risk.error && <p className="text-red-500 text-sm">{risk.error}</p>}
+                    {risk.error && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{risk.error}</AlertDescription>
+                      </Alert>
+                    )}
                     <div className="space-y-2">
                       <Label htmlFor="titulo">Título</Label>
                       <Input 
@@ -218,6 +293,7 @@ export default function RiskManagement() {
         </CardHeader>
 
         <CardContent>
+          
           <div className="mb-4 flex flex-col gap-4 md:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -286,32 +362,42 @@ export default function RiskManagement() {
                       <Badge variant={item.estado==="Activo"?"default":"outline"}>{item.estado}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="outline">
-                            <FileText className="mr-1 h-4 w-4" /> Detalles
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[500px]">
-                          <DialogHeader>
-                            <DialogTitle>{item.titulo}</DialogTitle>
-                            <DialogDescription>
-                              {item.registradoPor?.nombreCompleto ? 
-                                `Registrado por ${item.registradoPor.nombreCompleto} el ${new Date(item.fechaRegistro).toLocaleDateString()}` :
-                                `Registrado el ${new Date(item.fechaRegistro).toLocaleDateString()}`
-                              }
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 py-2">
-                            <p><strong>Responsable:</strong> {item.responsable?.nombreCompleto || "—"}</p>
-                            <p><strong>Planes de Mitigación:</strong> {item.planesMitigar?.length ? item.planesMitigar.map(p=>p.nombre).join(", ") : "—"}</p>
-                            <p><strong>Planes de Evitación:</strong> {item.planesEvitar?.length ? item.planesEvitar.map(p=>p.nombre).join(", ") : "—"}</p>
-                          </div>
-                          <DialogFooter>
-                            <Button variant="outline">Editar</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                      <div className="flex justify-end gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <FileText className="mr-1 h-4 w-4" /> Detalles
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[500px]">
+                            <DialogHeader>
+                              <DialogTitle>{item.titulo}</DialogTitle>
+                              <DialogDescription>
+                                {item.registradoPor?.nombreCompleto ? 
+                                  `Registrado por ${item.registradoPor.nombreCompleto} el ${new Date(item.fechaRegistro).toLocaleDateString()}` :
+                                  `Registrado el ${new Date(item.fechaRegistro).toLocaleDateString()}`
+                                }
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-2">
+                              <p><strong>Responsable:</strong> {item.responsable?.nombreCompleto || "—"}</p>
+                              <p><strong>Planes de Mitigación:</strong> {item.planesMitigar?.length ? item.planesMitigar.map(p=>p.nombre).join(", ") : "—"}</p>
+                              <p><strong>Planes de Evitación:</strong> {item.planesEvitar?.length ? item.planesEvitar.map(p=>p.nombre).join(", ") : "—"}</p>
+                            </div>
+                            <DialogFooter>
+                              <div className="flex gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  onClick={() => handleGenerateSingleRiskPdf(item.idRiesgo)}
+                                >
+                                  <FileDown className="mr-1 h-4 w-4" /> Generar PDF
+                                </Button>
+                                <Button variant="outline">Editar</Button>
+                              </div>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -324,6 +410,17 @@ export default function RiskManagement() {
           <span className="text-sm text-muted-foreground">
             Mostrando {filteredRisks.length} de {risk.riskData.length} riesgos
           </span>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setSelectedRiskForPdf(null);
+                setShowPdfPreview(true);
+              }}
+            >
+              <FileDown className="mr-1 h-4 w-4" /> Exportar a PDF
+            </Button>
+          </div>
         </CardFooter>
       </Card>
 
@@ -345,6 +442,14 @@ export default function RiskManagement() {
 
         {showCategories && (
           <CardContent>
+            {category.error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{category.error}</AlertDescription>
+              </Alert>
+            )}
+            
             {category.loading ? (
               <p>Cargando categorías...</p>
             ) : category.categorias.length === 0 ? (
@@ -398,7 +503,13 @@ export default function RiskManagement() {
               <DialogDescription>Modifica los datos de la categoría</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              {category.error && <p className="text-red-500 text-sm">{category.error}</p>}
+              {category.error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{category.error}</AlertDescription>
+                </Alert>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="edit-nombre">Nombre</Label>
                 <Input
@@ -423,6 +534,40 @@ export default function RiskManagement() {
           </DialogContent>
         </Dialog>
       </Card>
+
+      {/* Diálogo para mostrar la vista previa del PDF */}
+      <Dialog open={showPdfPreview} onOpenChange={setShowPdfPreview} modal>
+        <DialogContent className="sm:max-w-[80%] max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedRiskForPdf 
+                ? 'Vista Previa del Informe de Riesgo' 
+                : 'Vista Previa del Informe de Riesgos'}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedRiskForPdf 
+                ? 'Informe detallado del riesgo seleccionado' 
+                : 'Listado de riesgos según los filtros aplicados'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="h-[60vh]">
+            <PdfGenerator 
+              data={generatePdfData()} 
+              fileName={selectedRiskForPdf ? `riesgo-${selectedRiskForPdf}.pdf` : "informe-riesgos.pdf"} 
+              preview={true} 
+            />
+          </div>
+          
+          <DialogFooter>
+            <PdfGenerator 
+              data={generatePdfData()} 
+              fileName={selectedRiskForPdf ? `riesgo-${selectedRiskForPdf}.pdf` : "informe-riesgos.pdf"} 
+              preview={false} 
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

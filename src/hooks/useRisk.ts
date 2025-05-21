@@ -63,7 +63,7 @@ export function useRisk() {
   // Crear riesgo
   const createRisk = async (categorias: { idCategoria: number; nombre: string }[]) => {
     try {
-      // Encontrar el ID de la categoría seleccionada por nombre
+      if (!validateForm()) return false;
       const categoriaSeleccionada = categorias.find(cat => cat.nombre === form.categoriaSeleccionada)
       
       if (!categoriaSeleccionada && form.categoriaSeleccionada) {
@@ -174,6 +174,41 @@ export function useRisk() {
       )
     )
   }
+
+   const validateForm = (): boolean => {
+    if (!form.titulo.trim()) {
+      setError("El título es obligatorio");
+      return false;
+    }
+    if (!form.categoriaSeleccionada) {
+      setError("Debes seleccionar una categoría");
+      return false;
+    }
+    if (!form.impacto) {
+      setError("Debes indicar el impacto");
+      return false;
+    }
+    if (!form.probabilidad) {
+      setError("Debes indicar la probabilidad");
+      return false;
+    }
+    if (!form.estado) {
+      setError("Debes seleccionar el estado");
+      return false;
+    }
+    if (!form.responsableId) {
+      setError("Debes asignar un responsable");
+      return false;
+    }
+    if (!form.idUsuarioRegistro) {
+      setError("Falta indicar quién registra");
+      return false;
+    }
+    // si llegamos aquí, todo OK
+    setError(null);
+    return true;
+  };
+
 
   return {
     riskData,
