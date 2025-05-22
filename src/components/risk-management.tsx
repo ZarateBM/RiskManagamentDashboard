@@ -44,8 +44,8 @@ export default function RiskManagement() {
     setEditForm(cat)
     setEditOpen(true)
   }
+  
 
-  // Guardar cambios de categoría
   const handleUpdateCategory = () => {
     if (editForm.idCategoria && editForm.nombre) {
       category.updateCategory(

@@ -114,6 +114,57 @@ export function useRisk() {
     }
   }
 
+  // Actualizar riesgo
+  const updateRisk = async (id: number) => {
+    try {
+      if (!validateForm()) return false;
+      const payload = {
+        titulo: form.titulo,
+        idCategoria: Number(form.categoriaSeleccionada),
+        impacto: form.impacto,
+        probabilidad: form.probabilidad,
+        estado: form.estado,
+        responsableId: form.responsableId ? Number(form.responsableId) : null,
+        idUsuarioRegistro: form.idUsuarioRegistro ? Number(form.idUsuarioRegistro) : null,
+        registroEstado: true,
+      }
+      const res = await fetch(`/api/risk?id=${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(`Error al actualizar riesgo: ${res.status} - ${errorText}`)
+      }
+      const updatedRisk: Risk = await res.json()
+      setRiskData(prev => prev.map(r => r.idRiesgo === id ? { ...r, ...updatedRisk } : r))
+      resetForm()
+      setError(null)
+      return true
+    } catch (err) {
+      console.error(err)
+      setError("Error al actualizar el riesgo")
+      return false
+    }
+  }
+
+  // Eliminar riesgo
+  const deleteRisk = async (id: number) => {
+    try {
+      const res = await fetch(`/api/risk?id=${id}`, {
+        method: "DELETE",
+      })
+      if (!res.ok) throw new Error(`Error al eliminar riesgo: ${res.status}`)
+      setRiskData(prev => prev.filter(r => r.idRiesgo !== id))
+      return true
+    } catch (err) {
+      console.error(err)
+      setError("Error al eliminar el riesgo")
+      return false
+    }
+  }
+
   // Actualizar formulario
   const updateForm = (field: keyof RiskFormData, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -227,6 +278,8 @@ export function useRisk() {
     updateForm,
     resetForm,
     createRisk,
+    updateRisk,
+    deleteRisk,
     getFilteredRisks,
     getImpactColor,
     getUniqueCategories,
