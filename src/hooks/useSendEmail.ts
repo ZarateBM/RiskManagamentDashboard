@@ -1,4 +1,4 @@
-// hooks/useSendEmail.ts
+
 export function useSendEmail() {
   const sendEmail = async ({
     to,

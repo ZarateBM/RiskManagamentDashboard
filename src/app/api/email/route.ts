@@ -10,15 +10,18 @@ export type EmailPayload = {
 
 export async function sendEmail({ to, subject, html }: EmailPayload) {
   const transporter = nodemailer.createTransport({
-    service: 'gmail', 
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  host: process.env.SMTP_HOST,
+  port: 465, 
+  secure: true, 
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
+});
+
 
   const mailOptions = {
-    from: `"Tu Sistema" <${process.env.EMAIL_USER}>`,
+    from: `"Tu Sistema" <${process.env.SMTP_USER}>`,
     to,
     subject,
     html,

@@ -1,4 +1,7 @@
+// useIncidents.ts
 import { useState } from 'react';
+import IncidentService from '../services/Incidentservice';
+
 
 export interface Incidente {
   idIncidente?: number;
@@ -7,12 +10,13 @@ export interface Incidente {
   severidad: string;
   descripcion: string;
   estadoIncidente: string;
-  fechaIncidente: string; 
+  fechaIncidente: string;
   accionesTomadas: string;
   idUsuarioRegistro: number;
   fechaRegistro?: string;
   registroEstado?: boolean;
 }
+
 
 export const useIncidents = () => {
   const [loading, setLoading] = useState(false);
@@ -20,12 +24,12 @@ export const useIncidents = () => {
 
   const getIncidents = async (): Promise<Incidente[]> => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await fetch('/api/incidents');
-      if (!res.ok) throw new Error('Error al obtener los incidentes');
-      return await res.json();
+      const data = await IncidentService.getAll();
+      return data;
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Error fetching incidents');
       return [];
     } finally {
       setLoading(false);
@@ -34,48 +38,40 @@ export const useIncidents = () => {
 
   const getIncidentById = async (id: number): Promise<Incidente | null> => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await fetch(`/api/incidents/${id}`);
-      if (!res.ok) throw new Error('Incidente no encontrado');
-      return await res.json();
+      const data = await IncidentService.getById(id);
+      return data;
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Incident not found');
       return null;
     } finally {
       setLoading(false);
     }
   };
 
-  const createIncident = async (data: Incidente): Promise<Incidente | null> => {
+  const createIncident = async (incident: Incidente): Promise<Incidente | null> => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await fetch('/api/incidents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Error al crear el incidente');
-      return await res.json();
+      const data = await IncidentService.create(incident);
+      return data;
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Error creating incident');
       return null;
     } finally {
       setLoading(false);
     }
   };
 
-  const updateIncident = async (id: number, data: Partial<Incidente>): Promise<Incidente | null> => {
+  const updateIncident = async (id: number, incident: Partial<Incidente>): Promise<Incidente | null> => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await fetch(`/api/incidents/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error('Error al actualizar el incidente');
-      return await res.json();
+      const data = await IncidentService.update(id, incident);
+      return data;
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Error updating incident');
       return null;
     } finally {
       setLoading(false);
@@ -84,12 +80,12 @@ export const useIncidents = () => {
 
   const deleteIncident = async (id: number): Promise<boolean> => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await fetch(`/api/incidents/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Error al eliminar el incidente');
+      await IncidentService.remove(id);
       return true;
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Error deleting incident');
       return false;
     } finally {
       setLoading(false);
