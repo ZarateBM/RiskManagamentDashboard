@@ -21,6 +21,7 @@ export default function Users() {
 
   // Campos para nuevo usuario
   const [nombreCompleto, setNombreCompleto] = useState("")
+  const [contador, setContador] = useState(0)
   const [correo, setCorreo] = useState("")
   const [contraseña, setContraseña] = useState("")
   const [rol, setRol] = useState("LECTOR")
@@ -58,6 +59,23 @@ export default function Users() {
   return (
     <div className="p-4 grid gap-4 md:grid-cols-2 lg:grid-cols-7 h-screen">
       <Card className="col-span-full">
+         {
+          <div className="bg-green-100 text-green-800 p-4 rounded mb-4">
+            <p>Bienvenido a la gestión de usuarios</p>
+            <button
+              className="text-blue-500 underline"
+              onClick={() => {
+                setContador(contador + 1)
+              }
+            }
+            >
+              aumenta contador
+            </button>
+            <p>{contador}</p>
+          </div>
+        }
+        <div className="flex flex-row items-center justify-between mb-4"></div>
+          <h1 className="text-2xl font-bold">Gestión de Usuarios</h1>
         <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
           <div>
             <CardTitle>Gestión de Usuarios</CardTitle>
