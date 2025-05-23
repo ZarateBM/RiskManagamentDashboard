@@ -1,11 +1,13 @@
 // app/api/risk/route.ts
 import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
+import { sendEmail } from '../email/route'   // helper que usa nodemailer
 
 const prisma = new PrismaClient()
 
 type RiesgoRequestBody = {
   titulo: string
+  descripcion?: string           // descripción opcional en el payload
   idCategoria: number
   impacto: string
   probabilidad: string
@@ -24,7 +26,7 @@ export async function GET() {
         registradoPor: true,
         planesMitigar: true,
         planesEvitar: true,
-      }
+      },
     })
     return NextResponse.json(riesgos)
   } catch (e) {
@@ -32,7 +34,6 @@ export async function GET() {
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }
-
 // POST /api/risk
 export async function POST(req: NextRequest) {
   let body: RiesgoRequestBody
@@ -67,8 +68,9 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  let nuevo
   try {
-    const nuevo = await prisma.riesgo.create({
+    nuevo = await prisma.riesgo.create({
       data: {
         titulo,
         idCategoria,
@@ -78,13 +80,58 @@ export async function POST(req: NextRequest) {
         responsableId,
         idUsuarioRegistro,
       },
+      include: {
+        planesMitigar: true,
+        planesEvitar: true,
+      },
     })
-    return NextResponse.json(nuevo, { status: 201 })
-  } catch (e) {
-    console.error('Error al crear riesgo:', e)
+  } catch (dbError) {
+    console.error('Error creando riesgo:', dbError)
     return NextResponse.json(
       { error: 'Error interno al crear el riesgo.' },
       { status: 500 }
     )
   }
+  (async () => {
+    try {
+      const responsable = await prisma.usuario.findUnique({
+        where: { idUsuario: responsableId },
+      })
+      if (!responsable?.correo) {
+        console.warn(`Usuario ${responsableId} no tiene correo.`)
+        return
+      }
+
+      const asignacionFecha = new Date().toLocaleDateString('es-CR')
+      const mitigarList = nuevo.planesMitigar
+        .map(p => `• ${p.nombre}`).join('<br>')
+      const evitarList = nuevo.planesEvitar
+        .map(p => `• ${p.nombre}`).join('<br>')
+      const planesHtml = (mitigarList || evitarList)
+        ? `<p><b>Planes asignados:</b><br>${mitigarList}<br>${evitarList}</p>`
+        : '<p><i>Sin PLANES asignados por el momento.</i></p>'
+
+      await sendEmail({
+        to: responsable.correo,
+        subject: `Nuevo riesgo asignado: ${nuevo.titulo} (ID: ${nuevo.idRiesgo})`,
+        html: `
+          <h2>Notificación de Nuevo Riesgo</h2>
+          <p>Hola ${responsable.nombreCompleto},</p>
+          <p>Se te ha asignado un nuevo riesgo para su seguimiento.</p>
+          <p>
+            <b>Título:</b> ${nuevo.titulo}<br>
+            <b>ID:</b> ${nuevo.idRiesgo}<br>
+            <b>Fecha de asignación:</b> ${asignacionFecha}
+          </p>
+          ${planesHtml}
+          <hr>
+          <p>Por favor ingresa al sistema para más detalles.</p>
+        `,
+      })
+    } catch (emailError) {
+      console.error('Error enviando correo de riesgo:', emailError)
+    }
+  })()
+
+  return NextResponse.json(nuevo, { status: 201 })
 }

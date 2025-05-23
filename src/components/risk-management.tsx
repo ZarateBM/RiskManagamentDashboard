@@ -132,7 +132,6 @@ export default function RiskManagement() {
       setEditRiskForm({});
     }
   };
-
   // Generación de PDF (idéntico)
   const generatePdfData = (): PdfData => {
     if (selectedRiskForPdf) {
@@ -261,7 +260,7 @@ export default function RiskManagement() {
                 <DialogTrigger asChild>
                   <Button>
                     <Plus className="mr-2 h-4 w-4" />
-                    Nuevo
+                    Nuevo Riesgo
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
@@ -485,7 +484,7 @@ export default function RiskManagement() {
               ) : filteredRisks.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center">
-                    No resultados
+                    Escribe en el campo de búsqueda o selecciona otro filtro para ver los riesgos
                   </TableCell>
                 </TableRow>
               ) : (
@@ -600,8 +599,6 @@ export default function RiskManagement() {
           </Button>
         </CardFooter>
       </Card>
-
-      {/* Gestión de Categorías */}
       <Card>
         <CardHeader
           className="cursor-pointer flex flex-row items-center justify-between"
