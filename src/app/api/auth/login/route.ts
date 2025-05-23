@@ -1,12 +1,66 @@
 import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { sendTestEmail } from '@/lib/mail';
+import bcrypt from 'bcrypt';
+
+const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const { email, password } = body;
+  try {
+    const body = await request.json();
+    const { email, password } = body;
 
-  const isValidCredentials = 
-    email === 'rayo@ucr.ac.cr' && 
-    password === 'AdminRiskManager123!';
+    // Buscar el usuario por correo electrónico
+    const usuario = await prisma.usuario.findUnique({
+      where: { correo: email }
+    });
 
-  return NextResponse.json({ success: isValidCredentials });
+    // Verificar si el usuario existe y la contraseña coincide
+    let isValidCredentials = false;
+    
+    if (usuario) {
+      // Comparar con bcrypt
+      isValidCredentials = await bcrypt.compare(password, usuario.contraseña);
+    }
+    
+    // Soporte para credencial hardcodeada (para desarrollo/testing)
+    if (email === 'rayo@ucr.ac.cr' && password === 'AdminRiskManager123!') {
+      isValidCredentials = true;
+    }
+    
+    if (isValidCredentials) {
+      console.log('Login successful - preparing to send email');
+      
+      try {
+        await sendTestEmail({
+          to: email,
+          subject: 'Inicio de Sesión Exitoso',
+          text: 'Has iniciado sesión correctamente en el Sistema de Gestión de Riesgos.',
+        });
+      } catch (emailError) {
+        console.error('Error al enviar correo de confirmación:', emailError);
+      }
+      
+      // Si el usuario existe, devolver datos básicos
+      if (usuario) {
+        return NextResponse.json({ 
+          success: true, 
+          user: {
+            id: usuario.idUsuario,
+            nombre: usuario.nombreCompleto,
+            rol: usuario.rol
+          }
+        });
+      }
+      
+      return NextResponse.json({ success: true });
+    }
+
+    return NextResponse.json({ success: false, message: 'Credenciales inválidas' }, { status: 401 });
+  } catch (error) {
+    console.error('Error en autenticación:', error);
+    return NextResponse.json({ success: false, error: 'Error de servidor' }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
+  }
 }
