@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { useUsers } from "@/hooks/useGetUser"
 import { useCreateUser } from "@/hooks/useCreateUser"
+import { useDeleteUser } from "@/hooks/useDeleteUser"
 import { Plus } from "lucide-react"
 
 interface Usuario {
@@ -17,7 +18,10 @@ interface Usuario {
 export default function Users() {
   const { users: usuarios, loading } = useUsers()
   const { createUser } = useCreateUser()
+  const { deleteUser } = useDeleteUser()
   const [modalOpen, setModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<Usuario | null>(null)
 
   // Campos para nuevo usuario
   const [nombreCompleto, setNombreCompleto] = useState("")
@@ -58,6 +62,7 @@ export default function Users() {
   return (
     <div className="p-4 grid gap-4 md:grid-cols-2 lg:grid-cols-7 h-screen">
       <Card className="col-span-full">
+        <div className="flex flex-row items-center justify-between mb-4"></div>
         <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
           <div>
             <CardTitle>Gestión de Usuarios</CardTitle>
@@ -91,7 +96,15 @@ export default function Users() {
                       <Button variant="outline" className="mr-2">
                         Editar
                       </Button>
-                      <Button variant="destructive">Eliminar</Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          setUserToDelete(u)
+                          setDeleteModalOpen(true)
+                        }}
+                      >
+                        Eliminar
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -101,6 +114,7 @@ export default function Users() {
         </CardContent>
       </Card>
 
+      {/* Modal para crear usuario */}
       {modalOpen && (
         <div className="modal bg-white p-4 border rounded shadow-lg fixed inset-0 m-auto w-1/2 h-1/2 flex flex-col">
           <h2 className="text-xl font-bold mb-4">Nuevo Usuario</h2>
@@ -153,6 +167,38 @@ export default function Users() {
               <Button type="submit">Guardar</Button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Modal para confirmar eliminación */}
+      {deleteModalOpen && userToDelete && (
+        <div className="modal bg-white p-4 border rounded shadow-lg fixed inset-0 m-auto w-1/3 h-1/4 flex flex-col">
+          <h2 className="text-xl font-bold mb-4">Confirmar Eliminación</h2>
+          <p>¿Estás seguro de eliminar al usuario {userToDelete.nombreCompleto}?</p>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                try {
+                  await deleteUser(userToDelete.idUsuario)
+                  alert("Usuario eliminado")
+                  setDeleteModalOpen(false)
+                  window.location.reload()
+                } catch (err) {
+                  if (err instanceof Error) {
+                    console.error("Error al eliminar usuario:", err)
+                    alert(err.message)
+                  }
+                  alert("Error al eliminar usuario")
+                }
+              }}
+            >
+              Eliminar
+            </Button>
+          </div>
         </div>
       )}
     </div>
