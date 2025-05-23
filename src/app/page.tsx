@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useState } from "react"
+import {  useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
-import { useRouter } from "next/navigation"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("")
@@ -18,20 +17,14 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const { login, isLoading, error } = useAuth()
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     await login(email, password)
   }
-  useEffect(() => {
-    router.push("/dashboard")
-  }, [])
+
   return (
     <div className="flex min-h-screen flex-col justify-between bg-gray-50">
-      <header className="flex h-20 items-center px-4 bg-primary-blue shadow-md">
-          <img src="/firma-tipografica-ucr.svg" alt="Logo UCR" className="h-10 " />
-      </header>
       <main className="flex flex-1 items-center justify-center">
         <Card className="w-full max-w-md shadow-lg space-y-4">
           <form onSubmit={handleSubmit} >
@@ -99,13 +92,6 @@ export default function LoginForm() {
           </form>
         </Card>
       </main>
-
-      <footer className="flex items-center justify-between border-t h-20 p-4 bg-gray">
-        <div className="flex items-center gap-2">
-          <img src="firma-tipografica-ucr.svg" alt="Logo UCR" className="h-8" />
-          <h6 className="text-sm text-white">Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</h6>
-        </div>
-      </footer>
     </div>
   )
 }

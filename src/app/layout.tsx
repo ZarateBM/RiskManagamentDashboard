@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Settings2 } from "lucide-react";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +31,10 @@ export default function RootLayout({
       >
         <div className="flex h-16 items-center px-4 bg-primary-blue">
           <img src="firma-tipografica-ucr.svg" alt="Logo UCR" />
+          <Link className="ml-auto text-white" href="/users">
+            <Settings2 className="h-6 w-6" />
+          </Link>
+          
         </div>
         {children}
         <footer className="flex items-center justify-between border-t p-4 bg-gray">
