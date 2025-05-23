@@ -1,116 +1,199 @@
-"use client" 
+"use client";
 
-import { useState } from "react"
-import { 
-  Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
-} from "@/components/ui/card"
-import { 
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { FileText, Plus, Search, Filter, FileDown, AlertCircle } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  FileText,
+  Plus,
+  Search,
+  Filter,
+  FileDown,
+  AlertCircle,
+} from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Importamos nuestros hooks personalizados
-import { useRisk } from "../hooks/useRisk"
-import { useCategory, Categoria } from "../hooks/useCategory"
+import { useRisk } from "../hooks/useRisk";
+import { useCategory, Categoria } from "../hooks/useCategory";
 
 // Importamos el componente PdfGenerator
-import PdfGenerator, { PdfData } from "../components/PDF/PdfGenerator"
+import PdfGenerator, { PdfData } from "../components/PDF/PdfGenerator";
 
 export default function RiskManagement() {
-  const [showCategories, setShowCategories] = useState(false)
-  const [editOpen, setEditOpen] = useState<boolean>(false)
-  const [editForm, setEditForm] = useState<Partial<Categoria>>({})
-  const [showPdfPreview, setShowPdfPreview] = useState<boolean>(false)
-  const [selectedRiskForPdf, setSelectedRiskForPdf] = useState<number | null>(null)
+  const [showCategories, setShowCategories] = useState(false);
+  const [editCategoryOpen, setEditCategoryOpen] = useState<boolean>(false);
+  const [editCategoryForm, setEditCategoryForm] = useState<Partial<Categoria>>(
+    {}
+  );
+  const [editRiskOpen, setEditRiskOpen] = useState<boolean>(false);
+  const [editRiskForm, setEditRiskForm] = useState<any>({});
+  const [showPdfPreview, setShowPdfPreview] = useState<boolean>(false);
+  const [selectedRiskForPdf, setSelectedRiskForPdf] = useState<number | null>(
+    null
+  );
 
-  const risk = useRisk()
-  const category = useCategory()
+  const risk = useRisk();
+  const category = useCategory();
 
   // Obtener riesgos filtrados
-  const filteredRisks = risk.getFilteredRisks()
+  const filteredRisks = risk.getFilteredRisks();
 
   // Manejar apertura de diálogo de edición
-  const handleEditClick = (cat: Categoria) => {
-    setEditForm(cat)
-    setEditOpen(true)
-  }
-  
+  // ---- Edición de Categorías ----
+  const handleEditCategoryClick = (cat: Categoria) => {
+    setEditCategoryForm(cat);
+    setEditCategoryOpen(true);
+  };
 
+
+  // Guardar cambios de categoría
   const handleUpdateCategory = () => {
-    if (editForm.idCategoria && editForm.nombre) {
-      category.updateCategory(
-        editForm.idCategoria,
-        { nombre: editForm.nombre, descripcion: editForm.descripcion || "" }
-      )
-      setEditOpen(false)
-      setEditForm({})
+    if (editCategoryForm.idCategoria && editCategoryForm.nombre) {
+      category.updateCategory(editCategoryForm.idCategoria, {
+        nombre: editCategoryForm.nombre,
+        descripcion: editCategoryForm.descripcion || "",
+      });
+      setEditCategoryOpen(false);
+      setEditCategoryForm({});
     }
-  }
+  };
 
+  // ---- Edición de Riesgos ----
+  const handleEditRiskClick = (item: any) => {
+    setEditRiskForm({
+      idRiesgo: item.idRiesgo,
+      titulo: item.titulo,
+      categoriaSeleccionada: item.categoria?.nombre || "",
+      impacto: item.impacto,
+      probabilidad: item.probabilidad,
+      estado: item.estado,
+      responsableId: item.responsable?.id || "",
+      idUsuarioRegistro: item.registradoPor?.id || "",
+    });
+    setEditRiskOpen(true);
+  };
 
+  const handleUpdateRisk = () => {
+    if (
+      editRiskForm.idRiesgo &&
+      editRiskForm.titulo &&
+      editRiskForm.categoriaSeleccionada &&
+      editRiskForm.impacto &&
+      editRiskForm.probabilidad &&
+      editRiskForm.estado
+    ) {
+      risk.updateRisk(
+        editRiskForm.idRiesgo,
+        {
+          titulo: editRiskForm.titulo,
+          categoriaSeleccionada: editRiskForm.categoriaSeleccionada,
+          impacto: editRiskForm.impacto,
+          probabilidad: editRiskForm.probabilidad,
+          estado: editRiskForm.estado,
+          responsableId: editRiskForm.responsableId || "",
+          idUsuarioRegistro: editRiskForm.idUsuarioRegistro || "",
+        },
+        category.categorias
+      );
+      setEditRiskOpen(false);
+      setEditRiskForm({});
+    }
+  };
+  // Generación de PDF (idéntico)
   const generatePdfData = (): PdfData => {
-  
     if (selectedRiskForPdf) {
-      const selectedRisk = risk.riskData.find(r => r.idRiesgo === selectedRiskForPdf);
-      
-      if (selectedRisk) {
+      const selected = risk.riskData.find(
+        (r) => r.idRiesgo === selectedRiskForPdf
+      );
+      if (selected) {
         return {
-          title: `Informe de Riesgo: ${selectedRisk.titulo}`,
+          title: `Informe de Riesgo: ${selected.titulo}`,
           content: {
-            'ID': selectedRisk.idRiesgo,
-            'Categoría': selectedRisk.categoria?.nombre || 'No asignada',
-            'Impacto': selectedRisk.impacto,
-            'Probabilidad': selectedRisk.probabilidad,
-            'Estado': selectedRisk.estado,
-            'Fecha de Registro': new Date(selectedRisk.fechaRegistro).toLocaleDateString(),
-            'Registrado por': selectedRisk.registradoPor?.nombreCompleto || 'No especificado',
-            'Responsable': selectedRisk.responsable?.nombreCompleto || 'No asignado',
-            'Planes de Mitigación': selectedRisk.planesMitigar?.length 
-              ? selectedRisk.planesMitigar.map(p => p.nombre).join(", ") 
-              : "No hay planes de mitigación registrados",
-            'Planes de Evitación': selectedRisk.planesEvitar?.length 
-              ? selectedRisk.planesEvitar.map(p => p.nombre).join(", ") 
-              : "No hay planes de evitación registrados"
+            ID: selected.idRiesgo,
+            Categoría: selected.categoria?.nombre || "No asignada",
+            Impacto: selected.impacto,
+            Probabilidad: selected.probabilidad,
+            Estado: selected.estado,
+            "Fecha de Registro": new Date(
+              selected.fechaRegistro
+            ).toLocaleDateString(),
+            "Registrado por":
+              selected.registradoPor?.nombreCompleto || "No especificado",
+            Responsable: selected.responsable?.nombreCompleto || "No asignado",
+            "Planes de Mitigación": selected.planesMitigar?.length
+              ? selected.planesMitigar.map((p) => p.nombre).join(", ")
+              : "—",
+            "Planes de Evitación": selected.planesEvitar?.length
+              ? selected.planesEvitar.map((p) => p.nombre).join(", ")
+              : "—",
           },
-          footer: `Generado el ${new Date().toLocaleDateString()} - Sistema de Gestión de Riesgos`
+          footer: `Generado el ${new Date().toLocaleDateString()} - Sistema de Gestión de Riesgos`,
         };
       }
     }
-    
-
     return {
-      title: 'Informe de Riesgos',
+      title: "Informe de Riesgos",
       content: {
-        'Fecha del informe': new Date().toLocaleDateString(),
-        'Total de riesgos': filteredRisks.length.toString(),
-        'Filtros aplicados': `${risk.categoryFilter !== 'Todos' ? 'Categoría: ' + risk.categoryFilter : ''} ${risk.impactFilter !== 'Ninguno' ? 'Impacto: ' + risk.impactFilter : ''}`.trim() || 'Ninguno',
-        'Término de búsqueda': risk.searchTerm || 'Ninguno'
+        "Fecha del informe": new Date().toLocaleDateString(),
+        "Total de riesgos": filteredRisks.length.toString(),
+        Filtros:
+          `${
+            risk.categoryFilter !== "Todos" ? "Cat: " + risk.categoryFilter : ""
+          } ${
+            risk.impactFilter !== "Ninguno" ? "Imp:" + risk.impactFilter : ""
+          }`.trim() || "Ninguno",
+        Búsqueda: risk.searchTerm || "Ninguna",
       },
-      items: filteredRisks.map(item => ({
-        'ID': item.idRiesgo,
-        'Título': item.titulo,
-        'Categoría': item.categoria?.nombre || '—',
-        'Impacto': item.impacto,
-        'Probabilidad': item.probabilidad,
-        'Estado': item.estado
+      items: filteredRisks.map((item) => ({
+        ID: item.idRiesgo,
+        Título: item.titulo,
+        Categria: item.categoria?.nombre || "—",
+        Impacto: item.impacto,
+        Probabilidad: item.probabilidad,
+        Estado: item.estado,
       })),
-      footer: `Generado el ${new Date().toLocaleDateString()} - Sistema de Gestión de Riesgos`
+      footer: `Generado el ${new Date().toLocaleDateString()} - Sistema de Gestión de Riesgos`,
     };
   };
 
-  // Gestionar la generación de PDF para un riesgo específico
-  const handleGenerateSingleRiskPdf = (riskId: number) => {
-    setSelectedRiskForPdf(riskId);
+  const handleGenerateSingleRiskPdf = (id: number) => {
+    setSelectedRiskForPdf(id);
     setShowPdfPreview(true);
   };
 
@@ -121,94 +204,113 @@ export default function RiskManagement() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Gestión de Riesgos</CardTitle>
-              <CardDescription>Identificación, clasificación y mitigación de riesgos</CardDescription>
+              <CardDescription>
+                Identificación y mitigación de riesgos
+              </CardDescription>
             </div>
             <div className="flex gap-2">
-              {/* Diálogo para crear categoría */}
-              <Dialog open={category.openNew} onOpenChange={category.setOpenNew}>
+              {/* Crear Categoria*/}
+              <Dialog
+                open={category.openNew}
+                onOpenChange={category.setOpenNew}
+              >
                 <DialogTrigger asChild>
-                  <Button variant="outline"><Plus className="mr-2 h-4 w-4" />Nueva Categoría</Button>
+                  <Button variant="outline">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nueva Categoria
+                  </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[500px]">
                   <DialogHeader>
-                    <DialogTitle>Crear Nueva Categoría</DialogTitle>
-                    <DialogDescription>Complete la información de la categoría</DialogDescription>
+                    <DialogTitle>Crear Categoría</DialogTitle>
+                    <DialogDescription>Complete info</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     {category.error && (
                       <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
+                        <AlertCircle />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>{category.error}</AlertDescription>
                       </Alert>
                     )}
                     <div className="space-y-2">
-                      <Label htmlFor="nombre">Nombre</Label>
-                      <Input 
-                        id="nombre" 
+                      <Label>Nombre</Label>
+                      <Input
                         value={category.form.nombre}
-                        onChange={e => category.updateForm("nombre", e.target.value)}
+                        onChange={(e) =>
+                          category.updateForm("nombre", e.target.value)
+                        }
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="descripcion">Descripción</Label>
-                      <Textarea 
-                        id="descripcion" 
-                        value={category.form.descripcion}
-                        onChange={e => category.updateForm("descripcion", e.target.value)}
+                      <Label>Descripción</Label>
+                      <Textarea
                         rows={4}
+                        value={category.form.descripcion}
+                        onChange={(e) =>
+                          category.updateForm("descripcion", e.target.value)
+                        }
                       />
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button onClick={category.createCategory}>Guardar Categoría</Button>
+                    <Button onClick={category.createCategory}>Guardar</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-
-              {/* Diálogo para crear riesgo */}
+              {/* Crear Riesgo*/}
               <Dialog open={risk.openNew} onOpenChange={risk.setOpenNew}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" />Nuevo Riesgo</Button>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nuevo Riesgo
+                  </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
-                    <DialogTitle>Registrar Nuevo Riesgo</DialogTitle>
-                    <DialogDescription>Complete todos los campos</DialogDescription>
+                    <DialogTitle>Nuevo Riesgo</DialogTitle>
+                    <DialogDescription>Complete campos</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     {risk.error && (
                       <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
+                        <AlertCircle />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>{risk.error}</AlertDescription>
                       </Alert>
                     )}
                     <div className="space-y-2">
-                      <Label htmlFor="titulo">Título</Label>
-                      <Input 
-                        id="titulo" 
+                      <Label>Título</Label>
+                      <Input
                         value={risk.form.titulo}
-                        onChange={e => risk.updateForm("titulo", e.target.value)}
+                        onChange={(e) =>
+                          risk.updateForm("titulo", e.target.value)
+                        }
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="categoria">Categoría</Label>
-                        {/* Selector de categorías por nombre */}
-                        <Select 
-                          value={risk.form.categoriaSeleccionada} 
-                          onValueChange={value => risk.updateForm("categoriaSeleccionada", value)}
+                        <Label>Categoría</Label>
+                        <Select
+                          value={risk.form.categoriaSeleccionada}
+                          onValueChange={(v) =>
+                            risk.updateForm("categoriaSeleccionada", v)
+                          }
                         >
-                          <SelectTrigger id="categoria">
-                            <SelectValue placeholder="Seleccione categoría" />
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione" />
                           </SelectTrigger>
                           <SelectContent>
                             {category.loading ? (
-                              <SelectItem value="cargando">Cargando categorías...</SelectItem>
+                              <SelectItem value="cargando">
+                                Cargando...
+                              </SelectItem>
                             ) : (
-                              category.categorias.map(cat => (
-                                <SelectItem key={cat.idCategoria} value={cat.nombre}>
+                              category.categorias.map((cat) => (
+                                <SelectItem
+                                  key={cat.idCategoria}
+                                  value={cat.nombre}
+                                >
                                   {cat.nombre}
                                 </SelectItem>
                               ))
@@ -217,12 +319,14 @@ export default function RiskManagement() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="impacto">Impacto</Label>
-                        <Select 
-                          value={risk.form.impacto} 
-                          onValueChange={v => risk.updateForm("impacto", v)}
+                        <Label>Impacto</Label>
+                        <Select
+                          value={risk.form.impacto}
+                          onValueChange={(v) => risk.updateForm("impacto", v)}
                         >
-                          <SelectTrigger id="impacto"><SelectValue placeholder="Impacto" /></SelectTrigger>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Impacto" />
+                          </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Crítico">Crítico</SelectItem>
                             <SelectItem value="Alto">Alto</SelectItem>
@@ -234,12 +338,16 @@ export default function RiskManagement() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="probabilidad">Probabilidad</Label>
-                        <Select 
-                          value={risk.form.probabilidad} 
-                          onValueChange={v => risk.updateForm("probabilidad", v)}
+                        <Label>Probabilidad</Label>
+                        <Select
+                          value={risk.form.probabilidad}
+                          onValueChange={(v) =>
+                            risk.updateForm("probabilidad", v)
+                          }
                         >
-                          <SelectTrigger id="probabilidad"><SelectValue placeholder="Probabilidad" /></SelectTrigger>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Probabilidad" />
+                          </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Alta">Alta</SelectItem>
                             <SelectItem value="Media">Media</SelectItem>
@@ -248,78 +356,105 @@ export default function RiskManagement() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="estado">Estado</Label>
-                        <Select 
-                          value={risk.form.estado} 
-                          onValueChange={v => risk.updateForm("estado", v)}
+                        <Label>Estado</Label>
+                        <Select
+                          value={risk.form.estado}
+                          onValueChange={(v) => risk.updateForm("estado", v)}
                         >
-                          <SelectTrigger id="estado"><SelectValue placeholder="Estado" /></SelectTrigger>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Estado" />
+                          </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Identificado">Identificado</SelectItem>
-                            <SelectItem value="Planificado">Planificado</SelectItem>
+                            <SelectItem value="Identificado">
+                              Identificado
+                            </SelectItem>
+                            <SelectItem value="Planificado">
+                              Planificado
+                            </SelectItem>
                             <SelectItem value="Mitigado">Mitigado</SelectItem>
-                            <SelectItem value="En monitoreo">En monitoreo</SelectItem>
+                            <SelectItem value="En monitoreo">
+                              En monitoreo
+                            </SelectItem>
                             <SelectItem value="Cerrado">Cerrado</SelectItem>
-                            <SelectItem value="Reactivado">Reactivado</SelectItem>
+                            <SelectItem value="Reactivado">
+                              Reactivado
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="responsable">Mitigador (ID)</Label>
-                        <Input 
-                          id="responsable" 
+                        <Label>Mitigador (ID)</Label>
+                        <Input
                           placeholder="ID usuario"
                           value={risk.form.responsableId}
-                          onChange={e => risk.updateForm("responsableId", e.target.value)}
+                          onChange={(e) =>
+                            risk.updateForm("responsableId", e.target.value)
+                          }
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="registrador">Registrado por (ID)</Label>
-                        <Input 
-                          id="registrador" 
+                        <Label>Registrado por (ID)</Label>
+                        <Input
                           placeholder="ID usuario"
                           value={risk.form.idUsuarioRegistro}
-                          onChange={e => risk.updateForm("idUsuarioRegistro", e.target.value)}
+                          onChange={(e) =>
+                            risk.updateForm("idUsuarioRegistro", e.target.value)
+                          }
                         />
                       </div>
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button onClick={() => risk.createRisk(category.categorias)}>Guardar</Button>
+                    <Button
+                      onClick={() => risk.createRisk(category.categorias)}
+                    >
+                      Guardar
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
             </div>
           </div>
         </CardHeader>
-
         <CardContent>
-          
-          <div className="mb-4 flex flex-col gap-4 md:flex-row">
+          {/* filtros y búsqueda */}
+          <div className="mb-4 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar riesgos..."
                 className="pl-8"
+                placeholder="Buscar..."
                 value={risk.searchTerm}
-                onChange={e => risk.setSearchTerm(e.target.value)}
+                onChange={(e) => risk.setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Filter className="h-4 w-4 text-muted-foreground" />
-              <Select value={risk.categoryFilter} onValueChange={risk.setCategoryFilter}>
-                <SelectTrigger className="w-[150px]"><SelectValue placeholder="Categoría" /></SelectTrigger>
+              <Select
+                value={risk.categoryFilter}
+                onValueChange={risk.setCategoryFilter}
+              >
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Categoría" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Todos">Todas</SelectItem>
-                  {risk.getUniqueCategories().map(cat => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  {risk.getUniqueCategories().map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
                   ))}
-                </SelectContent> 
+                </SelectContent>
               </Select>
-              <Select value={risk.impactFilter} onValueChange={risk.setImpactFilter}>
-                <SelectTrigger className="w-[150px]"><SelectValue placeholder="Impacto" /></SelectTrigger>
+              <Select
+                value={risk.impactFilter}
+                onValueChange={risk.setImpactFilter}
+              >
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Impacto" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Ninguno">Ninguno</SelectItem>
                   <SelectItem value="Todos">Todos</SelectItem>
@@ -331,12 +466,11 @@ export default function RiskManagement() {
               </Select>
             </div>
           </div>
-
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Riesgo</TableHead>
-                <TableHead>Categoría</TableHead>
+                <TableHead>Categoria</TableHead>
                 <TableHead>Impacto</TableHead>
                 <TableHead>Probabilidad</TableHead>
                 <TableHead>Estado</TableHead>
@@ -346,56 +480,100 @@ export default function RiskManagement() {
             <TableBody>
               {risk.loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">Cargando riesgos...</TableCell>
+                  <TableCell colSpan={6} className="text-center">
+                    Cargando...
+                  </TableCell>
                 </TableRow>
               ) : filteredRisks.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">No se encontraron riesgos que coincidan con los criterios</TableCell>
+                  <TableCell colSpan={6} className="text-center">
+                    Escribe en el campo de búsqueda o selecciona otro filtro para ver los riesgos
+                  </TableCell>
                 </TableRow>
               ) : (
-                filteredRisks.map(item => (
+                filteredRisks.map((item) => (
                   <TableRow key={item.idRiesgo}>
                     <TableCell>{item.titulo}</TableCell>
                     <TableCell>{item.categoria?.nombre || "—"}</TableCell>
                     <TableCell>
-                      <Badge className={risk.getImpactColor(item.impacto)}>{item.impacto}</Badge>
+                      <Badge className={risk.getImpactColor(item.impacto)}>
+                        {item.impacto}
+                      </Badge>
                     </TableCell>
                     <TableCell>{item.probabilidad}</TableCell>
                     <TableCell>
-                      <Badge variant={item.estado==="Activo"?"default":"outline"}>{item.estado}</Badge>
+                      <Badge
+                        variant={
+                          item.estado === "Activo" ? "default" : "outline"
+                        }
+                      >
+                        {item.estado}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button size="sm" variant="outline">
-                              <FileText className="mr-1 h-4 w-4" /> Detalles
+                              <FileText className="mr-1 h-4 w-4" />
+                              Detalles
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="sm:max-w-[500px]">
                             <DialogHeader>
                               <DialogTitle>{item.titulo}</DialogTitle>
                               <DialogDescription>
-                                {item.registradoPor?.nombreCompleto ? 
-                                  `Registrado por ${item.registradoPor.nombreCompleto} el ${new Date(item.fechaRegistro).toLocaleDateString()}` :
-                                  `Registrado el ${new Date(item.fechaRegistro).toLocaleDateString()}`
-                                }
+                                {item.registradoPor?.nombreCompleto
+                                  ? `Registrado por ${
+                                      item.registradoPor.nombreCompleto
+                                    } el ${new Date(
+                                      item.fechaRegistro
+                                    ).toLocaleDateString()}`
+                                  : `Registrado el ${new Date(
+                                      item.fechaRegistro
+                                    ).toLocaleDateString()}`}
                               </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4 py-2">
-                              <p><strong>Responsable:</strong> {item.responsable?.nombreCompleto || "—"}</p>
-                              <p><strong>Planes de Mitigación:</strong> {item.planesMitigar?.length ? item.planesMitigar.map(p=>p.nombre).join(", ") : "—"}</p>
-                              <p><strong>Planes de Evitación:</strong> {item.planesEvitar?.length ? item.planesEvitar.map(p=>p.nombre).join(", ") : "—"}</p>
+                              <p>
+                                <strong>Responsable:</strong>{" "}
+                                {item.responsable?.nombreCompleto || "—"}
+                              </p>
+                              <p>
+                                <strong>Planes de Mitigación:</strong>{" "}
+                                {item.planesMitigar?.length
+                                  ? item.planesMitigar
+                                      .map((p) => p.nombre)
+                                      .join(", ")
+                                  : "—"}
+                              </p>
+                              <p>
+                                <strong>Planes de Evitación:</strong>{" "}
+                                {item.planesEvitar?.length
+                                  ? item.planesEvitar
+                                      .map((p) => p.nombre)
+                                      .join(", ")
+                                  : "—"}
+                              </p>
                             </div>
                             <DialogFooter>
                               <div className="flex gap-2">
-                                <Button 
-                                  variant="outline" 
-                                  onClick={() => handleGenerateSingleRiskPdf(item.idRiesgo)}
+                                <Button
+                                  variant="outline"
+                                  onClick={() =>
+                                    handleGenerateSingleRiskPdf(item.idRiesgo)
+                                  }
                                 >
-                                  <FileDown className="mr-1 h-4 w-4" /> Generar PDF
+                                  <FileDown className="mr-1 h-4 w-4" />
+                                  Ver PDF
                                 </Button>
-                                <Button variant="outline">Editar</Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditRiskClick(item)}
+                                >
+                                  Editar
+                                </Button>
                               </div>
                             </DialogFooter>
                           </DialogContent>
@@ -408,26 +586,22 @@ export default function RiskManagement() {
             </TableBody>
           </Table>
         </CardContent>
-
         <CardFooter className="flex justify-between">
           <span className="text-sm text-muted-foreground">
-            Mostrando {filteredRisks.length} de {risk.riskData.length} riesgos
+            Mostrando {filteredRisks.length} de {risk.riskData.length}
           </span>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setSelectedRiskForPdf(null);
-                setShowPdfPreview(true);
-              }}
-            >
-              <FileDown className="mr-1 h-4 w-4" /> Exportar a PDF
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSelectedRiskForPdf(null);
+              setShowPdfPreview(true);
+            }}
+          >
+            <FileDown className="mr-1 h-4 w-4" />
+            Exportar PDF
+          </Button>
         </CardFooter>
       </Card>
-
-      {/* Sección para gestionar categorías */}
       <Card>
         <CardHeader
           className="cursor-pointer flex flex-row items-center justify-between"
@@ -435,40 +609,34 @@ export default function RiskManagement() {
         >
           <div>
             <CardTitle>Gestión de Categorías</CardTitle>
-            <CardDescription>Administre las categorías de riesgos</CardDescription>
+            <CardDescription>Administre las categorías</CardDescription>
           </div>
           <Plus
-            className="h-5 w-5 transition-transform duration-200 bg"
-            style={{ color: "#41ADE7",transform: showCategories ? "rotate(45deg)" : "rotate(0deg)" }}
+            className="h-5 w-5 transition-transform duration-200 ease-in-out"
+            style={{
+              transform: showCategories ? "rotate(45deg)" : "rotate(0deg)",
+              color: "#41ADE7",
+            }}
           />
         </CardHeader>
-
         {showCategories && (
           <CardContent>
-            {category.error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{category.error}</AlertDescription>
-              </Alert>
-            )}
-            
             {category.loading ? (
-              <p>Cargando categorías...</p>
+              <p>Cargando...</p>
             ) : category.categorias.length === 0 ? (
-              <p>No hay categorías disponibles. Cree una nueva.</p>
+              <p>No hay categorías</p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>ID</TableHead>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Descripción</TableHead>
+                    <TableHead>Desc</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {category.categorias.map(cat => (
+                  {category.categorias.map((cat) => (
                     <TableRow key={cat.idCategoria}>
                       <TableCell>{cat.idCategoria}</TableCell>
                       <TableCell>{cat.nombre}</TableCell>
@@ -478,14 +646,16 @@ export default function RiskManagement() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleEditClick(cat)}
+                            onClick={() => handleEditCategoryClick(cat)}
                           >
                             Editar
                           </Button>
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => category.deleteCategory(cat.idCategoria)}
+                            onClick={() =>
+                              category.deleteCategory(cat.idCategoria)
+                            }
                           >
                             Eliminar
                           </Button>
@@ -498,79 +668,239 @@ export default function RiskManagement() {
             )}
           </CardContent>
         )}
-
-        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <Dialog open={editCategoryOpen} onOpenChange={setEditCategoryOpen}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Editar Categoría</DialogTitle>
-              <DialogDescription>Modifica los datos de la categoría</DialogDescription>
+              <DialogDescription>Modifique datos</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               {category.error && (
                 <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle />
                   <AlertTitle>Error</AlertTitle>
                   <AlertDescription>{category.error}</AlertDescription>
                 </Alert>
               )}
               <div className="space-y-2">
-                <Label htmlFor="edit-nombre">Nombre</Label>
+                <Label>Nombre</Label>
                 <Input
-                  id="edit-nombre"
-                  value={editForm.nombre || ""}
-                  onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
+                  value={editCategoryForm.nombre || ""}
+                  onChange={(e) =>
+                    setEditCategoryForm({
+                      ...editCategoryForm,
+                      nombre: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-descripcion">Descripción</Label>
+                <Label>Descripción</Label>
                 <Textarea
-                  id="edit-descripcion"
                   rows={4}
-                  value={editForm.descripcion || ""}
-                  onChange={e => setEditForm({ ...editForm, descripcion: e.target.value })}
+                  value={editCategoryForm.descripcion || ""}
+                  onChange={(e) =>
+                    setEditCategoryForm({
+                      ...editCategoryForm,
+                      descripcion: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleUpdateCategory}>Guardar Cambios</Button>
+              <Button onClick={handleUpdateCategory}>Guardar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </Card>
 
-      {/* Diálogo para mostrar la vista previa del PDF */}
+      {/* Editar Riesgo Dialog */}
+      <Dialog open={editRiskOpen} onOpenChange={setEditRiskOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Editar Riesgo</DialogTitle>
+            <DialogDescription>
+              Modifique los campos del riesgo
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {risk.error && (
+              <Alert variant="destructive">
+                <AlertCircle />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{risk.error}</AlertDescription>
+              </Alert>
+            )}
+            <div className="space-y-2">
+              <Label>Título</Label>
+              <Input
+                value={editRiskForm.titulo || ""}
+                onChange={(e) =>
+                  setEditRiskForm({ ...editRiskForm, titulo: e.target.value })
+                }
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Categoría</Label>
+                <Select
+                  value={editRiskForm.categoriaSeleccionada || ""}
+                  onValueChange={(v) =>
+                    setEditRiskForm({
+                      ...editRiskForm,
+                      categoriaSeleccionada: v,
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {category.loading ? (
+                      <SelectItem value="cargando">Cargando...</SelectItem>
+                    ) : (
+                      category.categorias.map((cat) => (
+                        <SelectItem key={cat.idCategoria} value={cat.nombre}>
+                          {cat.nombre}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Impacto</Label>
+                <Select
+                  value={editRiskForm.impacto || ""}
+                  onValueChange={(v) =>
+                    setEditRiskForm({ ...editRiskForm, impacto: v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Impacto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Crítico">Crítico</SelectItem>
+                    <SelectItem value="Alto">Alto</SelectItem>
+                    <SelectItem value="Medio">Medio</SelectItem>
+                    <SelectItem value="Bajo">Bajo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Probabilidad</Label>
+                <Select
+                  value={editRiskForm.probabilidad || ""}
+                  onValueChange={(v) =>
+                    setEditRiskForm({ ...editRiskForm, probabilidad: v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Probabilidad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Alta">Alta</SelectItem>
+                    <SelectItem value="Media">Media</SelectItem>
+                    <SelectItem value="Baja">Baja</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Estado</Label>
+                <Select
+                  value={editRiskForm.estado || ""}
+                  onValueChange={(v) =>
+                    setEditRiskForm({ ...editRiskForm, estado: v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Identificado">Identificado</SelectItem>
+                    <SelectItem value="Planificado">Planificado</SelectItem>
+                    <SelectItem value="Mitigado">Mitigado</SelectItem>
+                    <SelectItem value="En monitoreo">En monitoreo</SelectItem>
+                    <SelectItem value="Cerrado">Cerrado</SelectItem>
+                    <SelectItem value="Reactivado">Reactivado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Mitigador (ID)</Label>
+                <Input
+                  placeholder="ID usuario"
+                  value={editRiskForm.responsableId || ""}
+                  onChange={(e) =>
+                    setEditRiskForm({
+                      ...editRiskForm,
+                      responsableId: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Registrado por (ID)</Label>
+                <Input
+                  placeholder="ID usuario"
+                  value={editRiskForm.idUsuarioRegistro || ""}
+                  onChange={(e) =>
+                    setEditRiskForm({
+                      ...editRiskForm,
+                      idUsuarioRegistro: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleUpdateRisk}>Guardar Cambios</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showPdfPreview} onOpenChange={setShowPdfPreview} modal>
         <DialogContent className="sm:max-w-[80%] max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>
-              {selectedRiskForPdf 
-                ? 'Vista Previa del Informe de Riesgo' 
-                : 'Vista Previa del Informe de Riesgos'}
+              {selectedRiskForPdf
+                ? "Vista Previa Riesgo"
+                : "Vista Previa Informe"}
             </DialogTitle>
             <DialogDescription>
-              {selectedRiskForPdf 
-                ? 'Informe detallado del riesgo seleccionado' 
-                : 'Listado de riesgos según los filtros aplicados'}
+              {selectedRiskForPdf ? "Informe específico" : "Listado completo"}
             </DialogDescription>
           </DialogHeader>
-          
           <div className="h-[60vh]">
-            <PdfGenerator 
-              data={generatePdfData()} 
-              fileName={selectedRiskForPdf ? `riesgo-${selectedRiskForPdf}.pdf` : "informe-riesgos.pdf"} 
-              preview={true} 
+            <PdfGenerator
+              data={generatePdfData()}
+              fileName={
+                selectedRiskForPdf
+                  ? `riesgo-${selectedRiskForPdf}.pdf`
+                  : "informe-riesgos.pdf"
+              }
+              preview
             />
           </div>
-          
           <DialogFooter>
-            <PdfGenerator 
-              data={generatePdfData()} 
-              fileName={selectedRiskForPdf ? `riesgo-${selectedRiskForPdf}.pdf` : "informe-riesgos.pdf"} 
-              preview={false} 
+            <PdfGenerator
+              data={generatePdfData()}
+              fileName={
+                selectedRiskForPdf
+                  ? `riesgo-${selectedRiskForPdf}.pdf`
+                  : "informe-riesgos.pdf"
+              }
+              preview={false}
             />
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
