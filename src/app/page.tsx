@@ -20,11 +20,11 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await login(email, password)
+    await login(email, password , rememberMe)
   }
 
   return (
-    <div className="flex min-h-screen flex-col justify-between bg-gray-50">
+    <div className="flex flex-col justify-between bg-gray-50">
       <main className="flex flex-1 items-center justify-center">
         <Card className="w-full max-w-md shadow-lg space-y-4">
           <form onSubmit={handleSubmit} >
@@ -78,14 +78,14 @@ export default function LoginForm() {
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 />
-                <Label htmlFor="remember" className="text-sm font-normal m' cursor-pointer">
-                  Recordarme
+                <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
+                  Mantener sesión iniciada
                 </Label>
               </div>
               {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-primary-button text-slate-50" type="submit" disabled={isLoading}>
+              <Button className="w-full button-blue text-slate-50" type="submit" disabled={isLoading}>
                 {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
               </Button>
             </CardFooter>

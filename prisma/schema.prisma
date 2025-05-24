@@ -1,156 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model Usuario {
+  idUsuario             Int                  @id @default(autoincrement())
+  nombreCompleto        String
+  correo                String               @unique
+  contraseña           String
+  mitigador             Boolean              @default(false)
+  rol                   Rol
+  fechaCreacion         DateTime             @default(now())
+  registroEstado        Boolean              @default(true)
+  auditorias            Auditoria[]
+  incidentesRegistrados Incidente[]
+  monitoreos            MonitoreoAmbiental[]
+  planesEvitarCreados   PlanEvitar[]
+  planesMitigarCreados  PlanMitigar[]
+  protocolosPublicados  Protocolo[]
+  reportesGenerados     Reporte[]
+  riesgosRegistrados    Riesgo[]             @relation("RegistradoPor")
+  riesgosResponsable    Riesgo[]             @relation("Responsable")
+}
+
+model Categoria {
+  idCategoria    Int         @id @default(autoincrement())
+  nombre         String
+  descripcion    String
+  registroEstado Boolean     @default(true)
+  incidentes     Incidente[]
+  riesgos        Riesgo[]
+}
+
+model Riesgo {
+  idRiesgo          Int           @id @default(autoincrement())
+  idCategoria       Int
+  responsableId     Int
+  titulo            String
+  impacto           String
+  probabilidad      String
+  estado            String
+  fechaRegistro     DateTime      @default(now())
+  idUsuarioRegistro Int
+  registroEstado    Boolean       @default(true)
+  planesEvitar      PlanEvitar[]
+  planesMitigar     PlanMitigar[]
+  categoria         Categoria     @relation(fields: [idCategoria], references: [idCategoria])
+  registradoPor     Usuario       @relation("RegistradoPor", fields: [idUsuarioRegistro], references: [idUsuario])
+  responsable       Usuario       @relation("Responsable", fields: [responsableId], references: [idUsuario])
+}
+
+model PlanMitigar {
+  idPlanMitigar    Int      @id @default(autoincrement())
+  idRiesgo         Int
+  nombre           String
+  descripcion      String
+  fechaCreacion    DateTime @default(now())
+  idUsuarioCreador Int
+  archivo          String?
+  registroEstado   Boolean  @default(true)
+  riesgo           Riesgo   @relation(fields: [idRiesgo], references: [idRiesgo])
+  creador          Usuario  @relation(fields: [idUsuarioCreador], references: [idUsuario])
+}
+
+model PlanEvitar {
+  idPlanEvitar     Int      @id @default(autoincrement())
+  idRiesgo         Int
+  nombre           String
+  descripcion      String
+  fechaCreacion    DateTime @default(now())
+  idUsuarioCreador Int
+  archivo          String?
+  registroEstado   Boolean  @default(true)
+  riesgo           Riesgo   @relation(fields: [idRiesgo], references: [idRiesgo])
+  creador          Usuario  @relation(fields: [idUsuarioCreador], references: [idUsuario])
+}
+
+model Auditoria {
+  idAuditoria    Int      @id @default(autoincrement())
+  idUsuario      Int
+  accion         String
+  fecha          DateTime @default(now())
+  modulo         String
+  registroEstado Boolean  @default(true)
+  usuario        Usuario  @relation(fields: [idUsuario], references: [idUsuario])
+}
+
+model Incidente {
+  idIncidente       Int       @id @default(autoincrement())
+  idCategoria       Int
+  titulo            String
+  severidad         String
+  descripcion       String
+  estadoIncidente   String
+  fechaIncidente    DateTime
+  accionesTomadas   String
+  idUsuarioRegistro Int
+  fechaRegistro     DateTime  @default(now())
+  registroEstado    Boolean   @default(true)
+  categoria         Categoria @relation(fields: [idCategoria], references: [idCategoria])
+  registradoPor     Usuario   @relation(fields: [idUsuarioRegistro], references: [idUsuario])
+}
+
+model MonitoreoAmbiental {
+  idMonitoreo       Int      @id @default(autoincrement())
+  tipoSensor        String
+  valorMedido       Float
+  unidadMedida      String
+  fechaHora         DateTime
+  idUsuarioRegistro Int
+  registroEstado    Boolean  @default(true)
+  registradoPor     Usuario  @relation(fields: [idUsuarioRegistro], references: [idUsuario])
+}
+
+model Reporte {
+  idReporte          Int      @id @default(autoincrement())
+  titulo             String
+  tipoReporte        String
+  contenido          String
+  fechaGeneracion    DateTime @default(now())
+  idUsuarioGenerador Int
+  registroEstado     Boolean  @default(true)
+  generador          Usuario  @relation(fields: [idUsuarioGenerador], references: [idUsuario])
+}
+
+model Protocolo {
+  idProtocolo         Int      @id @default(autoincrement())
+  nombre              String
+  descripcion         String
+  fechaPublicacion    DateTime
+  idUsuarioPublicador Int
+  registroEstado      Boolean  @default(true)
+  publicadoPor        Usuario  @relation(fields: [idUsuarioPublicador], references: [idUsuario])
 }
 
 enum Rol {
   ADMINISTRADOR
   EDITOR
   LECTOR
-}
-
-model Usuario {
-  idUsuario         Int             @id @default(autoincrement())
-  nombreCompleto    String
-  correo            String          @unique
-  contraseña        String
-  mitigador         Boolean         @default(false)
-  rol               Rol
-  fechaCreacion     DateTime        @default(now())
-  registroEstado    Boolean         @default(true)
-
-  // Relaciones
-  riesgosResponsable   Riesgo[]     @relation("Responsable")
-  riesgosRegistrados   Riesgo[]     @relation("RegistradoPor")
-  planesMitigarCreados PlanMitigar[]
-  planesEvitarCreados  PlanEvitar[]
-  auditorias           Auditoria[]
-  incidentesRegistrados Incidente[]
-  monitoreos           MonitoreoAmbiental[]
-  reportesGenerados    Reporte[]
-  protocolosPublicados Protocolo[]
-}
-
-model Categoria {
-  idCategoria     Int        @id @default(autoincrement())
-  nombre          String
-  descripcion     String
-  registroEstado  Boolean    @default(true)
-
-  riesgos         Riesgo[]
-  incidentes      Incidente[]
-}
-
-model Riesgo {
-  idRiesgo           Int           @id @default(autoincrement())
-  idCategoria        Int
-  responsableId      Int
-  titulo             String
-  impacto            String
-  probabilidad       String
-  estado             String
-  fechaRegistro      DateTime      @default(now())
-  idUsuarioRegistro  Int
-  registroEstado     Boolean       @default(true)
-
-  categoria          Categoria     @relation(fields: [idCategoria], references: [idCategoria])
-  responsable        Usuario       @relation("Responsable", fields: [responsableId], references: [idUsuario])
-  registradoPor      Usuario       @relation("RegistradoPor", fields: [idUsuarioRegistro], references: [idUsuario])
-  planesMitigar      PlanMitigar[]
-  planesEvitar       PlanEvitar[]
-}
-
-model PlanMitigar {
-  idPlanMitigar     Int       @id @default(autoincrement())
-  idRiesgo          Int
-  nombre            String
-  descripcion       String
-  fechaCreacion     DateTime  @default(now())
-  idUsuarioCreador  Int
-  archivo           String?
-  registroEstado    Boolean   @default(true)
-
-  riesgo            Riesgo    @relation(fields: [idRiesgo], references: [idRiesgo])
-  creador           Usuario   @relation(fields: [idUsuarioCreador], references: [idUsuario])
-}
-
-model PlanEvitar {
-  idPlanEvitar      Int       @id @default(autoincrement())
-  idRiesgo          Int
-  nombre            String
-  descripcion       String
-  fechaCreacion     DateTime  @default(now())
-  idUsuarioCreador  Int
-  archivo           String?
-  registroEstado    Boolean   @default(true)
-
-  riesgo            Riesgo    @relation(fields: [idRiesgo], references: [idRiesgo])
-  creador           Usuario   @relation(fields: [idUsuarioCreador], references: [idUsuario])
-}
-
-model Auditoria {
-  idAuditoria     Int       @id @default(autoincrement())
-  idUsuario       Int
-  accion          String
-  fecha           DateTime  @default(now())
-  modulo          String
-  registroEstado  Boolean   @default(true)
-
-  usuario         Usuario   @relation(fields: [idUsuario], references: [idUsuario])
-}
-
-model Incidente {
-  idIncidente        Int       @id @default(autoincrement())
-  idCategoria        Int
-  titulo             String
-  severidad          String
-  descripcion        String
-  estadoIncidente    String
-  fechaIncidente     DateTime
-  accionesTomadas    String
-  idUsuarioRegistro  Int
-  fechaRegistro      DateTime  @default(now())
-  registroEstado     Boolean   @default(true)
-
-  categoria          Categoria @relation(fields: [idCategoria], references: [idCategoria])
-  registradoPor      Usuario   @relation(fields: [idUsuarioRegistro], references: [idUsuario])
-}
-
-model MonitoreoAmbiental {
-  idMonitoreo        Int       @id @default(autoincrement())
-  tipoSensor         String
-  valorMedido        Float
-  unidadMedida       String
-  fechaHora          DateTime
-  idUsuarioRegistro  Int
-  registroEstado     Boolean   @default(true)
-
-  registradoPor      Usuario   @relation(fields: [idUsuarioRegistro], references: [idUsuario])
-}
-
-model Reporte {
-  idReporte          Int       @id @default(autoincrement())
-  titulo             String
-  tipoReporte        String
-  contenido          String
-  fechaGeneracion    DateTime  @default(now())
-  idUsuarioGenerador Int
-  registroEstado     Boolean   @default(true)
-
-  generador          Usuario   @relation(fields: [idUsuarioGenerador], references: [idUsuario])
-}
-
-model Protocolo {
-  idProtocolo        Int       @id @default(autoincrement())
-  nombre             String
-  descripcion        String
-  fechaPublicacion   DateTime
-  idUsuarioPublicador Int
-  registroEstado     Boolean   @default(true)
-
-  publicadoPor       Usuario   @relation(fields: [idUsuarioPublicador], references: [idUsuario])
 }
