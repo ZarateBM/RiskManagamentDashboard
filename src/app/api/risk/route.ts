@@ -1,13 +1,14 @@
 // app/api/risk/route.ts
+
 import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
-import { sendEmail } from '../email/route'   // helper que usa nodemailer
+import { sendEmail } from '../../../lib/mail'   // tu lib que usa nodemailer
 
 const prisma = new PrismaClient()
 
 type RiesgoRequestBody = {
   titulo: string
-  descripcion?: string           // descripción opcional en el payload
+  descripcion?: string
   idCategoria: number
   impacto: string
   probabilidad: string
@@ -34,6 +35,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }
+
 // POST /api/risk
 export async function POST(req: NextRequest) {
   let body: RiesgoRequestBody
@@ -53,6 +55,7 @@ export async function POST(req: NextRequest) {
     idUsuarioRegistro,
   } = body
 
+  // validación de tipos
   if (
     typeof titulo !== 'string' ||
     !Number.isInteger(idCategoria) ||
@@ -68,6 +71,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // creación en BD
   let nuevo
   try {
     nuevo = await prisma.riesgo.create({
@@ -92,7 +96,9 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
-  (async () => {
+
+  // envío de correo asincrónico (fire-and-forget)
+  ;(async () => {
     try {
       const responsable = await prisma.usuario.findUnique({
         where: { idUsuario: responsableId },
@@ -114,6 +120,7 @@ export async function POST(req: NextRequest) {
       await sendEmail({
         to: responsable.correo,
         subject: `Nuevo riesgo asignado: ${nuevo.titulo} (ID: ${nuevo.idRiesgo})`,
+        text: `Se te ha asignado el riesgo "${nuevo.titulo}" (ID: ${nuevo.idRiesgo}).`,
         html: `
           <h2>Notificación de Nuevo Riesgo</h2>
           <p>Hola ${responsable.nombreCompleto},</p>

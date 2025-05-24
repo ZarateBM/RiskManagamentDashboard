@@ -55,6 +55,33 @@ import { useCategory, Categoria } from "../hooks/useCategory";
 // Importamos el componente PdfGenerator
 import PdfGenerator, { PdfData } from "../components/PDF/PdfGenerator";
 
+
+type Risk = {
+  idRiesgo: number
+  titulo: string
+  impacto: string
+  probabilidad: string
+  estado: string
+  fechaRegistro: string
+  registroEstado: boolean
+  categoria: { idCategoria: number; nombre: string }
+  responsable: { idUsuario: number; nombreCompleto: string }
+  registradoPor: { idUsuario: number; nombreCompleto: string }
+  planesMitigar: { idPlanMitigar: number; nombre: string }[]
+  planesEvitar: { idPlanEvitar: number; nombre: string }[]
+}
+
+interface EditRiskForm {
+  idRiesgo?: number;
+  titulo: string;
+  categoriaSeleccionada: string;
+  impacto: string;
+  probabilidad: string;
+  estado: string;
+  responsableId: string;
+  idUsuarioRegistro: string;
+}
+
 export default function RiskManagement() {
   const [showCategories, setShowCategories] = useState(false);
   const [editCategoryOpen, setEditCategoryOpen] = useState<boolean>(false);
@@ -62,7 +89,7 @@ export default function RiskManagement() {
     {}
   );
   const [editRiskOpen, setEditRiskOpen] = useState<boolean>(false);
-  const [editRiskForm, setEditRiskForm] = useState<any>({});
+  const [editRiskForm, setEditRiskForm] = useState<Partial<EditRiskForm>>({});
   const [showPdfPreview, setShowPdfPreview] = useState<boolean>(false);
   const [selectedRiskForPdf, setSelectedRiskForPdf] = useState<number | null>(
     null
@@ -74,8 +101,7 @@ export default function RiskManagement() {
   // Obtener riesgos filtrados
   const filteredRisks = risk.getFilteredRisks();
 
-  // Manejar apertura de diálogo de edición
-  // ---- Edición de Categorías ----
+
   const handleEditCategoryClick = (cat: Categoria) => {
     setEditCategoryForm(cat);
     setEditCategoryOpen(true);
@@ -95,7 +121,7 @@ export default function RiskManagement() {
   };
 
   // ---- Edición de Riesgos ----
-  const handleEditRiskClick = (item: any) => {
+  const handleEditRiskClick = (item: Risk) => {
     setEditRiskForm({
       idRiesgo: item.idRiesgo,
       titulo: item.titulo,
@@ -103,8 +129,8 @@ export default function RiskManagement() {
       impacto: item.impacto,
       probabilidad: item.probabilidad,
       estado: item.estado,
-      responsableId: item.responsable?.id || "",
-      idUsuarioRegistro: item.registradoPor?.id || "",
+      responsableId: item.responsable?.nombreCompleto,
+      idUsuarioRegistro: item.registradoPor?.nombreCompleto,
     });
     setEditRiskOpen(true);
   };

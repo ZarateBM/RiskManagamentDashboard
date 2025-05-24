@@ -1,7 +1,5 @@
-// useIncidents.ts
 import { useState } from 'react';
 import IncidentService from '../services/Incidentservice';
-
 
 export interface Incidente {
   idIncidente?: number;
@@ -17,7 +15,6 @@ export interface Incidente {
   registroEstado?: boolean;
 }
 
-
 export const useIncidents = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,8 +25,12 @@ export const useIncidents = () => {
     try {
       const data = await IncidentService.getAll();
       return data;
-    } catch (err: any) {
-      setError(err.message || 'Error fetching incidents');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Error desconocido al obtener incidentes');
+      }
       return [];
     } finally {
       setLoading(false);
@@ -42,8 +43,12 @@ export const useIncidents = () => {
     try {
       const data = await IncidentService.getById(id);
       return data;
-    } catch (err: any) {
-      setError(err.message || 'Incident not found');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Error desconocido al obtener el incidente');
+      }
       return null;
     } finally {
       setLoading(false);
@@ -56,8 +61,12 @@ export const useIncidents = () => {
     try {
       const data = await IncidentService.create(incident);
       return data;
-    } catch (err: any) {
-      setError(err.message || 'Error creating incident');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Error desconocido al crear el incidente');
+      }
       return null;
     } finally {
       setLoading(false);
@@ -70,8 +79,12 @@ export const useIncidents = () => {
     try {
       const data = await IncidentService.update(id, incident);
       return data;
-    } catch (err: any) {
-      setError(err.message || 'Error updating incident');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Error desconocido al actualizar el incidente');
+      }
       return null;
     } finally {
       setLoading(false);
@@ -84,8 +97,12 @@ export const useIncidents = () => {
     try {
       await IncidentService.remove(id);
       return true;
-    } catch (err: any) {
-      setError(err.message || 'Error deleting incident');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Error desconocido al eliminar el incidente');
+      }
       return false;
     } finally {
       setLoading(false);

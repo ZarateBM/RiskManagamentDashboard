@@ -41,8 +41,7 @@ export async function sendTestEmail({ to, subject, text }: { to: string; subject
 
 export async function sendEmail({ 
   to, 
-  subject, 
-  text, 
+  subject,  
   html 
 }: { 
   to: string; 
@@ -55,7 +54,6 @@ export async function sendEmail({
       from: `"Sistema de Riesgos" <${process.env.SMTP_USER}>`,
       to,
       subject,
-      text,
       html: html || undefined,
     });
     console.log("Email sent successfully to:", to);

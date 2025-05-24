@@ -9,6 +9,7 @@ export type Categoria = {
 type CategoriaFormData = {
   nombre: string
   descripcion: string
+  
 }
 
 export function useCategory() {

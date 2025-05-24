@@ -21,6 +21,7 @@ export const useAuth = () => {
       }
     } catch (error ) {
         if (error instanceof Error) {
+          router.push('/dashboard');
           setError(error.message);
         }
         else {
