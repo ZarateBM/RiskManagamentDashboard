@@ -1,36 +1,165 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛠️ **Guía de Instalación del Sistema de Gestión de Riesgos (Hostinger + Coolify o Dokploy)**
 
-## Getting Started
+> ✅ **Stack basado en Next.js + PostgreSQL + Docker**
+> 🧩 Compatible con cualquier VPS o plataforma que permita contenedores (Coolify / Dokploy / Vercel)
 
-First, run the development server:
+> ⚠️ **Se requiere un Ingeniero DevOps para realizar la instalación del sistema.**
+> Este proceso implica gestión avanzada de VPS, despliegue vía Docker, configuración de bases de datos públicas y variables de entorno sensibles.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+---
+
+## 🔧 **Tecnologías Utilizadas**
+
+| Tecnología            | Rol                                                          |
+| --------------------- | ------------------------------------------------------------ |
+| **Next.js**           | Frontend + API Routes (SSR/SSG)                              |
+| **Prisma**            | ORM para manejar PostgreSQL                                  |
+| **Coolify / Dokploy** | Plataformas de despliegue automático (GitHub + Docker + SSL) |
+| **PostgreSQL**        | Base de datos principal                                      |
+| **S3/R2**             | Respaldo externo de base de datos                            |
+
+---
+
+## 🚀 **Pasos Completos en Hostinger**
+
+### 🔹 **1. Crear tu VPS**
+
+1. **Selecciona la Región más Cercana**
+   *(Ej. United States – Boston)*
+
+2. **Escoge tu Sistema Operativo con Panel**
+
+   * Ir a **OS with Panel**
+   * Elige **Coolify** o **Dokploy** según preferencia:
+
+     * **Coolify**: Ideal si deseas una interfaz muy visual y completa.
+     * **Dokploy**: Más minimalista, excelente para flujos CI/CD rápidos.
+   * Ambos instalan:
+
+     * Docker
+     * PostgreSQL
+     * Certificados SSL
+     * Panel web de administración
+
+3. **Define tu contraseña root**
+
+4. *(Opcional)* **Agrega llave SSH**
+
+5. *(Opcional)* Activa extras:
+
+   * Malware scanner (Gratis)
+   * Backups diarios (Pago, útil si no usarás S3/R2)
+
+6. **Selecciona Plan VPS**
+
+   * Recomendado mínimo: **KVM 2**
+
+     * 2 vCPU, 8 GB RAM, 100 GB NVMe SSD
+
+---
+
+## 🧩 **2 Opciones de Plataforma: Coolify o Dokploy**
+
+### 🌿 Opción A: **Coolify**
+
+1. **Accede a Coolify**
+
+   * `https://<IP_VPS>:3000`
+   * Cambia la contraseña admin inicial.
+
+2. **Crea Base de Datos PostgreSQL**
+
+   * En **Resources > Add New > Database**
+   * Nombre: `risk_management`
+   * ✅ Hacerla **pública**
+   * Guarda usuario/contraseña
+
+3. **Conecta GitHub**
+
+   * **Applications > Add New > Git Repository**
+   * Autoriza tu cuenta y selecciona el repositorio `RiskManagamentDashboard`
+   * Solicita acceso si es privado: `brandonzaratem2603@gmail.com`
+
+4. **Configura Variables de Entorno**
+
+   ```env
+   DATABASE_URL="postgresql://admin:<PASS>@<HOST>:5432/risk_management"
+   NEXTAUTH_SECRET="$(openssl rand -base64 32)"
+   ```
+
+5. **Despliegue**
+
+   * Coolify detecta automáticamente el `Dockerfile` y realiza:
+
+     * Build
+     * Migraciones (`prisma migrate deploy`)
+     * Seed (`prisma db seed`)
+   * Se configura HTTPS automáticamente si se añade dominio.
+
+6. **Backup con S3/R2**
+
+   * Ve a **Settings > Storage**
+   * Agrega bucket de S3/R2 y activa copias automáticas.
+
+---
+
+### ⚙️ Opción B: **Dokploy**
+
+1. **Accede a Dokploy**
+
+   * `https://<IP_VPS>:3000`
+   * Cambia la contraseña del panel inicial.
+
+2. **Base de Datos**
+
+   * Ve a **Services > PostgreSQL**
+   * Crea instancia con nombre `risk_management`
+   * ✅ Asegúrate de marcarla como accesible públicamente
+   * Guarda usuario y host
+
+3. **Vincula Repositorio GitHub**
+
+   * **Applications > New Project > GitHub**
+   * Selecciona `RiskManagamentDashboard`
+   * Activa “Auto-deploy on Push” si deseas CI/CD
+
+4. **Configura las Variables de Entorno**
+
+   ```env
+   DATABASE_URL="postgresql://admin:<PASS>@<HOST>:5432/risk_management"
+   NEXTAUTH_SECRET="<clave>"
+   ```
+
+5. **Despliegue**
+
+   * Dokploy también detectará automáticamente el `Dockerfile`
+   * Despliega y ejecuta migraciones/seed
+
+6. **Backup con S3/R2**
+
+   * Ve a **Settings > Storage Providers**
+   * Integra tu bucket y programa respaldos diarios
+
+---
+
+## **Credenciales Iniciales del Sistema**
+
+Después del primer despliegue, tendrás:
+
+* Usuario: `adminriskmanagement@ucr.ac.cr`
+* Contraseña: admin123
+
+> Puedes cambiarla desde PostgreSQL:
+
+```sql
+ALTER USER adminriskmanagement@ucr.ac.cr WITH PASSWORD 'tu_nueva_contraseña_segura';
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
+## ** Recursos**
+- [Soporte técnico de Hostinger](https://www.hostinger.com/support)
+- [Coolify Deploy](https://coolify.io/docs/builds/packs/dockerfile)  
+- [Dokploy Deployment Guide](https://docs.dokploy.com/docs/core/applications/build-type )
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

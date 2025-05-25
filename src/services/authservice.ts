@@ -7,6 +7,11 @@ interface LoginCredentials {
 
 interface LoginResponse {
   success: boolean;
+  user: {
+    id: string;
+    nombre: string;
+    rol: string;
+  } | null;
 }
 
 export const authService = {

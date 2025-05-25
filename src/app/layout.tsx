@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Settings2 } from "lucide-react";
-import Link from "next/link";
+import { Nav } from "@/components/nav";
+import { Footer } from "@/components/ui/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,20 +29,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex h-16 items-center px-4 bg-primary-blue">
-          <img src="firma-tipografica-ucr.svg" alt="Logo UCR" />
-          <Link className="ml-auto text-white" href="/users">
-            <Settings2 className="h-6 w-6" />
-          </Link>
-          
-        </div>
+        <header>
+          <Nav />
+        </header>
         {children}
-        <footer className="flex items-center justify-between border-t p-4 bg-gray">
-        <div className="flex items-center gap-2">
-          <img src="firma-tipografica-ucr.svg" alt="Logo UCR" className="h-8" />
-          <h6 className="text-sm text-white">Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</h6>
-        </div>
-      </footer>
+        <footer>
+          <Footer />
+        </footer>
       </body>
     </html>
   );
