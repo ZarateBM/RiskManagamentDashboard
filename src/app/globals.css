@@ -112,13 +112,22 @@ body {
   text-decoration: underline;
   color: #0C344E;
 }
-
+button{
+  .link{
+    color: #fff !important;
+  }
+}
 .primary-title{
   color: #41ADE7;
 }
 
 .primary-text{
   color: #666;
+}
+
+.button-blue{
+  background-color: #0090D8;
+  color: #fff;
 }
 
 p,span,h4{
@@ -136,3 +145,8 @@ div, button, input, card, footer, tr {
   background-color: #fff;
 }
 
+body { 
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
