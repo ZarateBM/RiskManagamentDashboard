@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 
-// Tipado de las categorías
 export type Categoria = { 
   idCategoria: number
   nombre: string
@@ -10,6 +9,7 @@ export type Categoria = {
 type CategoriaFormData = {
   nombre: string
   descripcion: string
+  
 }
 
 export function useCategory() {
@@ -102,6 +102,33 @@ export function useCategory() {
     }
   }
 
+const updateCategory = async (id: number, data: CategoriaFormData) => {
+  try {
+    const res = await fetch(`/api/category/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data), 
+    })
+
+    if (!res.ok) {
+      throw new Error("Error al editar la categoría")
+    }
+
+    const categoriaActualizada: Categoria = await res.json()
+    setCategorias(prev =>
+      prev.map(cat =>
+        cat.idCategoria === id ? categoriaActualizada : cat
+      )
+    )
+
+    return true
+  } catch (err) {
+    console.error("Error al editar categoría:", err)
+    setError("Error al editar la categoría")
+    return false
+  }
+}
+
   // Cargar categorías al iniciar
   useEffect(() => {
     fetchCategories()
@@ -119,6 +146,7 @@ export function useCategory() {
     resetForm,
     createCategory,
     deleteCategory,
-    fetchCategories
+    fetchCategories,
+    updateCategory
   }
 }

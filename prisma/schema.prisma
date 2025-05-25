@@ -143,6 +143,7 @@ model Protocolo {
   publicadoPor        Usuario   @relation(fields: [idUsuarioPublicador], references: [idUsuario])
 }
 
+
 enum Rol {
   ADMINISTRADOR
   EDITOR

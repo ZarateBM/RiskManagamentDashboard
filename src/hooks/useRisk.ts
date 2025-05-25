@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react"
+import {
+  getRisks,
+  createRiskAPI,
+  updateRiskAPI,
+  deleteRiskAPI,
+} from "../services/riskservice"
 
-// Tipado de los datos
 export type Risk = {
   idRiesgo: number
   titulo: string
@@ -44,13 +49,11 @@ export function useRisk() {
     idUsuarioRegistro: "",
   })
 
-  // Cargar riesgos
+  // ——— Fetch all risks —————————————————————————————
   const fetchRisks = async () => {
     try {
       setLoading(true)
-      const res = await fetch("/api/risk")
-      if (!res.ok) throw new Error("Error al cargar los riesgos")
-      const data: Risk[] = await res.json()
+      const data = await getRisks()
       setRiskData(data)
       setError(null)
     } catch (err) {
@@ -61,20 +64,19 @@ export function useRisk() {
     }
   }
 
-  // Crear riesgo
+  // ——— Create risk ——————————————————————————————————
   const createRisk = async (categorias: { idCategoria: number; nombre: string }[]) => {
     try {
-      // Encontrar el ID de la categoría seleccionada por nombre
-      const categoriaSeleccionada = categorias.find(cat => cat.nombre === form.categoriaSeleccionada)
-      
-      if (!categoriaSeleccionada && form.categoriaSeleccionada) {
+      if (!validateForm()) return false
+      const cat = categorias.find(c => c.nombre === form.categoriaSeleccionada)
+      if (!cat && form.categoriaSeleccionada) {
         setError("La categoría seleccionada no es válida")
         return false
       }
 
       const payload = {
         titulo: form.titulo,
-        idCategoria: categoriaSeleccionada ? categoriaSeleccionada.idCategoria : null,
+        idCategoria: cat ? cat.idCategoria : null,
         impacto: form.impacto,
         probabilidad: form.probabilidad,
         estado: form.estado,
@@ -82,29 +84,8 @@ export function useRisk() {
         idUsuarioRegistro: form.idUsuarioRegistro ? Number(form.idUsuarioRegistro) : null,
       }
 
-      const res = await fetch("/api/risk", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-      
-      if (!res.ok) {
-        const errorText = await res.text()
-        throw new Error(`Error al crear riesgo: ${res.status} - ${errorText}`)
-      }
-      
-      const nuevoRiesgo: Risk = await res.json()
-      
-      // Asegurarnos de que el nuevo riesgo tenga toda la información de la categoría
-      const nuevoRiesgoCompleto = {
-        ...nuevoRiesgo,
-        categoria: categoriaSeleccionada ? {
-          idCategoria: categoriaSeleccionada.idCategoria,
-          nombre: categoriaSeleccionada.nombre
-        } : null
-      }
-      
-      setRiskData([nuevoRiesgoCompleto as Risk, ...riskData])
+      const nuevo = await createRiskAPI(payload)
+      setRiskData([ { ...nuevo, categoria: cat ?? null } as Risk, ...riskData ])
       resetForm()
       setError(null)
       return true
@@ -115,12 +96,74 @@ export function useRisk() {
     }
   }
 
-  // Actualizar formulario
+  // ——— Update risk ——————————————————————————————————
+  const updateRisk = async (
+    idRiesgo: number,
+    data: {
+      titulo: string
+      categoriaSeleccionada: string
+      impacto: string
+      probabilidad: string
+      estado: string
+      responsableId?: string
+      idUsuarioRegistro?: string
+    },
+    categorias: { idCategoria: number; nombre: string }[]
+  ): Promise<boolean> => {
+    try {
+      if (!data.titulo.trim()) {
+        setError("El título es obligatorio")
+        return false
+      }
+      const cat = categorias.find(c => c.nombre === data.categoriaSeleccionada)
+      if (!cat) {
+        setError("Categoría inválida")
+        return false
+      }
+
+      const payload = {
+        titulo: data.titulo,
+        idCategoria: cat.idCategoria,
+        impacto: data.impacto,
+        probabilidad: data.probabilidad,
+        estado: data.estado,
+        responsableId: data.responsableId ? Number(data.responsableId) : null,
+        idUsuarioRegistro: data.idUsuarioRegistro ? Number(data.idUsuarioRegistro) : null,
+      }
+
+      const updated = await updateRiskAPI(idRiesgo, payload)
+      setRiskData(prev =>
+        prev.map(r => r.idRiesgo === idRiesgo
+          ? { ...updated, categoria: { idCategoria: cat.idCategoria, nombre: cat.nombre } }
+          : r
+        )
+      )
+      setError(null)
+      return true
+    } catch (err) {
+      console.error(err)
+      setError("No se pudo actualizar el riesgo")
+      return false
+    }
+  }
+
+  // ——— Delete risk ——————————————————————————————————
+  const deleteRisk = async (idRiesgo: number) => {
+    try {
+      await deleteRiskAPI(idRiesgo)
+      setRiskData(prev => prev.filter(r => r.idRiesgo !== idRiesgo))
+      setError(null)
+    } catch (err) {
+      console.error(err)
+      setError("No se pudo eliminar el riesgo")
+    }
+  }
+
+  // ——— Form handlers & helpers ——————————————————————
   const updateForm = (field: keyof RiskFormData, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
-  // Resetear formulario
   const resetForm = () => {
     setForm({
       titulo: "",
@@ -129,32 +172,36 @@ export function useRisk() {
       probabilidad: "",
       estado: "",
       responsableId: "",
-      idUsuarioRegistro: ""
+      idUsuarioRegistro: "",
     })
     setOpenNew(false)
   }
 
-  // Filtrar riesgos
+  const validateForm = (): boolean => {
+    if (!form.titulo.trim())    return setError("El título es obligatorio"), false
+    if (!form.categoriaSeleccionada) return setError("Debes seleccionar una categoría"), false
+    if (!form.impacto)           return setError("Debes indicar el impacto"), false
+    if (!form.probabilidad)      return setError("Debes indicar la probabilidad"), false
+    if (!form.estado)            return setError("Debes seleccionar el estado"), false
+    if (!form.responsableId)     return setError("Debes asignar un responsable"), false
+    if (!form.idUsuarioRegistro) return setError("Falta indicar quién registra"), false
+    setError(null)
+    return true
+  }
+
+  // ——— Filters & utilities —————————————————————————
   const getFilteredRisks = () => {
     return riskData.filter(r => {
-      const title = r.titulo || ""
-      const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCategory = categoryFilter === "Todos" || (r.categoria?.nombre === categoryFilter)
-      const matchesImpact = impactFilter === "Ninguno" || impactFilter === "Todos" || r.impacto === impactFilter
-    
-      if (impactFilter === "Ninguno") {
-        return searchTerm.length > 0 && matchesSearch && matchesCategory
-      }
-      return matchesSearch && matchesCategory && matchesImpact
+      const matchesSearch   = r.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesCategory = categoryFilter === "Todos" || r.categoria?.nombre === categoryFilter
+      const matchesImpact   = impactFilter === "Ninguno"
+        ? searchTerm.length > 0 && matchesSearch && matchesCategory
+        : (impactFilter === "Todos" || r.impacto === impactFilter) && matchesSearch && matchesCategory
+
+      return matchesImpact
     })
   }
 
-  // Cargar riesgos al iniciar
-  useEffect(() => {
-    fetchRisks()
-  }, [])
-
-  // Función auxiliar para obtener el color del impacto
   const getImpactColor = (impact: string) => {
     switch (impact) {
       case "Crítico": return "bg-red-100 text-red-800"
@@ -165,37 +212,44 @@ export function useRisk() {
     }
   }
 
-  // Obtener categorías únicas de los riesgos
-  const getUniqueCategories = () => {
-    return Array.from(
-      new Set(
-        riskData
-          .filter(r => r.categoria && r.categoria.nombre)
-          .map(r => r.categoria.nombre)
-      )
-    )
-  }
+  const getUniqueCategories = () => [
+    ...new Set(riskData.map(r => r.categoria?.nombre).filter(Boolean))
+  ] as string[]
+
+  // ——— Auto-load on mount ————————————————————————
+  useEffect(() => {
+    fetchRisks()
+  }, [])
 
   return {
+    // state
     riskData,
     loading,
     error,
-    setError,
-    searchTerm,
-    setSearchTerm,
-    categoryFilter,
-    setCategoryFilter,
-    impactFilter,
-    setImpactFilter,
     openNew,
-    setOpenNew,
     form,
+    searchTerm,
+    categoryFilter,
+    impactFilter,
+
+    // setters
+    setError,
+    setOpenNew,
     updateForm,
-    resetForm,
+    setSearchTerm,
+    setCategoryFilter,
+    setImpactFilter,
+
+    // actions
+    fetchRisks,
     createRisk,
+    updateRisk,
+    deleteRisk,
+
+    // helpers
+    resetForm,
     getFilteredRisks,
     getImpactColor,
     getUniqueCategories,
-    fetchRisks
   }
 }
