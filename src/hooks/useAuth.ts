@@ -7,7 +7,7 @@ export const useAuth = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, rememberMe: boolean) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -16,6 +16,11 @@ export const useAuth = () => {
       
       if (response.success) {
         router.push('/dashboard');
+        if (rememberMe) {
+          localStorage.setItem('userData', JSON.stringify(response.user));
+        }
+        sessionStorage.setItem('userData', JSON.stringify(response.user));
+
       } else {
         setError('Credenciales inválidas');
       }
