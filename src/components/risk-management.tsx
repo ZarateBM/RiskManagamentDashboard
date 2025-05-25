@@ -51,6 +51,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 // Importamos nuestros hooks personalizados
 import { useRisk } from "../hooks/useRisk";
 import { useCategory, Categoria } from "../hooks/useCategory";
+import { useSession } from "@/hooks/useSession";
 
 // Importamos el componente PdfGenerator
 import PdfGenerator, { PdfData } from "../components/PDF/PdfGenerator";
@@ -96,6 +97,7 @@ export default function RiskManagement() {
   );
 
   const risk = useRisk();
+  const user = useSession();
   const category = useCategory();
 
   // Obtener riesgos filtrados
@@ -240,12 +242,14 @@ export default function RiskManagement() {
                 open={category.openNew}
                 onOpenChange={category.setOpenNew}
               >
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Nueva Categoria
-                  </Button>
-                </DialogTrigger>
+                {user != null && user.rol == "ADMINISTRADOR" && (
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Nueva Categoria
+                    </Button>
+                  </DialogTrigger>
+                )}
                 <DialogContent className="sm:max-w-[500px]">
                   <DialogHeader>
                     <DialogTitle>Crear Categoría</DialogTitle>

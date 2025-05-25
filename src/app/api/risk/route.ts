@@ -2,7 +2,7 @@
 
 import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
-import { sendEmail } from '../../../lib/mail'   // tu lib que usa nodemailer
+import { sendEmail } from '@/lib/mail'   // tu lib que usa nodemailer
 
 const prisma = new PrismaClient()
 
