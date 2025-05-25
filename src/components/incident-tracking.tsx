@@ -78,7 +78,7 @@ export default function IncidentTracking() {
 
   useEffect(() => {
     getIncidents().then(setIncidents)
-  }, [])
+  }, [getIncidents])
 
   const handleCreate = async () => {
     const created = await createIncident({
