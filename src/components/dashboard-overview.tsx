@@ -1,7 +1,6 @@
-
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -33,13 +32,37 @@ export default function DashboardOverview() {
   const [showActions, setShowActions] = useState(false)
   const [showStats, setShowStats] = useState(false)
 
+  // Estados para simular datos del sensor
+  const [temperature, setTemperature] = useState(22.5)
+  const [humidity, setHumidity] = useState(65)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Cambio más suave para la temperatura: ±0.05°C máximo
+      setTemperature(prevTemp => {
+        const change = (Math.random() - 0.5) * 0.1
+        const newTemp = parseFloat((prevTemp + change).toFixed(1))
+        return Math.min(Math.max(newTemp, 20), 30)
+      })
+
+      // Cambio más suave para la humedad: ±0.1% máximo
+      setHumidity(prevHum => {
+        const change = (Math.random() - 0.5) * 0.1
+        const newHum = parseFloat((prevHum + change).toFixed(1))
+        return Math.min(Math.max(newHum, 60), 70)
+      })
+    }, 10000) // actualiza cada 10 segundos
+
+    return () => clearInterval(interval)
+  }, [])
+
   return (
-    <div className="grid min-h-screen grid-rows-[auto_1fr_auto] grid-areas-layout">
+    <div className="grid  grid-rows-[auto_1fr_auto] grid-areas-layout">
       <div className="border-b ">
         <div className="flex h-16 items-center px-4 bg-dark-blue ">
           <div className="flex items-center gap-2 font-semibold text-white">
             <Server className="h-6 w-6 color-white" />
-            <h6 >Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</h6>
+            <h6>Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</h6>
           </div>
           <div className="ml-auto flex items-center gap-4 ">
             <Button className="text-white" variant="outline" size="sm">
@@ -88,8 +111,10 @@ export default function DashboardOverview() {
                     <Thermometer className="h-4 w-4 text-green-500" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">22.5°C</div>
-                    <p className="text-xs text-muted-foreground">Dentro del rango óptimo</p>
+                    <div className="text-2xl font-bold">{temperature}°C</div>
+                    <p className="text-xs text-muted-foreground">
+                      Sensor en cuarto de servidores - Puntarenas, CR
+                    </p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -98,8 +123,10 @@ export default function DashboardOverview() {
                     <Droplets className="h-4 w-4 text-amber-500" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">65%</div>
-                    <p className="text-xs text-muted-foreground">Ligeramente elevada</p>
+                    <div className="text-2xl font-bold">{humidity}%</div>
+                    <p className="text-xs text-muted-foreground">
+                      Sensor en cuarto de servidores - Puntarenas, CR
+                    </p>
                   </CardContent>
                 </Card>
               </div>

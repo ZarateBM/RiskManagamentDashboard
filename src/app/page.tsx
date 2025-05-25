@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import {  useState } from "react"
+import {  useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
+import { useRouter } from "next/navigation"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("")
@@ -17,11 +18,18 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const { login, isLoading, error } = useAuth()
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     await login(email, password , rememberMe)
   }
+
+  useEffect(() => {
+    if (localStorage.getItem('userData') != null || sessionStorage.getItem('userData') != null) {
+      router.push('/dashboard')
+    }
+  }, [])
 
   return (
     <div className="flex flex-col justify-between bg-gray-50">
