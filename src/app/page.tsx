@@ -29,7 +29,7 @@ export default function LoginForm() {
     if (localStorage.getItem('userData') != null || sessionStorage.getItem('userData') != null) {
       router.push('/dashboard')
     }
-  }, [])
+  }, [router])
 
   return (
     <div className="flex flex-col justify-between bg-gray-50">

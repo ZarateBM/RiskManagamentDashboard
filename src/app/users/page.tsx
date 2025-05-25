@@ -52,6 +52,7 @@ export default function UserManagement() {
   const [roleFilter, setRoleFilter] = useState("Todos")
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedUser, setSelectedUser] = useState<Usuario | null>(null)
   const userSession = useSession()
 
