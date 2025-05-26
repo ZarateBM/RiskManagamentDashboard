@@ -91,7 +91,7 @@ export default function DashboardIntegrated() {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full w-full">
       <div className="border-b">
         <div className="flex h-16 items-center px-4">
           <div className="flex items-center gap-2 font-semibold">
