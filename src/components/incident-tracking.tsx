@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -18,9 +18,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Filter, Plus, Search } from "lucide-react"
+import { Filter, Plus, Search, FileText, FileDown } from "lucide-react"
 import { useIncidents, Incidente } from "@/hooks/useIncidents"
 import { useCategory, Categoria } from "@/hooks/useCategory"
+import { useUsers } from "@/hooks/useGetUser"
+import { User as UserType } from "@/types/User"
+import PdfGenerator, { PdfData } from "./PDF/PdfGenerator"
 
 // Lista estática de estados de incidente
 type StatusOption =
@@ -43,14 +46,17 @@ type SeverityOption = "Crítica" | "Alta" | "Media" | "Baja"
 const SEVERITY_OPTIONS: SeverityOption[] = ["Crítica", "Alta", "Media", "Baja"]
 
 export default function IncidentTracking() {
+  const [showPdfPreview, setShowPdfPreview] = useState<boolean>(false);
+  const [selectedIncidentForPdf, setSelectedIncidentForPdf] = useState<number | null>(null);
+  const { users, loading: loadingUsers } = useUsers()
+
   const {
+    incidents,
     loading: loadingIncidents,
     error: errorIncidents,
-    getIncidents,
     createIncident,
     deleteIncident,
   } = useIncidents()
-  const [incidents, setIncidents] = useState<Incidente[]>([])
 
   const {
     categorias,
@@ -70,22 +76,18 @@ export default function IncidentTracking() {
     fechaIncidente: new Date().toISOString().slice(0, 16),
     accionesTomadas: '',
     idUsuarioRegistro: 0,
+    responsableId: 0,
   })
 
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string | 'Todos'>("Todos")
   const [statusFilter, setStatusFilter] = useState<string | 'Ninguno'>("Ninguno")
 
-  useEffect(() => {
-    getIncidents().then(setIncidents)
-  }, [getIncidents])
-
   const handleCreate = async () => {
     const created = await createIncident({
       ...newIncident,
       fechaIncidente: new Date(newIncident.fechaIncidente).toISOString(),
     })
-    if (created) setIncidents(prev => [...prev, created])
   }
 
   // Filtrado
@@ -96,7 +98,7 @@ export default function IncidentTracking() {
     const matchesCategory =
       categoryFilter === 'Todos' || incident.idCategoria.toString() === categoryFilter
     const matchesStatus =
-      statusFilter === 'Todos' || incident.estadoIncidente === statusFilter
+      statusFilter === 'Todos' || statusFilter === 'Ninguno' || incident.estadoIncidente === statusFilter
     return matchesSearch && matchesCategory && matchesStatus
   })
 
@@ -121,17 +123,81 @@ export default function IncidentTracking() {
     }
   }
 
-  
   const getStatusColor = (status: StatusOption) => {
     switch (status) {
-      case 'Asignado':           return 'bg-blue-100 text-blue-800'
-      case 'En analisis':        return 'bg-amber-100 text-amber-800'
-      case 'En proceso':return 'bg-yellow-100 text-yellow-800'
-      case 'Cerrado':            return 'bg-green-100 text-green-800'
-      case 'Reabierto':          return 'bg-red-100 text-red-800'
-      default:                   return ''
+      case 'Asignado':     return 'bg-blue-100 text-blue-800'
+      case 'En analisis':  return 'bg-amber-100 text-amber-800'
+      case 'En proceso':   return 'bg-yellow-100 text-yellow-800'
+      case 'Cerrado':      return 'bg-green-100 text-green-800'
+      case 'Reabierto':    return 'bg-red-100 text-red-800'
+      default:             return ''
     }
   }
+
+  // Función para obtener nombre de usuario
+  const getUserNameById = (userId: number): string => {
+    const user = users.find((u: UserType) => u.idUsuario === userId)
+    return user?.nombreCompleto || "Usuario no encontrado"
+  }
+
+  // Función para obtener nombre de categoría
+  const getCategoryNameById = (categoryId: number): string => {
+    const category = categorias.find((c: Categoria) => c.idCategoria === categoryId)
+    return category?.nombre || "Categoría no encontrada"
+  }
+
+  // Generar datos para PDF
+  const generatePdfData = (): PdfData => {
+    if (selectedIncidentForPdf) {
+      const selected = incidents.find(
+        (incident) => incident.idIncidente === selectedIncidentForPdf
+      );
+      if (selected) {
+        return {
+          title: `Informe de Incidente: ${selected.titulo}`,
+          content: {
+            ID: selected.idIncidente,
+            Título: selected.titulo,
+            Categoría: getCategoryNameById(selected.idCategoria),
+            Descripción: selected.descripcion || "Sin descripción",
+            Severidad: selected.severidad,
+            Estado: selected.estadoIncidente,
+            "Fecha del Incidente": formatDate(selected.fechaIncidente),
+            "Acciones Tomadas": selected.accionesTomadas || "No especificadas",
+            "Usuario Registro": getUserNameById(selected.idUsuarioRegistro),
+            "Responsable": getUserNameById(selected.responsableId || 0),
+          },
+          footer: `Generado el ${new Date().toLocaleDateString()} - Sistema de Gestión de Incidentes`,
+        };
+      }
+    }
+
+    return {
+      title: "Informe General de Incidentes",
+      content: {
+        "Fecha del informe": new Date().toLocaleDateString(),
+        "Total de incidentes": filteredIncidents.length.toString(),
+        Filtros: `${categoryFilter !== "Todos" ? "Cat: " + categoryFilter : ""} ${
+          statusFilter !== "Ninguno" ? "Estado: " + statusFilter : ""
+        }`.trim() || "Ninguno",
+        Búsqueda: searchTerm || "Ninguna",
+      },
+      items: filteredIncidents.map((item) => ({
+        ID: item.idIncidente,
+        Título: item.titulo,
+        Categoría: getCategoryNameById(item.idCategoria),
+        Severidad: item.severidad,
+        Estado: item.estadoIncidente,
+        Fecha: formatDate(item.fechaIncidente),
+      })),
+      footer: `Generado el ${new Date().toLocaleDateString()} - Sistema de Gestión de Incidentes`,
+    };
+  };
+
+  const handleGenerateSingleIncidentPdf = (id: number) => {
+    setSelectedIncidentForPdf(id);
+    setShowPdfPreview(true);
+  };
 
   return (
     <div className="space-y-4">
@@ -256,13 +322,28 @@ export default function IncidentTracking() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="incident-user">ID Usuario Registro</Label>
-                    <Input
-                      id="incident-user"
-                      type="number"
-                      value={newIncident.idUsuarioRegistro}
-                      onChange={e => setNewIncident(prev => ({ ...prev, idUsuarioRegistro: Number(e.target.value) }))}
-                    />
+                    <Label htmlFor="incident-user">Responsable</Label>
+                    {loadingUsers ? (
+                      <p>Cargando usuarios...</p>
+                    ) : (
+                      <Select
+                        onValueChange={(value) =>
+                          setNewIncident((prev) => ({ ...prev, responsableId: Number(value) }))
+                        }
+                        defaultValue={newIncident.responsableId ? newIncident.responsableId.toString() : ""}
+                      >
+                        <SelectTrigger id="incident-user">
+                          <SelectValue placeholder="Seleccionar responsable" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users.map((user) => (
+                            <SelectItem key={user.idUsuario} value={user.idUsuario.toString()}>
+                              {user.nombreCompleto}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
                 </div>
                 <DialogFooter>
@@ -284,19 +365,25 @@ export default function IncidentTracking() {
                 onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Filter className="h-4 w-4 text-muted-foreground" />
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[150px]"><SelectValue placeholder="Categoría" /></SelectTrigger>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Categoría" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Todos">Todas</SelectItem>
                   {categorias.map(cat => (
-                    <SelectItem key={cat.idCategoria} value={cat.idCategoria.toString()}>{cat.nombre}</SelectItem>
+                    <SelectItem key={cat.idCategoria} value={cat.idCategoria.toString()}>
+                      {cat.nombre}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[150px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Ninguno">Ninguno</SelectItem>
                   <SelectItem value="Todos">Todos</SelectItem>
@@ -309,22 +396,23 @@ export default function IncidentTracking() {
           </div>
 
           {loadingIncidents ? (
-            <p>Cargando incidentes...</p>
+            <div className="text-center py-8">Cargando incidentes...</div>
           ) : errorIncidents ? (
-            <p className="text-red-500">{errorIncidents}</p>
+            <div className="text-center py-8 text-red-500">{errorIncidents}</div>
           ) : statusFilter === "Ninguno" && searchTerm === "" ? (
             <div className="text-center py-8 text-muted-foreground">
-              Escribe o selecciona un filtro para ver
+              Escribe en el campo de búsqueda o selecciona un filtro para ver los incidentes
             </div>
           ) : filteredIncidents.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No se encontraron incidentes
+              No se encontraron incidentes con los filtros aplicados
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Incidente</TableHead>
+                  <TableHead>Categoría</TableHead>
                   <TableHead>Severidad</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Fecha</TableHead>
@@ -335,15 +423,64 @@ export default function IncidentTracking() {
                 {filteredIncidents.map(incident => (
                   <TableRow key={incident.idIncidente}>
                     <TableCell>{incident.titulo}</TableCell>
+                    <TableCell>{getCategoryNameById(incident.idCategoria)}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={getSeverityColor(incident.severidad)}>{incident.severidad}</Badge>
+                      <Badge variant="outline" className={getSeverityColor(incident.severidad)}>
+                        {incident.severidad}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={getStatusColor(incident.estadoIncidente as StatusOption)}>{incident.estadoIncidente}</Badge>
+                      <Badge variant="outline" className={getStatusColor(incident.estadoIncidente as StatusOption)}>
+                        {incident.estadoIncidente}
+                      </Badge>
                     </TableCell>
                     <TableCell>{formatDate(incident.fechaIncidente)}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => deleteIncident(incident.idIncidente!)}>Eliminar</Button>
+                      <div className="flex justify-end gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <FileText className="mr-1 h-4 w-4" />
+                              Detalles
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[500px]">
+                            <DialogHeader>
+                              <DialogTitle>{incident.titulo}</DialogTitle>
+                              <DialogDescription>
+                                Registrado el {formatDate(incident.fechaIncidente)}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-2">
+                              <p><strong>Categoría:</strong> {getCategoryNameById(incident.idCategoria)}</p>
+                              <p><strong>Descripción:</strong> {incident.descripcion || "Sin descripción"}</p>
+                              <p><strong>Severidad:</strong> {incident.severidad}</p>
+                              <p><strong>Estado:</strong> {incident.estadoIncidente}</p>
+                              <p><strong>Acciones Tomadas:</strong> {incident.accionesTomadas || "No especificadas"}</p>
+                              <p><strong>Responsable:</strong> {getUserNameById(incident.responsableId || 0)}</p>
+                              <p><strong>Registrado por:</strong> {getUserNameById(incident.idUsuarioRegistro)}</p>
+                            </div>
+                            <DialogFooter>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  onClick={() => handleGenerateSingleIncidentPdf(incident.idIncidente!)}
+                                >
+                                  <FileDown className="mr-1 h-4 w-4" />
+                                  Ver PDF
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => deleteIncident(incident.idIncidente!)}
+                                >
+                                  Eliminar
+                                </Button>
+                              </div>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -353,11 +490,59 @@ export default function IncidentTracking() {
         </CardContent>
 
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             Mostrando {filteredIncidents.length} de {incidents.length} incidentes
-          </div>
+          </span>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSelectedIncidentForPdf(null);
+              setShowPdfPreview(true);
+            }}
+          >
+            <FileDown className="mr-1 h-4 w-4" />
+            Exportar PDF
+          </Button>
         </CardFooter>
       </Card>
+      
+      {/* Dialog para PDF */}
+      <Dialog open={showPdfPreview} onOpenChange={setShowPdfPreview} modal>
+        <DialogContent className="sm:max-w-[80%] max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedIncidentForPdf
+                ? "Vista Previa Incidente"
+                : "Vista Previa Informe"}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedIncidentForPdf ? "Informe específico de incidente" : "Listado completo de incidentes"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="h-[60vh]">
+            <PdfGenerator
+              data={generatePdfData()}
+              fileName={
+                selectedIncidentForPdf
+                  ? `incidente-${selectedIncidentForPdf}.pdf`
+                  : "informe-incidentes.pdf"
+              }
+              preview
+            />
+          </div>
+          <DialogFooter>
+            <PdfGenerator
+              data={generatePdfData()}
+              fileName={
+                selectedIncidentForPdf
+                  ? `incidente-${selectedIncidentForPdf}.pdf`
+                  : "informe-incidentes.pdf"
+              }
+              preview={false}
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

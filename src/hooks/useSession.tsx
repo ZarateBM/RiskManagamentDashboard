@@ -1,22 +1,29 @@
-import { User } from "@/types/User"
-import { useEffect, useState } from "react"
+// hooks/useSession.ts
+import { useEffect, useState } from 'react'
+import { User } from '@/types/User'
 
-export function useSession() {
+export function useSession(): User | null {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const localData = localStorage.getItem('userData')
-    const sessionData = sessionStorage.getItem('userData')
-    const data = localData || sessionData
+    const storedUser = localStorage.getItem('userData') || sessionStorage.getItem('userData')
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    } else {
+      setUser(null)
+    }
 
-    if (data) {
-      try {
-        setUser(JSON.parse(data))
-      } catch (e) {
-        console.error("Invalid session data", e)
+    const handleStorageChange = () => {
+      const updatedUser = localStorage.getItem('userData') || sessionStorage.getItem('userData')
+      if (updatedUser) {
+        setUser(JSON.parse(updatedUser))
+      } else {
         setUser(null)
       }
     }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   return user

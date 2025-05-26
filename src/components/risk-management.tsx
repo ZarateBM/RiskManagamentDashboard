@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 import { useState } from "react";
 import {
   Card,
@@ -45,16 +44,17 @@ import {
   Filter,
   FileDown,
   AlertCircle,
+  User,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Importamos nuestros hooks personalizados
 import { useRisk } from "../hooks/useRisk";
 import { useCategory, Categoria } from "../hooks/useCategory";
-
+import { useUsers } from "../hooks/useGetUser";
+import {User as UserType} from "@/types/User";
 // Importamos el componente PdfGenerator
 import PdfGenerator, { PdfData } from "../components/PDF/PdfGenerator";
-
 
 type Risk = {
   idRiesgo: number
@@ -85,28 +85,23 @@ interface EditRiskForm {
 export default function RiskManagement() {
   const [showCategories, setShowCategories] = useState(false);
   const [editCategoryOpen, setEditCategoryOpen] = useState<boolean>(false);
-  const [editCategoryForm, setEditCategoryForm] = useState<Partial<Categoria>>(
-    {}
-  );
+  const [editCategoryForm, setEditCategoryForm] = useState<Partial<Categoria>>({});
   const [editRiskOpen, setEditRiskOpen] = useState<boolean>(false);
   const [editRiskForm, setEditRiskForm] = useState<Partial<EditRiskForm>>({});
   const [showPdfPreview, setShowPdfPreview] = useState<boolean>(false);
-  const [selectedRiskForPdf, setSelectedRiskForPdf] = useState<number | null>(
-    null
-  );
+  const [selectedRiskForPdf, setSelectedRiskForPdf] = useState<number | null>(null);
 
   const risk = useRisk();
   const category = useCategory();
+  const { users, loading: usersLoading } = useUsers();
 
   // Obtener riesgos filtrados
   const filteredRisks = risk.getFilteredRisks();
-
 
   const handleEditCategoryClick = (cat: Categoria) => {
     setEditCategoryForm(cat);
     setEditCategoryOpen(true);
   };
-
 
   // Guardar cambios de categoría
   const handleUpdateCategory = () => {
@@ -129,8 +124,8 @@ export default function RiskManagement() {
       impacto: item.impacto,
       probabilidad: item.probabilidad,
       estado: item.estado,
-      responsableId: item.responsable?.nombreCompleto,
-      idUsuarioRegistro: item.registradoPor?.nombreCompleto,
+      responsableId: item.responsable?.idUsuario?.toString() || "",
+      idUsuarioRegistro: item.registradoPor?.idUsuario?.toString() || "",
     });
     setEditRiskOpen(true);
   };
@@ -161,6 +156,14 @@ export default function RiskManagement() {
       setEditRiskForm({});
     }
   };
+
+const getUserNameById = (userId: string): string => {
+  // Buscar por idUsuario (no por id) y usar nombreCompleto
+  const user = users.find((u: UserType) => u.idUsuario.toString() === userId)
+  return user?.nombreCompleto || ""
+}
+
+
   // Generación de PDF (idéntico)
   const generatePdfData = (): PdfData => {
     if (selectedRiskForPdf) {
@@ -411,24 +414,53 @@ export default function RiskManagement() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Mitigador (ID)</Label>
-                        <Input
-                          placeholder="ID usuario"
+                        <Label>Responsable</Label>
+                        <Select
                           value={risk.form.responsableId}
-                          onChange={(e) =>
-                            risk.updateForm("responsableId", e.target.value)
+                          onValueChange={(v) =>
+                            risk.updateForm("responsableId", v)
                           }
-                        />
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar responsable">
+                              <div className="flex items-center">
+                                <User className="mr-2 h-4 w-4" />
+                                {risk.form.responsableId 
+                                  ? getUserNameById((risk.form.responsableId))
+                                  : "Seleccionar responsable"
+                                }
+                              </div>
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {usersLoading ? (
+                              <SelectItem value="cargando">
+                                Cargando usuarios...
+                              </SelectItem>
+                            ) : (
+                              users.map((user: UserType) => (
+                                <SelectItem
+                                  key={user.idUsuario}
+                                  value={user.idUsuario.toString()}
+                                >
+                                  <div className="flex items-center">
+                                    <User className="mr-2 h-4 w-4" />
+                                    {user.nombreCompleto}
+                                  </div>
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label>Registrado por (ID)</Label>
-                        <Input
-                          placeholder="ID usuario"
-                          value={risk.form.idUsuarioRegistro}
-                          onChange={(e) =>
-                            risk.updateForm("idUsuarioRegistro", e.target.value)
-                          }
-                        />
+                        <Label>Registrado por</Label>
+                        <div className="flex items-center space-x-2 p-2 border rounded bg-gray-50">
+                          <User className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">
+                            {risk.currentUser?.nombreCompleto || "Usuario no identificado"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -857,33 +889,89 @@ export default function RiskManagement() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
+              {/* Mitigador */}
               <div className="space-y-2">
-                <Label>Mitigador (ID)</Label>
-                <Input
-                  placeholder="ID usuario"
+                <Label>Mitigador</Label>
+                <Select
                   value={editRiskForm.responsableId || ""}
-                  onChange={(e) =>
+                  onValueChange={(v) =>
                     setEditRiskForm({
                       ...editRiskForm,
-                      responsableId: e.target.value,
+                      responsableId: v,
                     })
                   }
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar mitigador">
+                      <div className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        {editRiskForm.responsableId
+                          ? getUserNameById((editRiskForm.responsableId))
+                          : "Seleccionar mitigador"}
+                      </div>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {usersLoading ? (
+                      <SelectItem value="cargando">Cargando usuarios...</SelectItem>
+                    ) : (
+                      users.map((user: UserType) => (
+                        <SelectItem
+                          key={user.idUsuario}
+                          value={user.idUsuario.toString()}
+                        >
+                          <div className="flex items-center">
+                            <User className="mr-2 h-4 w-4" />
+                            {user.nombreCompleto}
+                          </div>
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
-                <Label>Registrado por (ID)</Label>
-                <Input
-                  placeholder="ID usuario"
+                <Label>Registrado por</Label>
+                <Select
                   value={editRiskForm.idUsuarioRegistro || ""}
-                  onChange={(e) =>
+                  onValueChange={(v) =>
                     setEditRiskForm({
                       ...editRiskForm,
-                      idUsuarioRegistro: e.target.value,
+                      idUsuarioRegistro: v,
                     })
                   }
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar usuario">
+                      <div className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        {editRiskForm.idUsuarioRegistro
+                          ? getUserNameById((editRiskForm.idUsuarioRegistro))
+                          : "Seleccionar usuario"}
+                      </div>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {usersLoading ? (
+                      <SelectItem value="cargando">Cargando usuarios...</SelectItem>
+                    ) : (
+                      users.map((user: UserType) => (
+                        <SelectItem
+                          key={user.idUsuario}
+                          value={user.idUsuario.toString()}
+                        >
+                          <div className="flex items-center">
+                            <User className="mr-2 h-4 w-4" />
+                            {user.nombreCompleto}
+                          </div>
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+
           </div>
           <DialogFooter>
             <Button onClick={handleUpdateRisk}>Guardar Cambios</Button>

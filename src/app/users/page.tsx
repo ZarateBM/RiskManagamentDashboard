@@ -150,32 +150,54 @@ export default function UserManagement() {
     setEditModalOpen(true)
   }
 
+  const handlePrint = () => {
+    // Crear una hoja de estilo para impresión
+    const printStyles = document.createElement('style');
+    printStyles.innerHTML = `
+      @media print {
+        .card-content, .card-content * {
+          visibility: visible;
+        }
+        .hidden-to-print {
+          display: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(printStyles);
+    
+    // Imprimir
+    window.print();
+    
+    // Eliminar la hoja de estilo después de imprimir
+    document.head.removeChild(printStyles);
+  };
+
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Gestión de Usuarios</CardTitle>
-              <CardDescription>Administra los usuarios del sistema y sus permisos</CardDescription>
+              <CardTitle >Gestión de Usuarios</CardTitle>
+              <CardDescription className="hidden-to-print">Administra los usuarios del sistema y sus permisos</CardDescription>
             </div>
             <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
               <DialogTrigger asChild>
                 {userSession != null && userSession.rol === "ADMINISTRADOR" && (
                   <Button>
-                    <Plus className="mr-2 h-4 w-4" />
+                    <Plus className="mr-2 h-4 w-4 hidden-to-print" />
                     Nuevo Usuario
                   </Button>
                 )}
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px]">
+              <DialogContent className="sm:max-w-[600px] margin-0" style={{}}>
                 <DialogHeader>
                   <DialogTitle>Registrar Nuevo Usuario</DialogTitle>
                   <DialogDescription>
                     Complete la información para registrar un nuevo usuario en el sistema.
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleCreateUser}>
+                <form onSubmit={handleCreateUser} className="p-4">
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -238,9 +260,9 @@ export default function UserManagement() {
             </Dialog>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="card-content">
           <div className="mb-4 flex flex-col gap-4 md:flex-row">
-            <div className="relative flex-1">
+            <div className="relative flex-1 hidden-to-print">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar usuarios..."
@@ -249,7 +271,7 @@ export default function UserManagement() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 hidden-to-print">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">Filtros:</span>
@@ -284,7 +306,7 @@ export default function UserManagement() {
                   <TableHead>Rol</TableHead>
                   <TableHead>Estado</TableHead>
                   {userSession != null && userSession.rol === "ADMINISTRADOR" && (
-                    <TableHead className="text-right">Acciones</TableHead>
+                    <TableHead className="text-right hidden-to-print">Acciones</TableHead>
                   )}
                 </TableRow>
               </TableHeader>
@@ -308,9 +330,9 @@ export default function UserManagement() {
                       <Badge variant="outline" className="bg-green-100 text-green-800">
                         Activo
                       </Badge>
-                    </TableCell>
+                    </TableCell >
                     {userSession != null && userSession.rol === "ADMINISTRADOR" && (
-                      <TableCell className="text-right">
+                      <TableCell className="text-right hidden-to-print">
                         <div className="flex justify-end gap-2">
                           <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
                             <DialogTrigger asChild>
@@ -319,12 +341,12 @@ export default function UserManagement() {
                                 Editar
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-[600px]">
+                            <DialogContent className="sm:max-w-[600px] margin-0">
                               <DialogHeader>
                               <DialogTitle>Editar Usuario</DialogTitle>
                               <DialogDescription>Modifica la información del usuario seleccionado.</DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
+                            <div className="grid gap-4 p-4">
                               <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                   <Label htmlFor="edit-user-name">Nombre Completo</Label>
@@ -370,7 +392,7 @@ export default function UserManagement() {
                                 </div>
                               </div>
                             </div>
-                            <DialogFooter>
+                            <DialogFooter className="flex justify-end p-4">
                               <Button variant="outline" onClick={() => setEditModalOpen(false)}>
                                 Cancelar
                               </Button>
@@ -386,7 +408,7 @@ export default function UserManagement() {
                               Eliminar
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
+                          <AlertDialogContent style={{backgroundColor: "#f8f9fa"}}>
                             <AlertDialogHeader>
                               <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                               <AlertDialogDescription>
@@ -398,7 +420,8 @@ export default function UserManagement() {
                               <AlertDialogCancel>Cancelar</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => handleDeleteUser(user.idUsuario)}
-                                className="bg-red-600 hover:bg-red-700"
+                                className="bg-red-600 hover:bg-red-700 text-white "
+                                style={{ color: "#fff" , fontWeight: "bold" }}
                               >
                                 Eliminar Usuario
                               </AlertDialogAction>
@@ -415,14 +438,11 @@ export default function UserManagement() {
           )}
         </CardContent>
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground hidden-to-print">
             Mostrando {filteredUsers.length} de {usuarios.length} usuarios
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              Exportar
-            </Button>
-            <Button variant="outline" size="sm">
+          <div className="flex gap-2 hidden-to-print">
+            <Button variant="outline" size="sm" onClick={handlePrint}>
               Imprimir
             </Button>
           </div>
