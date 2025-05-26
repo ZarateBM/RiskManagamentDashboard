@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import IncidentService from '../services/Incidentservice';
+import { useSession } from './useSession';
 
 export interface Incidente {
   idIncidente?: number;
@@ -13,31 +14,42 @@ export interface Incidente {
   idUsuarioRegistro: number;
   fechaRegistro?: string;
   registroEstado?: boolean;
+  responsableId?: number; 
+
 }
 
 export const useIncidents = () => {
+  const [incidents, setIncidents] = useState<Incidente[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const user = useSession(); 
 
-  const getIncidents = async (): Promise<Incidente[]> => {
+  // Carga inicial automática al montar
+  useEffect(() => {
+    fetchIncidents();
+  }, []);
+
+  // Función para obtener todos los incidentes y actualizar el estado
+  const fetchIncidents = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await IncidentService.getAll();
-      return data;
+      setIncidents(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError('Error desconocido al obtener incidentes');
       }
-      return [];
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getIncidentById = async (id: number): Promise<Incidente | null> => {
+  const getIncidents = fetchIncidents; // alias si quieres usarlo externamente
+
+  const getIncidentById = useCallback(async (id: number): Promise<Incidente | null> => {
     setLoading(true);
     setError(null);
     try {
@@ -53,13 +65,23 @@ export const useIncidents = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createIncident = async (incident: Incidente): Promise<Incidente | null> => {
+  const createIncident = useCallback(async (incident: Incidente): Promise<Incidente | null> => {
     setLoading(true);
     setError(null);
     try {
-      const data = await IncidentService.create(incident);
+        if (!user) {
+        throw new Error("No hay usuario en sesión");
+      }
+
+        const incidentToCreate = {
+        ...incident,
+        idUsuarioRegistro: user?.idUsuario, 
+      };
+      const data = await IncidentService.create(incidentToCreate);
+      // Actualizar lista tras crear
+      await fetchIncidents();
       return data;
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -71,13 +93,15 @@ export const useIncidents = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchIncidents]);
 
-  const updateIncident = async (id: number, incident: Partial<Incidente>): Promise<Incidente | null> => {
+  const updateIncident = useCallback(async (id: number, incident: Partial<Incidente>): Promise<Incidente | null> => {
     setLoading(true);
     setError(null);
     try {
       const data = await IncidentService.update(id, incident);
+      // Actualizar lista tras actualizar
+      await fetchIncidents();
       return data;
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -89,13 +113,15 @@ export const useIncidents = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchIncidents]);
 
-  const deleteIncident = async (id: number): Promise<boolean> => {
+  const deleteIncident = useCallback(async (id: number): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
       await IncidentService.remove(id);
+      // Actualizar lista tras eliminar
+      await fetchIncidents();
       return true;
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -107,9 +133,10 @@ export const useIncidents = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchIncidents]);
 
   return {
+    incidents,
     loading,
     error,
     getIncidents,

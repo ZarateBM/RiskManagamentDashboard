@@ -5,6 +5,7 @@ import {
   updateRiskAPI,
   deleteRiskAPI,
 } from "../services/riskservice"
+import { useSession } from "./useSession"
 
 export type Risk = {
   idRiesgo: number
@@ -39,6 +40,10 @@ export function useRisk() {
   const [impactFilter, setImpactFilter] = useState("Ninguno")
   const [error, setError] = useState<string | null>(null)
   const [openNew, setOpenNew] = useState(false)
+  
+  // Obtener usuario en sesión
+  const currentUser = useSession()
+  
   const [form, setForm] = useState<RiskFormData>({
     titulo: "",
     categoriaSeleccionada: "",
@@ -46,8 +51,18 @@ export function useRisk() {
     probabilidad: "",
     estado: "",
     responsableId: "",
-    idUsuarioRegistro: "",
+    idUsuarioRegistro: "", 
   })
+
+  // Llenar automáticamente el usuario registrador cuando cambie la sesión
+  useEffect(() => {
+    if (currentUser) {
+      setForm(prev => ({
+        ...prev,
+        idUsuarioRegistro: currentUser.idUsuario.toString()
+      }))
+    }
+  }, [currentUser])
 
   // ——— Fetch all risks —————————————————————————————
   const fetchRisks = async () => {
@@ -172,7 +187,7 @@ export function useRisk() {
       probabilidad: "",
       estado: "",
       responsableId: "",
-      idUsuarioRegistro: "",
+      idUsuarioRegistro: currentUser ? currentUser.idUsuario.toString() : "",
     })
     setOpenNew(false)
   }
@@ -184,7 +199,7 @@ export function useRisk() {
     if (!form.probabilidad)      return setError("Debes indicar la probabilidad"), false
     if (!form.estado)            return setError("Debes seleccionar el estado"), false
     if (!form.responsableId)     return setError("Debes asignar un responsable"), false
-    if (!form.idUsuarioRegistro) return setError("Falta indicar quién registra"), false
+    if (!form.idUsuarioRegistro) return setError("No hay usuario en sesión"), false
     setError(null)
     return true
   }
@@ -231,6 +246,7 @@ export function useRisk() {
     searchTerm,
     categoryFilter,
     impactFilter,
+    currentUser, 
 
     // setters
     setError,

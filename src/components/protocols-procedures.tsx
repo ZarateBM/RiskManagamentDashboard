@@ -27,6 +27,8 @@ import {
   Zap,
 } from "lucide-react"
 
+import { useProtocols } from "@/hooks/useProtocols"
+
 // Tipos de procedimientos
 const procedureCategories = [
   {
@@ -385,14 +387,15 @@ export default function ProtocolsProcedures() {
   const [activeProcedure, setActiveProcedure] = useState<number | null>(null)
   const [completedSteps, setCompletedSteps] = useState<{ [key: string]: string[] }>({})
   const [notes, setNotes] = useState<{ [key: string]: string }>({})
-
+  const { protocols, loading } = useProtocols()
   // Filtrar los procedimientos según los criterios
-  const filteredProcedures = proceduresData.filter((procedure) => {
-    const matchesSearch = procedure.title.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || procedure.category === selectedCategory
+  const filteredProcedures = protocols.filter((procedure) => {
+    const matchesSearch = procedure.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = selectedCategory === "all" || procedure.categoria === selectedCategory
 
     return matchesSearch && matchesCategory
   })
+  
 
   // Función para manejar el cambio en los checkboxes de tareas
   const handleTaskCheck = (procedureId: number, stepTitle: string, task: string, checked: boolean) => {
@@ -513,27 +516,27 @@ export default function ProtocolsProcedures() {
             </div>
 
             <div className="space-y-2">
-              {filteredProcedures.map((procedure) => (
+              {!loading && filteredProcedures.map((procedure) => (
                 <div
-                  key={procedure.id}
-                  className={`cursor-pointer rounded-md border p-3 transition-colors hover:bg-accent ${activeProcedure === procedure.id ? "border-primary bg-accent" : ""}`}
-                  onClick={() => setActiveProcedure(procedure.id)}
+                  key={procedure.idProtocolo}
+                  className={`cursor-pointer rounded-md border p-3 transition-colors hover:bg-accent ${activeProcedure === procedure.idProtocolo ? "border-primary bg-accent" : ""}`}
+                  onClick={() => setActiveProcedure(procedure.idProtocolo)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {getCategoryIcon(procedure.category)}
-                      <span className="font-medium">{procedure.title}</span>
+                      {getCategoryIcon(procedure.categoria)}
+                      <span className="font-medium">{procedure.nombre}</span>
                     </div>
-                    <Badge variant="outline" className={getSeverityColor(procedure.severity)}>
-                      {procedure.severity}
+                    <Badge variant="outline" className={getSeverityColor(procedure.severidad)}>
+                      {procedure.severidad}
                     </Badge>
                   </div>
                   <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
-                    <span>Tiempo est.: {procedure.estimatedTime}</span>
-                    <span>Progreso: {calculateProgress(procedure.id)}%</span>
+                    <span>Tiempo est.: {procedure.tiempoEstimado}</span>
+                    <span>Progreso: {calculateProgress(procedure.idProtocolo)}%</span>
                   </div>
                   <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                    <div className="h-full bg-primary" style={{ width: `${calculateProgress(procedure.id)}%` }}></div>
+                    <div className="h-full bg-primary" style={{ width: `${calculateProgress(procedure.idProtocolo)}%` }}></div>
                   </div>
                 </div>
               ))}
