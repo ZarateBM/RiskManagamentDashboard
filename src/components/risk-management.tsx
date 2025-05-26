@@ -53,8 +53,8 @@ import { useRisk } from "../hooks/useRisk";
 import { useCategory, Categoria } from "../hooks/useCategory";
 import { useUsers } from "../hooks/useGetUser";
 import {User as UserType} from "@/types/User";
-// Importamos el componente PdfGenerator
 import PdfGenerator, { PdfData } from "../components/PDF/PdfGenerator";
+import { useSession } from "@/hooks/useSession";
 
 type Risk = {
   idRiesgo: number
@@ -83,6 +83,7 @@ interface EditRiskForm {
 }
 
 export default function RiskManagement() {
+  const user = useSession();
   const [showCategories, setShowCategories] = useState(false);
   const [editCategoryOpen, setEditCategoryOpen] = useState<boolean>(false);
   const [editCategoryForm, setEditCategoryForm] = useState<Partial<Categoria>>({});
@@ -115,7 +116,6 @@ export default function RiskManagement() {
     }
   };
 
-  // ---- Edición de Riesgos ----
   const handleEditRiskClick = (item: Risk) => {
     setEditRiskForm({
       idRiesgo: item.idRiesgo,
@@ -158,13 +158,11 @@ export default function RiskManagement() {
   };
 
 const getUserNameById = (userId: string): string => {
-  // Buscar por idUsuario (no por id) y usar nombreCompleto
   const user = users.find((u: UserType) => u.idUsuario.toString() === userId)
   return user?.nombreCompleto || ""
 }
 
 
-  // Generación de PDF (idéntico)
   const generatePdfData = (): PdfData => {
     if (selectedRiskForPdf) {
       const selected = risk.riskData.find(
@@ -239,16 +237,19 @@ const getUserNameById = (userId: string): string => {
             </div>
             <div className="flex gap-2">
               {/* Crear Categoria*/}
-              <Dialog
+              < Dialog
                 open={category.openNew}
                 onOpenChange={category.setOpenNew}
               >
-                <DialogTrigger asChild>
-                  <Button variant="outline">
+               { user?.rol === "Administrador" ? 
+               <DialogTrigger asChild>
+                  < Button variant="outline">
                     <Plus className="mr-2 h-4 w-4" />
                     Nueva Categoria
                   </Button>
                 </DialogTrigger>
+                : null
+               }
                 <DialogContent className="sm:max-w-[500px]">
                   <DialogHeader>
                     <DialogTitle>Crear Categoría</DialogTitle>
@@ -289,12 +290,15 @@ const getUserNameById = (userId: string): string => {
               </Dialog>
               {/* Crear Riesgo*/}
               <Dialog open={risk.openNew} onOpenChange={risk.setOpenNew}>
+                { user?.rol === "Administrador" ?
                 <DialogTrigger asChild>
                   <Button>
                     <Plus className="mr-2 h-4 w-4" />
                     Nuevo Riesgo
                   </Button>
                 </DialogTrigger>
+                : null
+             }
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle>Nuevo Riesgo</DialogTitle>
@@ -625,6 +629,7 @@ const getUserNameById = (userId: string): string => {
                                   <FileDown className="mr-1 h-4 w-4" />
                                   Ver PDF
                                 </Button>
+                                { user?.rol === "Administrador" ?
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -632,6 +637,8 @@ const getUserNameById = (userId: string): string => {
                                 >
                                   Editar
                                 </Button>
+                                : null
+                                }
                               </div>
                             </DialogFooter>
                           </DialogContent>
@@ -689,7 +696,7 @@ const getUserNameById = (userId: string): string => {
                   <TableRow>
                     <TableHead>ID</TableHead>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Desc</TableHead>
+                    <TableHead>Descripcion</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -699,6 +706,7 @@ const getUserNameById = (userId: string): string => {
                       <TableCell>{cat.idCategoria}</TableCell>
                       <TableCell>{cat.nombre}</TableCell>
                       <TableCell>{cat.descripcion}</TableCell>
+                      { user?.rol === "Administrador" ?
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
@@ -719,6 +727,8 @@ const getUserNameById = (userId: string): string => {
                           </Button>
                         </div>
                       </TableCell>
+                      : null
+                      }
                     </TableRow>
                   ))}
                 </TableBody>

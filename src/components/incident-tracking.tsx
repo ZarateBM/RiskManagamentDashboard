@@ -24,6 +24,7 @@ import { useCategory, Categoria } from "@/hooks/useCategory"
 import { useUsers } from "@/hooks/useGetUser"
 import { User as UserType } from "@/types/User"
 import PdfGenerator, { PdfData } from "./PDF/PdfGenerator"
+import { useSession } from "@/hooks/useSession"
 
 // Lista estática de estados de incidente
 type StatusOption =
@@ -46,6 +47,7 @@ type SeverityOption = "Crítica" | "Alta" | "Media" | "Baja"
 const SEVERITY_OPTIONS: SeverityOption[] = ["Crítica", "Alta", "Media", "Baja"]
 
 export default function IncidentTracking() {
+  const user = useSession();
   const [showPdfPreview, setShowPdfPreview] = useState<boolean>(false);
   const [selectedIncidentForPdf, setSelectedIncidentForPdf] = useState<number | null>(null);
   const { users, loading: loadingUsers } = useUsers()
@@ -55,6 +57,7 @@ export default function IncidentTracking() {
     loading: loadingIncidents,
     error: errorIncidents,
     createIncident,
+    updateIncident,
     deleteIncident,
   } = useIncidents()
 
@@ -209,11 +212,14 @@ export default function IncidentTracking() {
               <CardDescription>Registro y gestión de incidentes</CardDescription>
             </div>
             <Dialog>
+              { user?.rol === "Administrador" ?
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="mr-2 h-4 w-4" /> Nuevo Incidente
                 </Button>
               </DialogTrigger>
+              : null
+              }
               <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                   <DialogTitle>Registrar Nuevo Incidente</DialogTitle>
@@ -469,6 +475,7 @@ export default function IncidentTracking() {
                                   <FileDown className="mr-1 h-4 w-4" />
                                   Ver PDF
                                 </Button>
+                                { user?.rol === "Administrador" ?
                                 <Button
                                   size="sm"
                                   variant="destructive"
@@ -476,6 +483,18 @@ export default function IncidentTracking() {
                                 >
                                   Eliminar
                                 </Button>
+                                : null
+                                }
+                                { user?.rol === "Administrador" ?
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => updateIncident(incident.idIncidente!, incident)}
+                                >
+                                  Editar
+                                </Button>
+                                : null
+                                }
                               </div>
                             </DialogFooter>
                           </DialogContent>
