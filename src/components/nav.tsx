@@ -2,22 +2,19 @@
 import { LogOut, UserCog, LayoutDashboard } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
-import { useSession } from '@/hooks/useSession'
-import { useRouter, usePathname } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
+import { usePathname } from 'next/navigation'
 
 
 export const Nav = () => {
-  const router = useRouter()
   const pathname = usePathname()
-  const sessionUser = useSession()
+  const { user, logout } = useAuth()
 
   const handleLogout = () => {
-    localStorage.removeItem('userData')
-    sessionStorage.removeItem('userData')
-    router.push('/')
+    logout()
   }
 
-  if (!sessionUser) {
+  if (!user) {
     return (
       <div className="flex flex-row justify-between h-16 items-center px-4 bg-primary-blue">
         <Link href="/">
@@ -36,8 +33,8 @@ export const Nav = () => {
         <img src="firma-tipografica-ucr.svg" alt="Logo UCR" />
       </Link>
       <div className="flex flex-row items-center gap-2">
-        <h2 className='text-white'>Bienvenido {sessionUser.nombre}</h2>
-        {sessionUser.rol === 'ADMINISTRADOR' && (
+        <h2 className='text-white'>Bienvenido {user.nombreCompleto}</h2>
+        {user.rol === 'ADMINISTRADOR' && (
           pathname === '/users' ? (
             <Link className="ml-auto text-white" href="/dashboard">
               <LayoutDashboard className="h-6 w-6" />

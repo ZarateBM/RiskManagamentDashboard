@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { User } from "@/types/User"
+import { authService } from "@/services/authservice"
 
 type AuthContextType = {
   user: User | null
@@ -31,31 +32,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null)
 
     try {
-      // Aquí deberías validar el usuario real desde una API
-      const fakeUser: User = {
-        idUsuario: 1,
-        nombreCompleto: "Juan Pérez",
-        correo: email,
-        rol: "ADMINISTRADOR",
-      }
-
-      // Simular éxito
-      if (email && password) {
+      const response = await authService.login({ email, password });
+      
+      if (response.success && response.user) {
         if (rememberMe) {
-          localStorage.setItem("userData", JSON.stringify(fakeUser))
+          localStorage.setItem("userData", JSON.stringify(response.user))
         } else {
-          sessionStorage.setItem("userData", JSON.stringify(fakeUser))
+          sessionStorage.setItem("userData", JSON.stringify(response.user))
         }
-        setUser(fakeUser)
+        setUser({
+          idUsuario: Number(response.user.id),
+          nombre: response.user.nombre,
+          correo: response.user.email || '',
+          rol: response.user.rol
+        })
         router.push("/dashboard")
       } else {
         throw new Error("Credenciales inválidas")
       }
     } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message)
-        }
-      setError("Error al iniciar sesión")
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError("Error al iniciar sesión")
+      }
     } finally {
       setIsLoading(false)
     }
