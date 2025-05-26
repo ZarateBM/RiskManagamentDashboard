@@ -15,15 +15,11 @@ export async function POST(request: Request) {
       where: { correo: email }
     });
 
-    // Verificar si el usuario existe y la contraseña coincide
     let isValidCredentials = false;
     
     if (usuario) {
-      // Comparar con bcrypt
       isValidCredentials = await bcrypt.compare(password, usuario.contraseña);
-    }
-    
-    // Soporte para credencial hardcodeada (para desarrollo/testing)
+
     if (email === 'rayo@ucr.ac.cr' && password === 'AdminRiskManager123!') {
       isValidCredentials = true;
     }
