@@ -8,6 +8,7 @@ interface LoginCredentials {
 interface LoginResponse {
   success: boolean;
   user: {
+    email: string;
     id: string;
     nombre: string;
     rol: string;
