@@ -11,13 +11,14 @@ model Usuario {
   idUsuario             Int                  @id @default(autoincrement())
   nombreCompleto        String
   correo                String               @unique
-  contraseña           String
+  contraseña            String
   mitigador             Boolean              @default(false)
   rol                   Rol
   fechaCreacion         DateTime             @default(now())
   registroEstado        Boolean              @default(true)
   auditorias            Auditoria[]
-  incidentesRegistrados Incidente[]
+  incidentesRegistrados Incidente[]          @relation("RegistradoPor")  
+  incidentesResponsable Incidente[]          @relation("Responsable")   
   monitoreos            MonitoreoAmbiental[]
   planesEvitarCreados   PlanEvitar[]
   planesMitigarCreados  PlanMitigar[]
@@ -26,6 +27,7 @@ model Usuario {
   riesgosRegistrados    Riesgo[]             @relation("RegistradoPor")
   riesgosResponsable    Riesgo[]             @relation("Responsable")
 }
+
 
 model Categoria {
   idCategoria    Int         @id @default(autoincrement())
@@ -99,12 +101,15 @@ model Incidente {
   estadoIncidente   String
   fechaIncidente    DateTime
   accionesTomadas   String
+  responsableId     Int
   idUsuarioRegistro Int
   fechaRegistro     DateTime  @default(now())
   registroEstado    Boolean   @default(true)
   categoria         Categoria @relation(fields: [idCategoria], references: [idCategoria])
-  registradoPor     Usuario   @relation(fields: [idUsuarioRegistro], references: [idUsuario])
+  registradoPor     Usuario   @relation("RegistradoPor", fields: [idUsuarioRegistro], references: [idUsuario])
+  responsable       Usuario   @relation("Responsable", fields: [responsableId], references: [idUsuario])
 }
+
 
 model MonitoreoAmbiental {
   idMonitoreo       Int      @id @default(autoincrement())

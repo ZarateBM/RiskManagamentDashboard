@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // envío de correo asincrónico (fire-and-forget)
+
   ;(async () => {
     try {
       const responsable = await prisma.usuario.findUnique({
