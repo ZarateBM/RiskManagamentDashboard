@@ -14,6 +14,8 @@ export interface Incidente {
   idUsuarioRegistro: number;
   fechaRegistro?: string;
   registroEstado?: boolean;
+  responsableId?: number; 
+
 }
 
 export const useIncidents = () => {
