@@ -17,8 +17,6 @@ COPY . .
 COPY .env .env
 
 
-# Genera el cliente de Prisma
-RUN npx prisma generate
 
 
 ARG NEXT_PUBLIC_API_URL
