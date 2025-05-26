@@ -1,6 +1,7 @@
 // api/incidents/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { sendEmail } from '@/lib/mail';
 
 const prisma = new PrismaClient();
 function extractId(request: NextRequest): number {
@@ -14,34 +15,7 @@ function extractId(request: NextRequest): number {
   return id
 }
 
-// GET /api/incidents/:id
-export async function GET(request: NextRequest) {
-  let id: number
-  try {
-    id = extractId(request)
-  } catch {
-    return NextResponse.json({ error: 'ID inválido en la ruta' }, { status: 400 })
-  }
 
-  try {
-    const incidente = await prisma.incidente.findUnique({
-      where: { idIncidente: id, registroEstado: true },
-      include: { categoria: true, registradoPor: true },
-    })
-    if (!incidente) {
-      return NextResponse.json({ error: 'Incidente no encontrado' }, { status: 404 })
-    }
-    return NextResponse.json(incidente)
-  } catch (error) {
-    console.error('Error fetching incidente:', error)
-    return NextResponse.json(
-      { error: 'Error al obtener incidente' },
-      { status: 500 }
-    )
-  }
-}
-
-// PUT /api/incidents/:id
 export async function PUT(request: NextRequest) {
   let id: number
   try {
@@ -61,6 +35,7 @@ export async function PUT(request: NextRequest) {
     idUsuarioRegistro?: number
     fechaIncidente?: string
   }
+
   try {
     data = await request.json()
   } catch {
@@ -76,7 +51,38 @@ export async function PUT(request: NextRequest) {
           ? new Date(data.fechaIncidente)
           : undefined,
       },
+      include: {
+        categoria: true,
+        registradoPor: true,
+      },
     })
+
+    // Enviar correo
+    try {
+      const usuario = actualizado.registradoPor
+      const fecha = new Date().toLocaleDateString('es-CR')
+
+      await sendEmail({
+        to: usuario?.correo || 'soporte@sistema.com',
+        subject: `Actualización de incidente: ${actualizado.titulo}`,
+        html: `
+          <h2>Incidente Actualizado</h2>
+          <p><b>Título:</b> ${actualizado.titulo}</p>
+          <p><b>Estado:</b> ${actualizado.estadoIncidente}</p>
+          <p><b>Descripción:</b> ${actualizado.descripcion || 'No disponible'}</p>
+          <p><b>Fecha del incidente:</b> ${actualizado.fechaIncidente?.toLocaleDateString('es-CR') || 'No especificada'}</p>
+          <p><b>Categoría:</b> ${actualizado.categoria?.nombre || 'Sin categoría'}</p>
+          <p><b>Registrado por:</b> ${usuario?.nombreCompleto || 'Desconocido'} (${usuario?.correo || 'sin correo'})</p>
+          <p><b>Fecha de actualización:</b> ${fecha}</p>
+          <hr/>
+          <p>Consulta más detalles en el sistema de gestión de incidentes.</p>
+        `,
+        text: `El incidente "${actualizado.titulo}" fue actualizado. Estado: ${actualizado.estadoIncidente || 'No disponible'}.`,
+      })
+    } catch (mailError) {
+      console.error('Error al enviar correo de actualización:', mailError)
+    }
+
     return NextResponse.json(actualizado)
   } catch (error) {
     console.error('Error updating incidente:', error)

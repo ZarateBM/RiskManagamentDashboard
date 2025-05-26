@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Filter, Plus, Search } from "lucide-react"
 import { useIncidents, Incidente } from "@/hooks/useIncidents"
 import { useCategory, Categoria } from "@/hooks/useCategory"
+import { useUsers } from "@/hooks/useGetUser"
 
 // Lista estática de estados de incidente
 type StatusOption =
@@ -43,14 +44,15 @@ type SeverityOption = "Crítica" | "Alta" | "Media" | "Baja"
 const SEVERITY_OPTIONS: SeverityOption[] = ["Crítica", "Alta", "Media", "Baja"]
 
 export default function IncidentTracking() {
+  const { users, loading: loadingUsers } = useUsers()
+
   const {
+    incidents,
     loading: loadingIncidents,
     error: errorIncidents,
-    getIncidents,
     createIncident,
     deleteIncident,
   } = useIncidents()
-  const [incidents, setIncidents] = useState<Incidente[]>([])
 
   const {
     categorias,
@@ -76,16 +78,13 @@ export default function IncidentTracking() {
   const [categoryFilter, setCategoryFilter] = useState<string | 'Todos'>("Todos")
   const [statusFilter, setStatusFilter] = useState<string | 'Ninguno'>("Ninguno")
 
-  useEffect(() => {
-    getIncidents().then(setIncidents)
-  }, [getIncidents])
 
   const handleCreate = async () => {
     const created = await createIncident({
       ...newIncident,
       fechaIncidente: new Date(newIncident.fechaIncidente).toISOString(),
     })
-    if (created) setIncidents(prev => [...prev, created])
+  
   }
 
   // Filtrado
@@ -256,14 +255,30 @@ export default function IncidentTracking() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="incident-user">ID Usuario Registro</Label>
-                    <Input
-                      id="incident-user"
-                      type="number"
-                      value={newIncident.idUsuarioRegistro}
-                      onChange={e => setNewIncident(prev => ({ ...prev, idUsuarioRegistro: Number(e.target.value) }))}
-                    />
+                    <Label htmlFor="incident-user">Responsable</Label>
+                    {loadingUsers ? (
+                      <p>Cargando usuarios...</p>
+                    ) : (
+                      <Select
+                        onValueChange={(value) =>
+                          setNewIncident((prev) => ({ ...prev, idUsuarioRegistro: Number(value) }))
+                        }
+                        defaultValue={newIncident.idUsuarioRegistro.toString()}
+                      >
+                        <SelectTrigger id="incident-user">
+                          <SelectValue placeholder="Seleccionar responsable" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users.map((user) => (
+                            <SelectItem key={user.idUsuario} value={user.idUsuario.toString()}>
+                              {user.nombreCompleto}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
+
                 </div>
                 <DialogFooter>
                   <Button onClick={handleCreate}>Registrar</Button>
