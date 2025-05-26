@@ -179,8 +179,8 @@ export default function UserManagement() {
             <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
               <DialogTrigger asChild>
                 {userSession != null && userSession.rol === "ADMINISTRADOR" && (
-                  <Button>
-                    <Plus className="mr-2 h-4 w-4 hidden-to-print" />
+                  <Button className="hidden-to-print">
+                    <Plus className="mr-2 h-4 w-4 " />
                     Nuevo Usuario
                   </Button>
                 )}
