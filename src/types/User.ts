@@ -1,6 +1,7 @@
 export interface User {
   idUsuario: number
-  nombreCompleto: string
+  nombre?: string;
+  nombreCompleto?: string
   correo: string;
   rol: string;
 }

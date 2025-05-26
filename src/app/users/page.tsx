@@ -30,18 +30,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Edit, Filter, Plus, Search, Trash2, User, UserCheck, Users } from "lucide-react"
+import { Edit, Filter, Plus, Search, Trash2, User as UserIcon, UserCheck, Users } from "lucide-react"
 import { useUsers } from "@/hooks/useGetUser"
 import { useCreateUser } from "@/hooks/useCreateUser"
 import { useDeleteUser } from "@/hooks/useDeleteUser"
 import { useSession } from "@/hooks/useSession"
 
-interface Usuario {
-  idUsuario: number
-  nombreCompleto: string
-  correo: string
-  rol: string
-}
+import type { User } from "@/types/User"
 
 export default function UserManagement() {
   const { users: usuarios, loading } = useUsers()
@@ -53,7 +48,7 @@ export default function UserManagement() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedUser, setSelectedUser] = useState<Usuario | null>(null)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const userSession = useSession()
 
   // Campos para formulario
@@ -63,10 +58,10 @@ export default function UserManagement() {
   const [rol, setRol] = useState("LECTOR")
 
   // Filtrar usuarios según los criterios
-  const filteredUsers = usuarios.filter((user: Usuario) => {
+  const filteredUsers = usuarios.filter((user: User) => {
     const matchesSearch =
-      user.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.correo.toLowerCase().includes(searchTerm.toLowerCase())
+      user.nombreCompleto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.correo?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesRole = roleFilter === "Todos" || user.rol === roleFilter
 
     return matchesSearch && matchesRole
@@ -94,9 +89,9 @@ export default function UserManagement() {
       case "EDITOR":
         return <Edit className="h-4 w-4 text-amber-500" />
       case "LECTOR":
-        return <User className="h-4 w-4 text-green-500" />
+        return <UserIcon className="h-4 w-4 text-green-500" />
       default:
-        return <User className="h-4 w-4" />
+        return <UserIcon className="h-4 w-4" />
     }
   }
 
@@ -141,9 +136,9 @@ export default function UserManagement() {
     setRol("LECTOR")
   }
 
-  const openEditModal = (user: Usuario) => {
+  const openEditModal = (user: User) => {
     setSelectedUser(user)
-    setNombreCompleto(user.nombreCompleto)
+    setNombreCompleto(user.nombreCompleto || "")
     setCorreo(user.correo)
     setRol(user.rol)
     setContraseña("")
@@ -311,7 +306,7 @@ export default function UserManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user: Usuario) => (
+                {filteredUsers.map((user: User) => (
                   <TableRow key={user.idUsuario}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">

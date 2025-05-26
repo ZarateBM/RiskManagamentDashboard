@@ -85,9 +85,11 @@ export default function IncidentTracking() {
 
   const handleCreate = async () => {
     const created = await createIncident({
+      
       ...newIncident,
       fechaIncidente: new Date(newIncident.fechaIncidente).toISOString(),
     })
+    console.log("Incidente creado:", created)
   }
 
   // Filtrado
