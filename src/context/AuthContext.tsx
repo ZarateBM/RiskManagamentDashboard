@@ -33,8 +33,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       // Aquí deberías validar el usuario real desde una API
       const fakeUser: User = {
-        id: "1",
-        nombre: "Juan Pérez",
+        idUsuario: 1,
+        nombreCompleto: "Admin",
         correo: email,
         rol: "ADMINISTRADOR",
       }
