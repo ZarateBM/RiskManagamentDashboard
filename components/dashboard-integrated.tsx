@@ -104,10 +104,6 @@ export default function DashboardIntegrated() {
               <span className="font-medium">{usuario.nombre_completo}</span>
               <Badge variant="outline">{usuario.rol}</Badge>
             </div>
-            <Button variant="outline" size="sm">
-              <Bell className="mr-2 h-4 w-4" />
-              Notificaciones
-            </Button>
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Cerrar Sesión

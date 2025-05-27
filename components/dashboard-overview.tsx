@@ -25,12 +25,6 @@ export default function DashboardOverview() {
             <Server className="h-6 w-6" />
             <span>Sistema de Gestión de Riesgos - Cuarto de Comunicaciones</span>
           </div>
-          <div className="ml-auto flex items-center gap-4">
-            <Button variant="outline" size="sm">
-              <Bell className="mr-2 h-4 w-4" />
-              Notificaciones
-            </Button>
-          </div>
         </div>
       </div>
       <div className="grid flex-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-7">
