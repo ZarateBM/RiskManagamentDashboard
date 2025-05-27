@@ -31,6 +31,7 @@ export default function LoginForm() {
         .from("usuarios")
         .select("*")
         .eq("correo", correo)
+        .eq("contraseña", contraseña) // En un entorno real, nunca debes almacenar contraseñas en texto plano
         .eq("activo", true)
         .single()
 
