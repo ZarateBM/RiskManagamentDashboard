@@ -94,7 +94,7 @@ export default function DashboardIntegrated() {
     <div className="flex flex-col h-full w-full">
       <div className="border-b">
         <div className="flex h-16 items-center px-4">
-          <div className="flex items-center gap-2 font-semibold">
+          <div className="flex items-center gap-2 font-semibold text-primary-blue">
             <Server className="h-6 w-6" />
             <span>Sistema de Gestión de Riesgos</span>
           </div>

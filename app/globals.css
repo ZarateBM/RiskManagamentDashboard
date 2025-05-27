@@ -102,6 +102,16 @@ body {
   background-color: #666;
 }
 
+.text-primary-blue {
+  color: var(--primary-blue);
+}
+.text-dark-blue {
+  color: var(--dark-blue);
+}
+.text-gray {
+  color: #666;
+}
+
 
 
 
