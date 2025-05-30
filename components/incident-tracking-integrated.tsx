@@ -289,7 +289,7 @@ export default function IncidentTrackingIntegrated() {
           <CardContent>
             <div className="space-y-3">
               {ejecucionesEnProgreso.map((ejecucion) => (
-                <div key={ejecucion.id_ejecucion} className="flex items-center justify-between rounded-md border p-4">
+                <div key={ejecucion.id_ejecucion} className="flex items-center justify-between rounded-md border border-primary-blue p-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
                       <Play className="h-5 w-5 text-blue-600" />
@@ -548,18 +548,18 @@ export default function IncidentTrackingIntegrated() {
                   {selectedIncident.estado}
                 </Badge>
               </div>
-              <div className="rounded-md border p-3">
+              <div className="rounded-md border border-primary-blue p-3">
                 <h4 className="mb-2 font-medium">Descripción</h4>
                 <p className="text-sm">{selectedIncident.descripcion}</p>
               </div>
               {selectedIncident.riesgo && (
-                <div className="rounded-md border p-3">
+                <div className="rounded-md border border-primary-blue p-3">
                   <h4 className="mb-2 font-medium">Riesgo Relacionado</h4>
                   <p className="text-sm">{selectedIncident.riesgo.nombre}</p>
                 </div>
               )}
               {selectedIncident.protocolo && (
-                <div className="rounded-md border p-3">
+                <div className="rounded-md border border-primary-blue p-3">
                   <h4 className="mb-2 font-medium">Protocolo Asignado</h4>
                   <p className="text-sm">{selectedIncident.protocolo.titulo}</p>
                   {selectedIncident.protocolo_ejecutado && (

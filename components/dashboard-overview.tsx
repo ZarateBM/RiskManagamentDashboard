@@ -200,21 +200,21 @@ export default function DashboardOverview() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
+                      <div className="flex items-center justify-between border-b border-primary-blue pb-2">
                         <div>
                           <p className="font-medium">Mantenimiento preventivo UPS</p>
                           <p className="text-sm text-muted-foreground">Responsable: Ing. Eléctrico</p>
                         </div>
                         <Badge>25/03/2025</Badge>
                       </div>
-                      <div className="flex items-center justify-between border-b pb-2">
+                      <div className="flex items-center justify-between border-b border-primary-blue pb-2">
                         <div>
                           <p className="font-medium">Revisión de sellos anti-humedad</p>
                           <p className="text-sm text-muted-foreground">Responsable: Mantenimiento</p>
                         </div>
                         <Badge>28/03/2025</Badge>
                       </div>
-                      <div className="flex items-center justify-between border-b pb-2">
+                      <div className="flex items-center justify-between border-b border-primary-blue pb-2">
                         <div>
                           <p className="font-medium">Actualización de firmware</p>
                           <p className="text-sm text-muted-foreground">Responsable: TI</p>

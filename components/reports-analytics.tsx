@@ -170,7 +170,7 @@ export default function ReportsAnalytics() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-md border p-4">
+                <div className="flex items-center justify-between rounded-md border border-primary-blue p-4">
                   <div className="flex items-center gap-3">
                     <FileText className="h-5 w-5 text-primary" />
                     <div>
@@ -193,7 +193,7 @@ export default function ReportsAnalytics() {
                     </Button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between rounded-md border p-4">
+                <div className="flex items-center justify-between rounded-md border border-primary-blue p-4">
                   <div className="flex items-center gap-3">
                     <FileText className="h-5 w-5 text-primary" />
                     <div>
@@ -216,7 +216,7 @@ export default function ReportsAnalytics() {
                     </Button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between rounded-md border p-4">
+                <div className="flex items-center justify-between rounded-md border border-primary-blue p-4">
                   <div className="flex items-center gap-3">
                     <FileText className="h-5 w-5 text-primary" />
                     <div>
@@ -299,19 +299,19 @@ export default function ReportsAnalytics() {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Incidentes por Severidad</h3>
                 <div className="grid grid-cols-4 gap-4">
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-red-500">2</div>
                     <div className="text-sm font-medium">Crítica</div>
                   </div>
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-amber-500">5</div>
                     <div className="text-sm font-medium">Alta</div>
                   </div>
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-yellow-500">3</div>
                     <div className="text-sm font-medium">Media</div>
                   </div>
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-green-500">2</div>
                     <div className="text-sm font-medium">Baja</div>
                   </div>
@@ -390,19 +390,19 @@ export default function ReportsAnalytics() {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Riesgos por Nivel de Impacto</h3>
                 <div className="grid grid-cols-4 gap-4">
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-red-500">3</div>
                     <div className="text-sm font-medium">Crítico</div>
                   </div>
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-amber-500">5</div>
                     <div className="text-sm font-medium">Alto</div>
                   </div>
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-yellow-500">4</div>
                     <div className="text-sm font-medium">Medio</div>
                   </div>
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-green-500">2</div>
                     <div className="text-sm font-medium">Bajo</div>
                   </div>
@@ -412,7 +412,7 @@ export default function ReportsAnalytics() {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Estado de Mitigación de Riesgos</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between rounded-md border p-3">
+                  <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
                     <div>
                       <p className="font-medium">Riesgos Mitigados</p>
                       <p className="text-sm text-muted-foreground">Riesgos con medidas implementadas</p>
@@ -422,7 +422,7 @@ export default function ReportsAnalytics() {
                       <p className="text-sm text-green-600">36% del total</p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between rounded-md border p-3">
+                  <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
                     <div>
                       <p className="font-medium">Riesgos en Proceso</p>
                       <p className="text-sm text-muted-foreground">Medidas en implementación</p>
@@ -432,7 +432,7 @@ export default function ReportsAnalytics() {
                       <p className="text-sm text-amber-600">50% del total</p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between rounded-md border p-3">
+                  <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
                     <div>
                       <p className="font-medium">Riesgos Pendientes</p>
                       <p className="text-sm text-muted-foreground">Sin medidas implementadas</p>
@@ -526,15 +526,15 @@ export default function ReportsAnalytics() {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Alertas Ambientales por Tipo</h3>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-orange-500">3</div>
                     <div className="text-sm font-medium">Temperatura</div>
                   </div>
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-blue-500">4</div>
                     <div className="text-sm font-medium">Humedad</div>
                   </div>
-                  <div className="rounded-lg border p-4 text-center">
+                  <div className="rounded-lg border border-primary-blue p-4 text-center">
                     <div className="text-2xl font-bold text-yellow-500">1</div>
                     <div className="text-sm font-medium">Energía</div>
                   </div>

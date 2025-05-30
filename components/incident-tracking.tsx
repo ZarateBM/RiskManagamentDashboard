@@ -322,14 +322,14 @@ export default function IncidentTracking() {
                               </div>
                             </div>
                           </div>
-                          <div className="rounded-md border p-3">
+                          <div className="rounded-md border border-primary-blue p-3">
                             <h4 className="mb-2 font-medium">Descripción</h4>
                             <p className="text-sm">{incident.description}</p>
                           </div>
                           <div>
                             <h4 className="mb-2 font-medium">Historial de Acciones</h4>
                             <div className="space-y-2">
-                              <div className="rounded-md border p-2">
+                              <div className="rounded-md border border-primary-blue p-2">
                                 <div className="flex items-center justify-between">
                                   <p className="text-sm font-medium">Actualización de estado</p>
                                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -341,7 +341,7 @@ export default function IncidentTracking() {
                                   Se cambió el estado de "Pendiente" a "En proceso"
                                 </p>
                               </div>
-                              <div className="rounded-md border p-2">
+                              <div className="rounded-md border border-primary-blue p-2">
                                 <div className="flex items-center justify-between">
                                   <p className="text-sm font-medium">Asignación</p>
                                   <div className="flex items-center gap-1 text-xs text-muted-foreground">

@@ -166,7 +166,7 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
         <CardContent className="space-y-6">
           <div>
             <h3 className="mb-2 font-medium">Información del Incidente</h3>
-            <div className="rounded-md border p-3">
+            <div className="rounded-md border border-primary-blue p-3">
               <p className="font-medium">{ejecucion.incidente?.titulo}</p>
               <p className="text-sm text-muted-foreground">{ejecucion.incidente?.descripcion}</p>
             </div>
@@ -258,7 +258,7 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
           </div>
 
           {progress === 100 && (
-            <div className="rounded-md border border-green-200 bg-green-50 p-4">
+            <div className="rounded-md border border-primary-blue border-green-200 bg-green-50 p-4">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
                 <span className="font-medium text-green-800">Protocolo Completado</span>

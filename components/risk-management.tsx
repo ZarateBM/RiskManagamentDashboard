@@ -351,13 +351,13 @@ export default function RiskManagement() {
                           <div>
                             <h4 className="mb-2 font-semibold">Historial de Acciones</h4>
                             <div className="space-y-2">
-                              <div className="rounded-md border p-2">
+                              <div className="rounded-md border border-primary-blue p-2">
                                 <p className="text-sm font-medium">15/03/2025 - Revisión de medidas</p>
                                 <p className="text-sm text-muted-foreground">
                                   Se verificó la efectividad de las medidas implementadas.
                                 </p>
                               </div>
-                              <div className="rounded-md border p-2">
+                              <div className="rounded-md border border-primary-blue p-2">
                                 <p className="text-sm font-medium">01/03/2025 - Implementación inicial</p>
                                 <p className="text-sm text-muted-foreground">
                                   Se registró el riesgo y se definieron las medidas de mitigación.

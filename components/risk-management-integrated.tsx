@@ -592,7 +592,7 @@ export default function RiskManagementIntegrated() {
                 {materializaciones.map((materializacion) => (
                   <div
                     key={materializacion.id_materializacion}
-                    className="flex items-center justify-between rounded-md border p-4"
+                    className="flex items-center justify-between rounded-md border border-primary-blue p-4"
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -703,7 +703,7 @@ export default function RiskManagementIntegrated() {
                 />
               </div>
               {selectedRisk?.protocolo && (
-                <div className="rounded-md border p-3 bg-blue-50">
+                <div className="rounded-md border border-primary-blue p-3 bg-blue-50">
                   <h4 className="font-medium text-blue-900">Protocolo Automático</h4>
                   <p className="text-sm text-blue-700">
                     Se creará automáticamente un incidente con el protocolo: "{selectedRisk.protocolo.titulo}"
@@ -773,7 +773,7 @@ export default function RiskManagementIntegrated() {
               {selectedRisk.protocolo && (
                 <div>
                   <h4 className="mb-2 font-semibold">Protocolo Vinculado</h4>
-                  <div className="rounded-md border p-3">
+                  <div className="rounded-md border border-primary-blue p-3">
                     <p className="font-medium">{selectedRisk.protocolo.titulo}</p>
                     <p className="text-sm text-muted-foreground">{selectedRisk.protocolo.descripcion}</p>
                     <Badge variant="outline" className="mt-2">
@@ -852,7 +852,7 @@ export default function RiskManagementIntegrated() {
               {selectedMaterialization.incidente_generado && (
                 <div>
                   <h4 className="mb-2 font-semibold">Incidente Generado</h4>
-                  <div className="rounded-md border p-3">
+                  <div className="rounded-md border border-primary-blue p-3">
                     <p className="font-medium">{selectedMaterialization.incidente_generado.titulo}</p>
                     <p className="text-sm text-muted-foreground">
                       Estado: {selectedMaterialization.incidente_generado.estado}

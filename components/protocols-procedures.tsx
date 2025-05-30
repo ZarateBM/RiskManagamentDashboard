@@ -509,7 +509,7 @@ export default function ProtocolsProcedures() {
               {filteredProcedures.map((protocolo) => (
                 <div
                   key={protocolo.id_protocolo}
-                  className={`cursor-pointer rounded-md border p-3 transition-colors hover:bg-accent ${activeProcedure === protocolo.id_protocolo ? "border-primary bg-accent" : ""}`}
+                  className={`cursor-pointer rounded-md border border-primary-blue p-3 transition-colors hover:bg-accent ${activeProcedure === protocolo.id_protocolo ? "border-primary bg-accent" : ""}`}
                   onClick={() => setActiveProcedure(protocolo.id_protocolo)}
                 >
                   <div className="flex items-center justify-between">
@@ -717,7 +717,7 @@ export default function ProtocolsProcedures() {
         <CardContent>
           <div className="space-y-4">
             {ejecucionesRecientes.map((ejecucion) => (
-              <div key={ejecucion.id_ejecucion} className="flex items-center justify-between rounded-md border p-4">
+              <div key={ejecucion.id_ejecucion} className="flex items-center justify-between rounded-md border border-primary-blue p-4">
                 <div className="flex items-center gap-3">
                   {getCategoryIcon(ejecucion.protocolo?.categoria || "")}
                   <div>

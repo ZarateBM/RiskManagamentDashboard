@@ -156,7 +156,7 @@ export default function EnvironmentalMonitoring() {
                   <span>0.3°C desde ayer</span>
                 </div>
               </div>
-              <div className="rounded-md border p-2 text-center">
+              <div className="rounded-md border border-primary-blue p-2 text-center">
                 <div className="text-xs text-muted-foreground">Rango óptimo</div>
                 <div className="text-sm font-medium">18°C - 24°C</div>
               </div>
@@ -193,7 +193,7 @@ export default function EnvironmentalMonitoring() {
                   <span>5% desde ayer</span>
                 </div>
               </div>
-              <div className="rounded-md border p-2 text-center">
+              <div className="rounded-md border border-primary-blue p-2 text-center">
                 <div className="text-xs text-muted-foreground">Rango óptimo</div>
                 <div className="text-sm font-medium">40% - 60%</div>
               </div>
@@ -230,7 +230,7 @@ export default function EnvironmentalMonitoring() {
                   <span>Dentro del rango</span>
                 </div>
               </div>
-              <div className="rounded-md border p-2 text-center">
+              <div className="rounded-md border border-primary-blue p-2 text-center">
                 <div className="text-xs text-muted-foreground">UPS</div>
                 <div className="flex items-center gap-1 text-sm font-medium">
                   <Battery className="h-4 w-4 text-green-500" />
@@ -264,7 +264,7 @@ export default function EnvironmentalMonitoring() {
               <TabsTrigger value="power">Energía</TabsTrigger>
             </TabsList>
             <TabsContent value="all" className="space-y-4">
-              <div className="rounded-md border p-4">
+              <div className="rounded-md border border-primary-blue p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
@@ -279,7 +279,7 @@ export default function EnvironmentalMonitoring() {
                   </div>
                 </div>
               </div>
-              <div className="rounded-md border p-4">
+              <div className="rounded-md border border-primary-blue p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-red-500" />
@@ -294,7 +294,7 @@ export default function EnvironmentalMonitoring() {
                   </div>
                 </div>
               </div>
-              <div className="rounded-md border p-4">
+              <div className="rounded-md border border-primary-blue p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
@@ -311,7 +311,7 @@ export default function EnvironmentalMonitoring() {
               </div>
             </TabsContent>
             <TabsContent value="temperature" className="space-y-4">
-              <div className="rounded-md border p-4">
+              <div className="rounded-md border border-primary-blue p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
@@ -328,7 +328,7 @@ export default function EnvironmentalMonitoring() {
               </div>
             </TabsContent>
             <TabsContent value="humidity" className="space-y-4">
-              <div className="rounded-md border p-4">
+              <div className="rounded-md border border-primary-blue p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
@@ -345,7 +345,7 @@ export default function EnvironmentalMonitoring() {
               </div>
             </TabsContent>
             <TabsContent value="power" className="space-y-4">
-              <div className="rounded-md border p-4">
+              <div className="rounded-md border border-primary-blue p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-red-500" />
@@ -377,7 +377,7 @@ export default function EnvironmentalMonitoring() {
             <CardDescription>Umbrales para la generación de alertas</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-md border p-3">
+            <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
               <div className="flex items-center gap-2">
                 <Thermometer className="h-5 w-5 text-orange-500" />
                 <div>
@@ -392,7 +392,7 @@ export default function EnvironmentalMonitoring() {
                 </Badge>
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-md border p-3">
+            <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
               <div className="flex items-center gap-2">
                 <Droplets className="h-5 w-5 text-blue-500" />
                 <div>
@@ -407,7 +407,7 @@ export default function EnvironmentalMonitoring() {
                 </Badge>
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-md border p-3">
+            <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-yellow-500" />
                 <div>
@@ -436,7 +436,7 @@ export default function EnvironmentalMonitoring() {
             <CardDescription>Monitoreo de dispositivos de medición</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-md border p-3">
+            <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
               <div className="flex items-center gap-2">
                 <Thermometer className="h-5 w-5 text-orange-500" />
                 <div>
@@ -451,7 +451,7 @@ export default function EnvironmentalMonitoring() {
                 <p className="text-xs text-muted-foreground">Última calibración: 01/01/2025</p>
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-md border p-3">
+            <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
               <div className="flex items-center gap-2">
                 <Droplets className="h-5 w-5 text-blue-500" />
                 <div>
@@ -466,7 +466,7 @@ export default function EnvironmentalMonitoring() {
                 <p className="text-xs text-muted-foreground">Última calibración: 01/01/2025</p>
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-md border p-3">
+            <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
               <div className="flex items-center gap-2">
                 <Waves className="h-5 w-5 text-blue-500" />
                 <div>
@@ -481,7 +481,7 @@ export default function EnvironmentalMonitoring() {
                 <p className="text-xs text-muted-foreground">Última prueba: 15/02/2025</p>
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-md border p-3">
+            <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-yellow-500" />
                 <div>

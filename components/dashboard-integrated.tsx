@@ -92,7 +92,7 @@ export default function DashboardIntegrated() {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="border-b">
+      <div className="border-b border-primary-blue border-primary-blue bg-dark-blue">
         <div className="flex h-16 items-center px-4">
           <div className="flex items-center gap-2 font-semibold text-primary-blue">
             <Server className="h-6 w-6" />
@@ -112,7 +112,7 @@ export default function DashboardIntegrated() {
         </div>
       </div>
 
-      <div className="grid flex-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid flex-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-7 ">
         <div className="col-span-full">
           <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList>
