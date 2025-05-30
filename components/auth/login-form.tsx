@@ -118,22 +118,6 @@ export default function LoginForm() {
               {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </Button>
           </form>
-
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm font-medium text-gray-700 mb-2">Usuarios de prueba:</p>
-            <div className="space-y-1 text-xs text-gray-600">
-              <p>
-                <strong>Admin:</strong> admin@empresa.com
-              </p>
-              <p>
-                <strong>Editor:</strong> juan.perez@empresa.com
-              </p>
-              <p>
-                <strong>Lector:</strong> carlos.rodriguez@empresa.com
-              </p>
-              <p className="text-gray-500 mt-2">Contraseña: cualquier texto</p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
