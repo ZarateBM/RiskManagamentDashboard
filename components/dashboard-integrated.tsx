@@ -81,7 +81,7 @@ export default function DashboardIntegrated() {
 
   if (!usuario) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex h-full items-center justify-center min-h-screen">
         <div className="text-center">
           <Server className="mx-auto h-12 w-12 text-muted-foreground" />
           <p className="mt-2 text-muted-foreground">Verificando autenticación...</p>

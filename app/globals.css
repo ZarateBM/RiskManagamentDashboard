@@ -87,7 +87,14 @@ body {
     --primary-blue: #41ADE7; 
     --dark-blue: #204C6F;    
     --primary-button: #0090D8;
-  }
+}
+  
+}
+
+
+
+.border-primary-blue {
+  border-color: var(--primary-blue);
 }
 
 .bg-primary-blue {

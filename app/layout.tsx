@@ -16,10 +16,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <Nav />
-        {children}
-        <Footer />
+      <body className="layout-grid">
+        <header>
+          <Nav />
+        </header>
+        <main style={{minHeight: 'calc(100vh - 100px)'}}>
+          {children}
+        </main>
+        <footer>
+          <Footer />
+        </footer>
       </body>
     </html>
   )
