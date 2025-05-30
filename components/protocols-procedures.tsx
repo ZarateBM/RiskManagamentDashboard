@@ -314,13 +314,13 @@ export default function ProtocolsProcedures() {
       <div className="flex flex-col justify-between gap-4 md:flex-row">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Protocolos y Procedimientos</h2>
-          <p className="text-muted-foreground">Guías paso a paso para resolver incidentes comunes</p>
+          <p className="text-primary-blue">Guías paso a paso para resolver incidentes comunes</p>
         </div>
         <div className="flex items-center gap-2">
           {isAdmin && (
             <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
                   <Plus className="mr-2 h-4 w-4" />
                   Nuevo Procedimiento
                 </Button>
@@ -351,7 +351,7 @@ export default function ProtocolsProcedures() {
                             <SelectValue placeholder="Seleccionar categoría" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="hardware">Hardware</SelectItem>
+                            <SelectItem  value="hardware">Hardware</SelectItem>
                             <SelectItem value="environmental">Ambiental</SelectItem>
                             <SelectItem value="connectivity">Conectividad</SelectItem>
                             <SelectItem value="power">Energía</SelectItem>
@@ -405,7 +405,7 @@ export default function ProtocolsProcedures() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <Label>Pasos del Protocolo</Label>
-                        <Button type="button" variant="outline" size="sm" onClick={addStep}>
+                        <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" size="sm" onClick={addStep}>
                           Agregar Paso
                         </Button>
                       </div>
@@ -434,7 +434,7 @@ export default function ProtocolsProcedures() {
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                   <Label>Tareas</Label>
-                                  <Button type="button" variant="outline" size="sm" onClick={() => addTask(stepIndex)}>
+                                  <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" size="sm" onClick={() => addTask(stepIndex)}>
                                     Agregar Tarea
                                   </Button>
                                 </div>
@@ -454,10 +454,10 @@ export default function ProtocolsProcedures() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
+                    <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit">Crear Protocolo</Button>
+                    <Button className="border border-primary-blue text-white bg-primary-blue" type="submit">Crear Protocolo</Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
@@ -474,7 +474,7 @@ export default function ProtocolsProcedures() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-primary-blue" />
               <Input
                 placeholder="Buscar procedimientos..."
                 className="pl-8"
@@ -521,7 +521,7 @@ export default function ProtocolsProcedures() {
                       {protocolo.severidad}
                     </Badge>
                   </div>
-                  <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
+                  <div className="mt-2 flex items-center justify-between text-sm text-primary-blue">
                     <span>Tiempo est.: {protocolo.tiempo_estimado}</span>
                     <span>Progreso: {calculateProgress(protocolo.id_protocolo)}%</span>
                   </div>
@@ -557,11 +557,11 @@ export default function ProtocolsProcedures() {
                       <CardDescription>{protocolo.descripcion}</CardDescription>
                       <div className="mt-2 flex flex-wrap gap-4">
                         <div className="flex items-center gap-1 text-sm">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <Clock className="h-4 w-4 text-primary-blue" />
                           <span>Tiempo estimado: {protocolo.tiempo_estimado}</span>
                         </div>
                         <div className="flex items-center gap-1 text-sm">
-                          <Clipboard className="h-4 w-4 text-muted-foreground" />
+                          <Clipboard className="h-4 w-4 text-primary-blue" />
                           <span>Progreso: {calculateProgress(protocolo.id_protocolo)}%</span>
                         </div>
                       </div>
@@ -603,13 +603,13 @@ export default function ProtocolsProcedures() {
                                       <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
                                         <div className="h-full bg-primary" style={{ width: `${progress}%` }}></div>
                                       </div>
-                                      <span className="text-xs text-muted-foreground">{progress}%</span>
+                                      <span className="text-xs text-primary-blue">{progress}%</span>
                                     </div>
                                   </div>
                                 </AccordionTrigger>
                                 <AccordionContent>
                                   <div className="space-y-4 pl-8">
-                                    <p className="text-sm text-muted-foreground">{step.descripcion}</p>
+                                    <p className="text-sm text-primary-blue">{step.descripcion}</p>
                                     <div className="space-y-2">
                                       {step.tareas.map((task, taskIndex) => {
                                         const isChecked = completedTasksForStep.includes(task)
@@ -631,7 +631,7 @@ export default function ProtocolsProcedures() {
                                             />
                                             <Label
                                               htmlFor={`task-${protocolo.id_protocolo}-${stepIndex}-${taskIndex}`}
-                                              className={`text-sm ${isChecked ? "text-muted-foreground line-through" : ""}`}
+                                              className={`text-sm ${isChecked ? "text-primary-blue line-through" : ""}`}
                                             >
                                               {task}
                                             </Label>
@@ -673,7 +673,7 @@ export default function ProtocolsProcedures() {
                     <CardFooter className="flex justify-between">
                       <div className="flex items-center gap-2">
                         <CheckCircle2
-                          className={`h-5 w-5 ${calculateProgress(protocolo.id_protocolo) === 100 ? "text-green-500" : "text-muted-foreground"}`}
+                          className={`h-5 w-5 ${calculateProgress(protocolo.id_protocolo) === 100 ? "text-green-500" : "text-primary-blue"}`}
                         />
                         <span className="text-sm">
                           {calculateProgress(protocolo.id_protocolo) === 100
@@ -682,7 +682,7 @@ export default function ProtocolsProcedures() {
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline">
+                        <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
                           <Printer className="mr-2 h-4 w-4" />
                           Imprimir
                         </Button>
@@ -698,10 +698,10 @@ export default function ProtocolsProcedures() {
           ) : (
             <div className="flex h-[400px] flex-col items-center justify-center p-6">
               <div className="rounded-full bg-muted p-6">
-                <BookOpen className="h-10 w-10 text-muted-foreground" />
+                <BookOpen className="h-10 w-10 text-primary-blue" />
               </div>
               <h3 className="mt-4 text-xl font-medium">Seleccione un Procedimiento</h3>
-              <p className="mt-2 text-center text-muted-foreground">
+              <p className="mt-2 text-center text-primary-blue">
                 Elija un procedimiento del catálogo para ver los pasos detallados y comenzar a ejecutarlo.
               </p>
             </div>
@@ -722,13 +722,13 @@ export default function ProtocolsProcedures() {
                   {getCategoryIcon(ejecucion.protocolo?.categoria || "")}
                   <div>
                     <p className="font-medium">{ejecucion.protocolo?.titulo}</p>
-                    <p className="text-sm text-muted-foreground">Incidente: {ejecucion.incidente?.titulo}</p>
+                    <p className="text-sm text-primary-blue">Incidente: {ejecucion.incidente?.titulo}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <p className="text-sm font-medium">Iniciado: {formatDate(ejecucion.fecha_inicio)}</p>
-                    <p className="text-xs text-muted-foreground">Por: {ejecucion.usuario?.nombre_completo}</p>
+                    <p className="text-xs text-primary-blue">Por: {ejecucion.usuario?.nombre_completo}</p>
                   </div>
                   <Badge
                     variant="outline"
@@ -748,7 +748,7 @@ export default function ProtocolsProcedures() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button variant="outline" className="w-full">
+          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" className="w-full">
             Ver Historial Completo
           </Button>
         </CardFooter>

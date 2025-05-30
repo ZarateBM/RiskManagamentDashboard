@@ -83,8 +83,8 @@ export default function DashboardIntegrated() {
     return (
       <div className="flex h-full items-center justify-center min-h-screen">
         <div className="text-center">
-          <Server className="mx-auto h-12 w-12 text-muted-foreground" />
-          <p className="mt-2 text-muted-foreground">Verificando autenticación...</p>
+          <Server className="mx-auto h-12 w-12 text-primary-blue" />
+          <p className="mt-2 text-primary-blue">Verificando autenticación...</p>
         </div>
       </div>
     )
@@ -99,12 +99,12 @@ export default function DashboardIntegrated() {
             <span>Sistema de Gestión de Riesgos</span>
           </div>
           <div className="ml-auto flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Bienvenido,</span>
+            <div className="flex items-center gap-2 text-white">
+              <span className="text-sm text-primary-blue">Bienvenido,</span>
               <span className="font-medium">{usuario.nombre_completo}</span>
-              <Badge variant="outline">{usuario.rol}</Badge>
+              <Badge className="text-primary-white" variant="outline">{usuario.rol}</Badge>
             </div>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
+            <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Cerrar Sesión
             </Button>
@@ -132,7 +132,7 @@ export default function DashboardIntegrated() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.riesgosActivos}</div>
-                    <p className="text-xs text-muted-foreground">Requieren atención</p>
+                    <p className="text-xs text-primary-blue">Requieren atención</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -142,7 +142,7 @@ export default function DashboardIntegrated() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.incidentesAbiertos}</div>
-                    <p className="text-xs text-muted-foreground">En proceso o pendientes</p>
+                    <p className="text-xs text-primary-blue">En proceso o pendientes</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -152,7 +152,7 @@ export default function DashboardIntegrated() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.protocolosDisponibles}</div>
-                    <p className="text-xs text-muted-foreground">Disponibles para uso</p>
+                    <p className="text-xs text-primary-blue">Disponibles para uso</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -162,7 +162,7 @@ export default function DashboardIntegrated() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.usuariosActivos}</div>
-                    <p className="text-xs text-muted-foreground">En el sistema</p>
+                    <p className="text-xs text-primary-blue">En el sistema</p>
                   </CardContent>
                 </Card>
               </div>
@@ -177,7 +177,7 @@ export default function DashboardIntegrated() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <h3 className="font-medium">Funcionalidades Principales:</h3>
-                        <ul className="space-y-1 text-sm text-muted-foreground">
+                        <ul className="space-y-1 text-sm text-primary-blue">
                           <li>• Gestión de riesgos vinculados a protocolos</li>
                           <li>• Seguimiento de incidentes con ejecución de protocolos</li>
                           <li>• Protocolos paso a paso con seguimiento de progreso</li>
@@ -186,7 +186,7 @@ export default function DashboardIntegrated() {
                       </div>
                       <div className="space-y-2">
                         <h3 className="font-medium">Flujo de Trabajo:</h3>
-                        <ul className="space-y-1 text-sm text-muted-foreground">
+                        <ul className="space-y-1 text-sm text-primary-blue">
                           <li>1. Identificar y registrar riesgos</li>
                           <li>2. Vincular protocolos de respuesta</li>
                           <li>3. Reportar incidentes relacionados</li>

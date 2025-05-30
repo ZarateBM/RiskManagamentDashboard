@@ -95,7 +95,7 @@ export default function EnvironmentalMonitoring() {
                   {unit}
                 </div>
                 <div className={`w-full max-w-[20px] rounded-t ${color}`} style={{ height: `${height}%` }}></div>
-                <div className="mt-2 text-[8px] text-muted-foreground sm:text-xs">{point.time}</div>
+                <div className="mt-2 text-[8px] text-primary-blue sm:text-xs">{point.time}</div>
               </div>
             )
           })}
@@ -109,7 +109,7 @@ export default function EnvironmentalMonitoring() {
       <div className="flex flex-col justify-between gap-4 md:flex-row">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Monitoreo Ambiental</h2>
-          <p className="text-muted-foreground">
+          <p className="text-primary-blue">
             Seguimiento en tiempo real de las condiciones ambientales del cuarto de comunicaciones
           </p>
         </div>
@@ -125,10 +125,10 @@ export default function EnvironmentalMonitoring() {
               <SelectItem value="30d">Últimos 30 días</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon">
+          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="icon">
             <Calendar className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon">
+          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="icon">
             <Download className="h-4 w-4" />
           </Button>
         </div>
@@ -157,14 +157,14 @@ export default function EnvironmentalMonitoring() {
                 </div>
               </div>
               <div className="rounded-md border border-primary-blue p-2 text-center">
-                <div className="text-xs text-muted-foreground">Rango óptimo</div>
+                <div className="text-xs text-primary-blue">Rango óptimo</div>
                 <div className="text-sm font-medium">18°C - 24°C</div>
               </div>
             </div>
             {renderChart(temperatureData, "bg-orange-500", "°C", 18, 26)}
           </CardContent>
           <CardFooter className="pt-0">
-            <div className="flex w-full justify-between text-xs text-muted-foreground">
+            <div className="flex w-full justify-between text-xs text-primary-blue">
               <span>Mínima: 20.5°C</span>
               <span>Promedio: 22.1°C</span>
               <span>Máxima: 23.5°C</span>
@@ -194,14 +194,14 @@ export default function EnvironmentalMonitoring() {
                 </div>
               </div>
               <div className="rounded-md border border-primary-blue p-2 text-center">
-                <div className="text-xs text-muted-foreground">Rango óptimo</div>
+                <div className="text-xs text-primary-blue">Rango óptimo</div>
                 <div className="text-sm font-medium">40% - 60%</div>
               </div>
             </div>
             {renderChart(humidityData, "bg-blue-500", "%", 40, 70)}
           </CardContent>
           <CardFooter className="pt-0">
-            <div className="flex w-full justify-between text-xs text-muted-foreground">
+            <div className="flex w-full justify-between text-xs text-primary-blue">
               <span>Mínima: 55%</span>
               <span>Promedio: 62%</span>
               <span>Máxima: 67%</span>
@@ -231,7 +231,7 @@ export default function EnvironmentalMonitoring() {
                 </div>
               </div>
               <div className="rounded-md border border-primary-blue p-2 text-center">
-                <div className="text-xs text-muted-foreground">UPS</div>
+                <div className="text-xs text-primary-blue">UPS</div>
                 <div className="flex items-center gap-1 text-sm font-medium">
                   <Battery className="h-4 w-4 text-green-500" />
                   <span>100%</span>
@@ -241,7 +241,7 @@ export default function EnvironmentalMonitoring() {
             {renderChart(powerData, "bg-yellow-500", "V", 200, 230)}
           </CardContent>
           <CardFooter className="pt-0">
-            <div className="flex w-full justify-between text-xs text-muted-foreground">
+            <div className="flex w-full justify-between text-xs text-primary-blue">
               <span>Mínima: 210V</span>
               <span>Promedio: 218V</span>
               <span>Máxima: 221V</span>
@@ -270,12 +270,12 @@ export default function EnvironmentalMonitoring() {
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
                     <div>
                       <p className="font-medium">Humedad elevada</p>
-                      <p className="text-sm text-muted-foreground">La humedad superó el 65% durante más de 3 horas</p>
+                      <p className="text-sm text-primary-blue">La humedad superó el 65% durante más de 3 horas</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">20/03/2025</p>
-                    <p className="text-xs text-muted-foreground">10:30 AM</p>
+                    <p className="text-xs text-primary-blue">10:30 AM</p>
                   </div>
                 </div>
               </div>
@@ -285,12 +285,12 @@ export default function EnvironmentalMonitoring() {
                     <AlertTriangle className="h-5 w-5 text-red-500" />
                     <div>
                       <p className="font-medium">Fluctuación de energía</p>
-                      <p className="text-sm text-muted-foreground">Caída de voltaje detectada, UPS activado</p>
+                      <p className="text-sm text-primary-blue">Caída de voltaje detectada, UPS activado</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">15/03/2025</p>
-                    <p className="text-xs text-muted-foreground">22:10 PM</p>
+                    <p className="text-xs text-primary-blue">22:10 PM</p>
                   </div>
                 </div>
               </div>
@@ -300,12 +300,12 @@ export default function EnvironmentalMonitoring() {
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
                     <div>
                       <p className="font-medium">Temperatura elevada</p>
-                      <p className="text-sm text-muted-foreground">La temperatura superó los 24°C durante 1 hora</p>
+                      <p className="text-sm text-primary-blue">La temperatura superó los 24°C durante 1 hora</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">10/03/2025</p>
-                    <p className="text-xs text-muted-foreground">14:45 PM</p>
+                    <p className="text-xs text-primary-blue">14:45 PM</p>
                   </div>
                 </div>
               </div>
@@ -317,12 +317,12 @@ export default function EnvironmentalMonitoring() {
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
                     <div>
                       <p className="font-medium">Temperatura elevada</p>
-                      <p className="text-sm text-muted-foreground">La temperatura superó los 24°C durante 1 hora</p>
+                      <p className="text-sm text-primary-blue">La temperatura superó los 24°C durante 1 hora</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">10/03/2025</p>
-                    <p className="text-xs text-muted-foreground">14:45 PM</p>
+                    <p className="text-xs text-primary-blue">14:45 PM</p>
                   </div>
                 </div>
               </div>
@@ -334,12 +334,12 @@ export default function EnvironmentalMonitoring() {
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
                     <div>
                       <p className="font-medium">Humedad elevada</p>
-                      <p className="text-sm text-muted-foreground">La humedad superó el 65% durante más de 3 horas</p>
+                      <p className="text-sm text-primary-blue">La humedad superó el 65% durante más de 3 horas</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">20/03/2025</p>
-                    <p className="text-xs text-muted-foreground">10:30 AM</p>
+                    <p className="text-xs text-primary-blue">10:30 AM</p>
                   </div>
                 </div>
               </div>
@@ -351,12 +351,12 @@ export default function EnvironmentalMonitoring() {
                     <AlertTriangle className="h-5 w-5 text-red-500" />
                     <div>
                       <p className="font-medium">Fluctuación de energía</p>
-                      <p className="text-sm text-muted-foreground">Caída de voltaje detectada, UPS activado</p>
+                      <p className="text-sm text-primary-blue">Caída de voltaje detectada, UPS activado</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">15/03/2025</p>
-                    <p className="text-xs text-muted-foreground">22:10 PM</p>
+                    <p className="text-xs text-primary-blue">22:10 PM</p>
                   </div>
                 </div>
               </div>
@@ -364,7 +364,7 @@ export default function EnvironmentalMonitoring() {
           </Tabs>
         </CardContent>
         <CardFooter>
-          <Button variant="outline" className="w-full">
+          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" className="w-full">
             Ver historial completo
           </Button>
         </CardFooter>
@@ -382,7 +382,7 @@ export default function EnvironmentalMonitoring() {
                 <Thermometer className="h-5 w-5 text-orange-500" />
                 <div>
                   <p className="font-medium">Temperatura</p>
-                  <p className="text-sm text-muted-foreground">Alerta cuando esté fuera de rango</p>
+                  <p className="text-sm text-primary-blue">Alerta cuando esté fuera de rango</p>
                 </div>
               </div>
               <div className="text-right">
@@ -397,7 +397,7 @@ export default function EnvironmentalMonitoring() {
                 <Droplets className="h-5 w-5 text-blue-500" />
                 <div>
                   <p className="font-medium">Humedad</p>
-                  <p className="text-sm text-muted-foreground">Alerta cuando esté fuera de rango</p>
+                  <p className="text-sm text-primary-blue">Alerta cuando esté fuera de rango</p>
                 </div>
               </div>
               <div className="text-right">
@@ -412,7 +412,7 @@ export default function EnvironmentalMonitoring() {
                 <Zap className="h-5 w-5 text-yellow-500" />
                 <div>
                   <p className="font-medium">Voltaje</p>
-                  <p className="text-sm text-muted-foreground">Alerta cuando esté fuera de rango</p>
+                  <p className="text-sm text-primary-blue">Alerta cuando esté fuera de rango</p>
                 </div>
               </div>
               <div className="text-right">
@@ -424,7 +424,7 @@ export default function EnvironmentalMonitoring() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" className="w-full">
               Configurar Alertas
             </Button>
           </CardFooter>
@@ -441,14 +441,14 @@ export default function EnvironmentalMonitoring() {
                 <Thermometer className="h-5 w-5 text-orange-500" />
                 <div>
                   <p className="font-medium">Sensor de Temperatura #1</p>
-                  <p className="text-sm text-muted-foreground">Ubicación: Rack Principal</p>
+                  <p className="text-sm text-primary-blue">Ubicación: Rack Principal</p>
                 </div>
               </div>
               <div className="text-right">
                 <Badge variant="outline" className="bg-green-100 text-green-800">
                   Operativo
                 </Badge>
-                <p className="text-xs text-muted-foreground">Última calibración: 01/01/2025</p>
+                <p className="text-xs text-primary-blue">Última calibración: 01/01/2025</p>
               </div>
             </div>
             <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
@@ -456,14 +456,14 @@ export default function EnvironmentalMonitoring() {
                 <Droplets className="h-5 w-5 text-blue-500" />
                 <div>
                   <p className="font-medium">Sensor de Humedad #1</p>
-                  <p className="text-sm text-muted-foreground">Ubicación: Rack Principal</p>
+                  <p className="text-sm text-primary-blue">Ubicación: Rack Principal</p>
                 </div>
               </div>
               <div className="text-right">
                 <Badge variant="outline" className="bg-green-100 text-green-800">
                   Operativo
                 </Badge>
-                <p className="text-xs text-muted-foreground">Última calibración: 01/01/2025</p>
+                <p className="text-xs text-primary-blue">Última calibración: 01/01/2025</p>
               </div>
             </div>
             <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
@@ -471,14 +471,14 @@ export default function EnvironmentalMonitoring() {
                 <Waves className="h-5 w-5 text-blue-500" />
                 <div>
                   <p className="font-medium">Detector de Inundación</p>
-                  <p className="text-sm text-muted-foreground">Ubicación: Piso del cuarto</p>
+                  <p className="text-sm text-primary-blue">Ubicación: Piso del cuarto</p>
                 </div>
               </div>
               <div className="text-right">
                 <Badge variant="outline" className="bg-green-100 text-green-800">
                   Operativo
                 </Badge>
-                <p className="text-xs text-muted-foreground">Última prueba: 15/02/2025</p>
+                <p className="text-xs text-primary-blue">Última prueba: 15/02/2025</p>
               </div>
             </div>
             <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
@@ -486,19 +486,19 @@ export default function EnvironmentalMonitoring() {
                 <Zap className="h-5 w-5 text-yellow-500" />
                 <div>
                   <p className="font-medium">Monitor de Energía</p>
-                  <p className="text-sm text-muted-foreground">Ubicación: Panel eléctrico</p>
+                  <p className="text-sm text-primary-blue">Ubicación: Panel eléctrico</p>
                 </div>
               </div>
               <div className="text-right">
                 <Badge variant="outline" className="bg-green-100 text-green-800">
                   Operativo
                 </Badge>
-                <p className="text-xs text-muted-foreground">Última prueba: 10/03/2025</p>
+                <p className="text-xs text-primary-blue">Última prueba: 10/03/2025</p>
               </div>
             </div>
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" className="w-full">
               Programar Mantenimiento
             </Button>
           </CardFooter>

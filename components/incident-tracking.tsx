@@ -208,7 +208,7 @@ export default function IncidentTracking() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Registrar Incidente</Button>
+                  <Button className="border border-primary-blue text-white bg-primary-blue" type="submit">Registrar Incidente</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -217,7 +217,7 @@ export default function IncidentTracking() {
         <CardContent>
           <div className="mb-4 flex flex-col gap-4 md:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-primary-blue" />
               <Input
                 placeholder="Buscar incidentes..."
                 className="pl-8"
@@ -227,7 +227,7 @@ export default function IncidentTracking() {
             </div>
             <div className="flex gap-2">
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Filter className="h-4 w-4 text-primary-blue" />
                 <span className="text-sm">Filtros:</span>
               </div>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -292,7 +292,7 @@ export default function IncidentTracking() {
                   <TableCell className="text-right">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
+                        <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                           Gestionar
                         </Button>
                       </DialogTrigger>
@@ -310,13 +310,13 @@ export default function IncidentTracking() {
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-2 text-sm text-primary-blue">
                                 <Calendar className="h-4 w-4" />
                                 <span>Reportado: {formatDate(incident.dateReported)}</span>
                               </div>
                             </div>
                             <div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-2 text-sm text-primary-blue">
                                 <UserCircle className="h-4 w-4" />
                                 <span>Asignado a: {incident.assignedTo}</span>
                               </div>
@@ -332,24 +332,24 @@ export default function IncidentTracking() {
                               <div className="rounded-md border border-primary-blue p-2">
                                 <div className="flex items-center justify-between">
                                   <p className="text-sm font-medium">Actualización de estado</p>
-                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <div className="flex items-center gap-1 text-xs text-primary-blue">
                                     <Clock className="h-3 w-3" />
                                     <span>Hace 2 horas</span>
                                   </div>
                                 </div>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-primary-blue">
                                   Se cambió el estado de "Pendiente" a "En proceso"
                                 </p>
                               </div>
                               <div className="rounded-md border border-primary-blue p-2">
                                 <div className="flex items-center justify-between">
                                   <p className="text-sm font-medium">Asignación</p>
-                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <div className="flex items-center gap-1 text-xs text-primary-blue">
                                     <Clock className="h-3 w-3" />
                                     <span>Hace 1 día</span>
                                   </div>
                                 </div>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-primary-blue">
                                   Incidente asignado a {incident.assignedTo}
                                 </p>
                               </div>
@@ -390,7 +390,7 @@ export default function IncidentTracking() {
                           </div>
                         </div>
                         <DialogFooter>
-                          <Button variant="outline">Cancelar</Button>
+                          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">Cancelar</Button>
                           <Button>Guardar Cambios</Button>
                         </DialogFooter>
                       </DialogContent>
@@ -402,14 +402,14 @@ export default function IncidentTracking() {
           </Table>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-primary-blue">
             Mostrando {filteredIncidents.length} de {incidentData.length} incidentes
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
               Exportar
             </Button>
-            <Button variant="outline" size="sm">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
               Imprimir
             </Button>
           </div>

@@ -321,8 +321,8 @@ export default function RiskManagementIntegrated() {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="text-center">
-          <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground" />
-          <p className="mt-2 text-muted-foreground">Cargando riesgos...</p>
+          <AlertTriangle className="mx-auto h-12 w-12 text-primary-blue" />
+          <p className="mt-2 text-primary-blue">Cargando riesgos...</p>
         </div>
       </div>
     )
@@ -349,7 +349,7 @@ export default function RiskManagementIntegrated() {
                 {isAdmin && (
                   <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
                     <DialogTrigger asChild>
-                      <Button>
+                      <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
                         <Plus className="mr-2 h-4 w-4" />
                         Nuevo Riesgo
                       </Button>
@@ -467,10 +467,10 @@ export default function RiskManagementIntegrated() {
                           </div>
                         </div>
                         <DialogFooter>
-                          <Button type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
+                          <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
                             Cancelar
                           </Button>
-                          <Button type="submit">Guardar Riesgo</Button>
+                          <Button className="border border-primary-blue text-white bg-primary-blue" type="submit">Guardar Riesgo</Button>
                         </DialogFooter>
                       </form>
                     </DialogContent>
@@ -481,7 +481,7 @@ export default function RiskManagementIntegrated() {
             <CardContent>
               <div className="mb-4 flex flex-col gap-4 md:flex-row">
                 <div className="relative flex-1">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-primary-blue" />
                   <Input
                     placeholder="Buscar riesgos..."
                     className="pl-8"
@@ -491,7 +491,7 @@ export default function RiskManagementIntegrated() {
                 </div>
                 <div className="flex gap-2">
                   <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
+                    <Filter className="h-4 w-4 text-primary-blue" />
                     <span className="text-sm">Filtros:</span>
                   </div>
                   <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -556,17 +556,17 @@ export default function RiskManagementIntegrated() {
                             <span className="text-sm">{riesgo.protocolo.titulo}</span>
                           </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">Sin protocolo</span>
+                          <span className="text-sm text-primary-blue">Sin protocolo</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => openDetailsModal(riesgo)}>
+                          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openDetailsModal(riesgo)}>
                             <Eye className="mr-2 h-4 w-4" />
                             Ver
                           </Button>
                           {isAdmin && (
-                            <Button variant="outline" size="sm" onClick={() => openMaterializeModal(riesgo)}>
+                            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openMaterializeModal(riesgo)}>
                               <Zap className="mr-2 h-4 w-4" />
                               Materializar
                             </Button>
@@ -620,7 +620,7 @@ export default function RiskManagementIntegrated() {
                       </div>
                       <div>
                         <p className="font-medium">{materializacion.riesgo?.nombre}</p>
-                        <p className="text-sm text-muted-foreground">{materializacion.descripcion_evento}</p>
+                        <p className="text-sm text-primary-blue">{materializacion.descripcion_evento}</p>
                         <div className="mt-1 flex items-center gap-2">
                           <Badge variant="outline" className={getImpactColor(materializacion.severidad_real)}>
                             {materializacion.severidad_real}
@@ -634,11 +634,11 @@ export default function RiskManagementIntegrated() {
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="text-sm font-medium">{formatDate(materializacion.fecha_materializacion)}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-primary-blue">
                           Por: {materializacion.usuario_reporta?.nombre_completo}
                         </p>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => openMaterializationDetails(materializacion)}>
+                      <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openMaterializationDetails(materializacion)}>
                         <FileText className="mr-2 h-4 w-4" />
                         Detalles
                       </Button>
@@ -712,10 +712,10 @@ export default function RiskManagementIntegrated() {
               )}
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setMaterializeModalOpen(false)}>
+              <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" onClick={() => setMaterializeModalOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit">Materializar Riesgo</Button>
+              <Button className="border border-primary-blue text-white bg-primary-blue" type="submit">Materializar Riesgo</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -775,7 +775,7 @@ export default function RiskManagementIntegrated() {
                   <h4 className="mb-2 font-semibold">Protocolo Vinculado</h4>
                   <div className="rounded-md border border-primary-blue p-3">
                     <p className="font-medium">{selectedRisk.protocolo.titulo}</p>
-                    <p className="text-sm text-muted-foreground">{selectedRisk.protocolo.descripcion}</p>
+                    <p className="text-sm text-primary-blue">{selectedRisk.protocolo.descripcion}</p>
                     <Badge variant="outline" className="mt-2">
                       {selectedRisk.protocolo.severidad}
                     </Badge>
@@ -785,11 +785,11 @@ export default function RiskManagementIntegrated() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDetailsModalOpen(false)}>
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" onClick={() => setDetailsModalOpen(false)}>
               Cerrar
             </Button>
             {isAdmin && selectedRisk && (
-              <Button onClick={() => openMaterializeModal(selectedRisk)}>
+              <Button className="border border-primary-blue text-white bg-primary-blue" onClick={() => openMaterializeModal(selectedRisk)}>
                 <Zap className="mr-2 h-4 w-4" />
                 Materializar
               </Button>
@@ -854,7 +854,7 @@ export default function RiskManagementIntegrated() {
                   <h4 className="mb-2 font-semibold">Incidente Generado</h4>
                   <div className="rounded-md border border-primary-blue p-3">
                     <p className="font-medium">{selectedMaterialization.incidente_generado.titulo}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-primary-blue">
                       Estado: {selectedMaterialization.incidente_generado.estado}
                     </p>
                   </div>
@@ -869,7 +869,7 @@ export default function RiskManagementIntegrated() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setMaterializationDetailsOpen(false)}>
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" onClick={() => setMaterializationDetailsOpen(false)}>
               Cerrar
             </Button>
             {isAdmin && selectedMaterialization?.incidente_generado && (

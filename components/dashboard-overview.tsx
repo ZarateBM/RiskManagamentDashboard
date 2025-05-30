@@ -48,7 +48,7 @@ export default function DashboardOverview() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">12</div>
-                    <p className="text-xs text-muted-foreground">3 críticos, 5 altos, 4 medios</p>
+                    <p className="text-xs text-primary-blue">3 críticos, 5 altos, 4 medios</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -58,7 +58,7 @@ export default function DashboardOverview() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">4</div>
-                    <p className="text-xs text-muted-foreground">2 en proceso, 2 pendientes</p>
+                    <p className="text-xs text-primary-blue">2 en proceso, 2 pendientes</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -68,7 +68,7 @@ export default function DashboardOverview() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">22.5°C</div>
-                    <p className="text-xs text-muted-foreground">Dentro del rango óptimo</p>
+                    <p className="text-xs text-primary-blue">Dentro del rango óptimo</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -78,7 +78,7 @@ export default function DashboardOverview() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">65%</div>
-                    <p className="text-xs text-muted-foreground">Ligeramente elevada</p>
+                    <p className="text-xs text-primary-blue">Ligeramente elevada</p>
                   </CardContent>
                 </Card>
               </div>
@@ -203,28 +203,28 @@ export default function DashboardOverview() {
                       <div className="flex items-center justify-between border-b border-primary-blue pb-2">
                         <div>
                           <p className="font-medium">Mantenimiento preventivo UPS</p>
-                          <p className="text-sm text-muted-foreground">Responsable: Ing. Eléctrico</p>
+                          <p className="text-sm text-primary-blue">Responsable: Ing. Eléctrico</p>
                         </div>
                         <Badge>25/03/2025</Badge>
                       </div>
                       <div className="flex items-center justify-between border-b border-primary-blue pb-2">
                         <div>
                           <p className="font-medium">Revisión de sellos anti-humedad</p>
-                          <p className="text-sm text-muted-foreground">Responsable: Mantenimiento</p>
+                          <p className="text-sm text-primary-blue">Responsable: Mantenimiento</p>
                         </div>
                         <Badge>28/03/2025</Badge>
                       </div>
                       <div className="flex items-center justify-between border-b border-primary-blue pb-2">
                         <div>
                           <p className="font-medium">Actualización de firmware</p>
-                          <p className="text-sm text-muted-foreground">Responsable: TI</p>
+                          <p className="text-sm text-primary-blue">Responsable: TI</p>
                         </div>
                         <Badge>02/04/2025</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Simulacro de contingencia</p>
-                          <p className="text-sm text-muted-foreground">Responsable: Seguridad</p>
+                          <p className="text-sm text-primary-blue">Responsable: Seguridad</p>
                         </div>
                         <Badge>10/04/2025</Badge>
                       </div>

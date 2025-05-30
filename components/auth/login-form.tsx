@@ -114,7 +114,7 @@ export default function LoginForm() {
               </Alert>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button className="border border-primary-blue text-white bg-primary-blue" type="submit" className="w-full" disabled={loading}>
               {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </Button>
           </form>

@@ -270,8 +270,8 @@ export default function IncidentTrackingIntegrated() {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="text-center">
-          <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground" />
-          <p className="mt-2 text-muted-foreground">Cargando incidentes...</p>
+          <AlertTriangle className="mx-auto h-12 w-12 text-primary-blue" />
+          <p className="mt-2 text-primary-blue">Cargando incidentes...</p>
         </div>
       </div>
     )
@@ -296,16 +296,16 @@ export default function IncidentTrackingIntegrated() {
                     </div>
                     <div>
                       <p className="font-medium">{ejecucion.protocolo?.titulo}</p>
-                      <p className="text-sm text-muted-foreground">Incidente: {ejecucion.incidente?.titulo}</p>
+                      <p className="text-sm text-primary-blue">Incidente: {ejecucion.incidente?.titulo}</p>
                       <div className="mt-1 flex items-center gap-2">
                         <div className="h-2 w-32 overflow-hidden rounded-full bg-muted">
                           <div className="h-full bg-blue-500" style={{ width: `${ejecucion.progreso}%` }}></div>
                         </div>
-                        <span className="text-xs text-muted-foreground">{ejecucion.progreso}%</span>
+                        <span className="text-xs text-primary-blue">{ejecucion.progreso}%</span>
                       </div>
                     </div>
                   </div>
-                  <Button onClick={() => continuarEjecucion(ejecucion.id_ejecucion)} disabled={!isAdmin}>
+                  <Button className="border border-primary-blue text-white bg-primary-blue"  onClick={() => continuarEjecucion(ejecucion.id_ejecucion)} disabled={!isAdmin}>
                     <ArrowRight className="mr-2 h-4 w-4" />
                     Continuar
                   </Button>
@@ -326,7 +326,7 @@ export default function IncidentTrackingIntegrated() {
             {isAdmin && (
               <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
                 <DialogTrigger asChild>
-                  <Button>
+                  <Button className="border border-primary-blue text-white bg-primary-blue">
                     <Plus className="mr-2 h-4 w-4" />
                     Nuevo Incidente
                   </Button>
@@ -425,10 +425,10 @@ export default function IncidentTrackingIntegrated() {
                       </div>
                     </div>
                     <DialogFooter>
-                      <Button type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
+                      <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
                         Cancelar
                       </Button>
-                      <Button type="submit">Registrar Incidente</Button>
+                      <Button className="border border-primary-blue text-white bg-primary-blue" type="submit">Registrar Incidente</Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
@@ -439,7 +439,7 @@ export default function IncidentTrackingIntegrated() {
         <CardContent>
           <div className="mb-4 flex flex-col gap-4 md:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-primary-blue" />
               <Input
                 placeholder="Buscar incidentes..."
                 className="pl-8"
@@ -449,7 +449,7 @@ export default function IncidentTrackingIntegrated() {
             </div>
             <div className="flex gap-2">
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Filter className="h-4 w-4 text-primary-blue" />
                 <span className="text-sm">Filtros:</span>
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -496,7 +496,7 @@ export default function IncidentTrackingIntegrated() {
                     {incidente.riesgo ? (
                       <span className="text-sm">{incidente.riesgo.nombre}</span>
                     ) : (
-                      <span className="text-sm text-muted-foreground">Sin riesgo</span>
+                      <span className="text-sm text-primary-blue">Sin riesgo</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -510,19 +510,19 @@ export default function IncidentTrackingIntegrated() {
                         )}
                       </div>
                     ) : (
-                      <span className="text-sm text-muted-foreground">Sin protocolo</span>
+                      <span className="text-sm text-primary-blue">Sin protocolo</span>
                     )}
                   </TableCell>
                   <TableCell>{incidente.asignado_a}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       {incidente.protocolo_id && !incidente.protocolo_ejecutado && isAdmin && (
-                        <Button variant="outline" size="sm" onClick={() => ejecutarProtocolo(incidente)}>
+                        <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" size="sm" onClick={() => ejecutarProtocolo(incidente)}>
                           <Play className="mr-2 h-4 w-4" />
                           Ejecutar Protocolo
                         </Button>
                       )}
-                      <Button variant="outline" size="sm" onClick={() => openManageModal(incidente)}>
+                      <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" size="sm" onClick={() => openManageModal(incidente)}>
                         <FileText className="mr-2 h-4 w-4" />
                         Gestionar
                       </Button>
@@ -582,11 +582,11 @@ export default function IncidentTrackingIntegrated() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setManageModalOpen(false)}>
+            <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" onClick={() => setManageModalOpen(false)}>
               Cerrar
             </Button>
             {selectedIncident?.protocolo_id && !selectedIncident.protocolo_ejecutado && isAdmin && (
-              <Button
+              <Button className="border border-primary-blue text-white bg-primary-blue" 
                 onClick={() => {
                   setManageModalOpen(false)
                   ejecutarProtocolo(selectedIncident)

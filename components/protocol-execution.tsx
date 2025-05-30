@@ -116,8 +116,8 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
     return (
       <div className="flex items-center justify-center py-8">
         <div className="text-center">
-          <Clock className="mx-auto h-12 w-12 text-muted-foreground" />
-          <p className="mt-2 text-muted-foreground">Cargando protocolo...</p>
+          <Clock className="mx-auto h-12 w-12 text-primary-blue" />
+          <p className="mt-2 text-primary-blue">Cargando protocolo...</p>
         </div>
       </div>
     )
@@ -126,8 +126,8 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
   if (!ejecucion || !protocolo) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground">No se pudo cargar la ejecución del protocolo</p>
-        <Button onClick={onBack} className="mt-4">
+        <p className="text-primary-blue">No se pudo cargar la ejecución del protocolo</p>
+        <Button className="border border-primary-blue text-white bg-primary-blue" onClick={onBack} className="mt-4">
           Volver
         </Button>
       </div>
@@ -139,7 +139,7 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={onBack}>
+        <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Volver a Incidentes
         </Button>
@@ -155,7 +155,7 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Progreso: {progress}%</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-primary-blue">
                 {completedTasks.length} de {protocolo.pasos.reduce((total, step) => total + step.tareas.length, 0)}{" "}
                 tareas
               </span>
@@ -168,7 +168,7 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
             <h3 className="mb-2 font-medium">Información del Incidente</h3>
             <div className="rounded-md border border-primary-blue p-3">
               <p className="font-medium">{ejecucion.incidente?.titulo}</p>
-              <p className="text-sm text-muted-foreground">{ejecucion.incidente?.descripcion}</p>
+              <p className="text-sm text-primary-blue">{ejecucion.incidente?.descripcion}</p>
             </div>
           </div>
 
@@ -205,13 +205,13 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
                           <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
                             <div className="h-full bg-primary" style={{ width: `${stepProgress}%` }}></div>
                           </div>
-                          <span className="text-xs text-muted-foreground">{stepProgress}%</span>
+                          <span className="text-xs text-primary-blue">{stepProgress}%</span>
                         </div>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-4 pl-8">
-                        <p className="text-sm text-muted-foreground">{step.descripcion}</p>
+                        <p className="text-sm text-primary-blue">{step.descripcion}</p>
                         <div className="space-y-2">
                           {step.tareas.map((task, taskIndex) => {
                             const isChecked = completedTasks.includes(task)
@@ -227,7 +227,7 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
                                 />
                                 <Label
                                   htmlFor={`task-${stepIndex}-${taskIndex}`}
-                                  className={`text-sm ${isChecked ? "text-muted-foreground line-through" : ""}`}
+                                  className={`text-sm ${isChecked ? "text-primary-blue line-through" : ""}`}
                                 >
                                   {task}
                                 </Label>
@@ -251,7 +251,7 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
               onChange={(e) => setNotes(e.target.value)}
               className="min-h-[100px]"
             />
-            <Button variant="outline" size="sm" onClick={handleSaveNotes}>
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={handleSaveNotes}>
               <Save className="mr-2 h-4 w-4" />
               Guardar Notas
             </Button>

@@ -15,7 +15,7 @@ export default function ReportsAnalytics() {
       <div className="flex flex-col justify-between gap-4 md:flex-row">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Reportes y Análisis</h2>
-          <p className="text-muted-foreground">Generación de informes y análisis de tendencias</p>
+          <p className="text-primary-blue">Generación de informes y análisis de tendencias</p>
         </div>
         <div className="flex items-center gap-2">
           <Select value={reportPeriod} onValueChange={setReportPeriod}>
@@ -29,13 +29,13 @@ export default function ReportsAnalytics() {
               <SelectItem value="year">Este año</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon">
+          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="icon">
             <Calendar className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon">
+          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="icon">
             <Printer className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon">
+          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="icon">
             <Download className="h-4 w-4" />
           </Button>
         </div>
@@ -54,41 +54,41 @@ export default function ReportsAnalytics() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Incidentes</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <BarChart3 className="h-4 w-4 text-primary-blue" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">12</div>
-                <p className="text-xs text-muted-foreground">+2 comparado con el período anterior</p>
+                <p className="text-xs text-primary-blue">+2 comparado con el período anterior</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Tiempo Promedio Resolución</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <BarChart3 className="h-4 w-4 text-primary-blue" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">8.5h</div>
-                <p className="text-xs text-muted-foreground">-1.2h comparado con el período anterior</p>
+                <p className="text-xs text-primary-blue">-1.2h comparado con el período anterior</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Riesgos Mitigados</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <BarChart3 className="h-4 w-4 text-primary-blue" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">5</div>
-                <p className="text-xs text-muted-foreground">+2 comparado con el período anterior</p>
+                <p className="text-xs text-primary-blue">+2 comparado con el período anterior</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Alertas Ambientales</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <BarChart3 className="h-4 w-4 text-primary-blue" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">8</div>
-                <p className="text-xs text-muted-foreground">-3 comparado con el período anterior</p>
+                <p className="text-xs text-primary-blue">-3 comparado con el período anterior</p>
               </CardContent>
             </Card>
           </div>
@@ -175,19 +175,19 @@ export default function ReportsAnalytics() {
                     <FileText className="h-5 w-5 text-primary" />
                     <div>
                       <p className="font-medium">Informe Mensual de Incidentes</p>
-                      <p className="text-sm text-muted-foreground">Resumen de todos los incidentes del mes</p>
+                      <p className="text-sm text-primary-blue">Resumen de todos los incidentes del mes</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                       <Printer className="mr-2 h-4 w-4" />
                       Imprimir
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                       <Download className="mr-2 h-4 w-4" />
                       Descargar
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                       <Share2 className="mr-2 h-4 w-4" />
                       Compartir
                     </Button>
@@ -198,19 +198,19 @@ export default function ReportsAnalytics() {
                     <FileText className="h-5 w-5 text-primary" />
                     <div>
                       <p className="font-medium">Análisis de Riesgos Trimestral</p>
-                      <p className="text-sm text-muted-foreground">Evaluación de riesgos y medidas de mitigación</p>
+                      <p className="text-sm text-primary-blue">Evaluación de riesgos y medidas de mitigación</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                       <Printer className="mr-2 h-4 w-4" />
                       Imprimir
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                       <Download className="mr-2 h-4 w-4" />
                       Descargar
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                       <Share2 className="mr-2 h-4 w-4" />
                       Compartir
                     </Button>
@@ -221,19 +221,19 @@ export default function ReportsAnalytics() {
                     <FileText className="h-5 w-5 text-primary" />
                     <div>
                       <p className="font-medium">Reporte de Condiciones Ambientales</p>
-                      <p className="text-sm text-muted-foreground">Análisis de temperatura, humedad y energía</p>
+                      <p className="text-sm text-primary-blue">Análisis de temperatura, humedad y energía</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                       <Printer className="mr-2 h-4 w-4" />
                       Imprimir
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                       <Download className="mr-2 h-4 w-4" />
                       Descargar
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                       <Share2 className="mr-2 h-4 w-4" />
                       Compartir
                     </Button>
@@ -242,7 +242,7 @@ export default function ReportsAnalytics() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Generar Nuevo Informe</Button>
+              <Button className="border border-primary-blue text-white bg-primary-blue" className="w-full">Generar Nuevo Informe</Button>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -299,19 +299,19 @@ export default function ReportsAnalytics() {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Incidentes por Severidad</h3>
                 <div className="grid grid-cols-4 gap-4">
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border p-4 text-center">
                     <div className="text-2xl font-bold text-red-500">2</div>
                     <div className="text-sm font-medium">Crítica</div>
                   </div>
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border p-4 text-center">
                     <div className="text-2xl font-bold text-amber-500">5</div>
                     <div className="text-sm font-medium">Alta</div>
                   </div>
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border  p-4 text-center">
                     <div className="text-2xl font-bold text-yellow-500">3</div>
                     <div className="text-sm font-medium">Media</div>
                   </div>
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border p-4 text-center">
                     <div className="text-2xl font-bold text-green-500">2</div>
                     <div className="text-sm font-medium">Baja</div>
                   </div>
@@ -390,19 +390,19 @@ export default function ReportsAnalytics() {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Riesgos por Nivel de Impacto</h3>
                 <div className="grid grid-cols-4 gap-4">
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border p-4 text-center">
                     <div className="text-2xl font-bold text-red-500">3</div>
                     <div className="text-sm font-medium">Crítico</div>
                   </div>
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border p-4 text-center">
                     <div className="text-2xl font-bold text-amber-500">5</div>
                     <div className="text-sm font-medium">Alto</div>
                   </div>
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border  p-4 text-center">
                     <div className="text-2xl font-bold text-yellow-500">4</div>
                     <div className="text-sm font-medium">Medio</div>
                   </div>
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border p-4 text-center">
                     <div className="text-2xl font-bold text-green-500">2</div>
                     <div className="text-sm font-medium">Bajo</div>
                   </div>
@@ -415,7 +415,7 @@ export default function ReportsAnalytics() {
                   <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
                     <div>
                       <p className="font-medium">Riesgos Mitigados</p>
-                      <p className="text-sm text-muted-foreground">Riesgos con medidas implementadas</p>
+                      <p className="text-sm text-primary-blue">Riesgos con medidas implementadas</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xl font-bold">5</p>
@@ -425,7 +425,7 @@ export default function ReportsAnalytics() {
                   <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
                     <div>
                       <p className="font-medium">Riesgos en Proceso</p>
-                      <p className="text-sm text-muted-foreground">Medidas en implementación</p>
+                      <p className="text-sm text-primary-blue">Medidas en implementación</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xl font-bold">7</p>
@@ -435,7 +435,7 @@ export default function ReportsAnalytics() {
                   <div className="flex items-center justify-between rounded-md border border-primary-blue p-3">
                     <div>
                       <p className="font-medium">Riesgos Pendientes</p>
-                      <p className="text-sm text-muted-foreground">Sin medidas implementadas</p>
+                      <p className="text-sm text-primary-blue">Sin medidas implementadas</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xl font-bold">2</p>
@@ -482,7 +482,7 @@ export default function ReportsAnalytics() {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between text-sm text-muted-foreground">
+                <div className="flex justify-between text-sm text-primary-blue">
                   <span>Mínima: 20.5°C</span>
                   <span>Promedio: 22.1°C</span>
                   <span>Máxima: 23.5°C</span>
@@ -516,7 +516,7 @@ export default function ReportsAnalytics() {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between text-sm text-muted-foreground">
+                <div className="flex justify-between text-sm text-primary-blue">
                   <span>Mínima: 55%</span>
                   <span>Promedio: 62%</span>
                   <span>Máxima: 67%</span>
@@ -526,15 +526,15 @@ export default function ReportsAnalytics() {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Alertas Ambientales por Tipo</h3>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border p-4 text-center">
                     <div className="text-2xl font-bold text-orange-500">3</div>
                     <div className="text-sm font-medium">Temperatura</div>
                   </div>
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border p-4 text-center">
                     <div className="text-2xl font-bold text-blue-500">4</div>
                     <div className="text-sm font-medium">Humedad</div>
                   </div>
-                  <div className="rounded-lg border border-primary-blue p-4 text-center">
+                  <div className="rounded-lg border p-4 text-center">
                     <div className="text-2xl font-bold text-yellow-500">1</div>
                     <div className="text-sm font-medium">Energía</div>
                   </div>

@@ -234,7 +234,7 @@ export default function UserManagement() {
       <div className="flex items-center justify-center py-8">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <UserCheck className="mx-auto h-12 w-12 text-muted-foreground" />
+            <UserCheck className="mx-auto h-12 w-12 text-primary-blue" />
             <CardTitle>Acceso Restringido</CardTitle>
             <CardDescription>Solo los administradores pueden gestionar usuarios</CardDescription>
           </CardHeader>
@@ -254,7 +254,7 @@ export default function UserManagement() {
             </div>
             <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
                   <Plus className="mr-2 h-4 w-4" />
                   Nuevo Usuario
                 </Button>
@@ -318,10 +318,10 @@ export default function UserManagement() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
+                    <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button className="border border-primary-blue text-white bg-primary-blue" type="submit" disabled={loading}>
                       {loading ? "Guardando..." : "Guardar Usuario"}
                     </Button>
                   </DialogFooter>
@@ -333,7 +333,7 @@ export default function UserManagement() {
         <CardContent>
           <div className="mb-4 flex flex-col gap-4 md:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-primary-blue" />
               <Input
                 placeholder="Buscar usuarios..."
                 className="pl-8"
@@ -343,7 +343,7 @@ export default function UserManagement() {
             </div>
             <div className="flex gap-2">
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Filter className="h-4 w-4 text-primary-blue" />
                 <span className="text-sm">Filtros:</span>
               </div>
               <Select value={roleFilter} onValueChange={setRoleFilter}>
@@ -362,8 +362,8 @@ export default function UserManagement() {
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
-                <Users className="mx-auto h-12 w-12 text-muted-foreground" />
-                <p className="mt-2 text-muted-foreground">Cargando usuarios...</p>
+                <Users className="mx-auto h-12 w-12 text-primary-blue" />
+                <p className="mt-2 text-primary-blue">Cargando usuarios...</p>
               </div>
             </div>
           ) : (
@@ -403,7 +403,7 @@ export default function UserManagement() {
                       <div className="flex justify-end gap-2">
                         <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
                           <DialogTrigger asChild>
-                            <Button variant="outline" size="sm" onClick={() => openEditModal(user)}>
+                            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openEditModal(user)}>
                               <Edit className="mr-2 h-4 w-4" />
                               Editar
                             </Button>
@@ -462,10 +462,10 @@ export default function UserManagement() {
                                 </div>
                               </div>
                               <DialogFooter>
-                                <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)}>
+                                <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" onClick={() => setEditModalOpen(false)}>
                                   Cancelar
                                 </Button>
-                                <Button type="submit" disabled={loading}>
+                                <Button className="border border-primary-blue text-white bg-primary-blue" type="submit" disabled={loading}>
                                   {loading ? "Guardando..." : "Guardar Cambios"}
                                 </Button>
                               </DialogFooter>
@@ -475,7 +475,7 @@ export default function UserManagement() {
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
+                            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                               <Trash2 className="mr-2 h-4 w-4" />
                               Eliminar
                             </Button>
@@ -509,14 +509,14 @@ export default function UserManagement() {
           )}
         </CardContent>
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-primary-blue">
             Mostrando {filteredUsers.length} de {usuarios.length} usuarios
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
               Exportar
             </Button>
-            <Button variant="outline" size="sm">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
               Imprimir
             </Button>
           </div>

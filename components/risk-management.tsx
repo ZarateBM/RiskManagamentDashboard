@@ -131,7 +131,7 @@ export default function RiskManagement() {
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
                   <Plus className="mr-2 h-4 w-4" />
                   Nuevo Riesgo
                 </Button>
@@ -218,7 +218,7 @@ export default function RiskManagement() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Guardar Riesgo</Button>
+                  <Button className="border border-primary-blue text-white bg-primary-blue" type="submit">Guardar Riesgo</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -227,7 +227,7 @@ export default function RiskManagement() {
         <CardContent>
           <div className="mb-4 flex flex-col gap-4 md:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-primary-blue" />
               <Input
                 placeholder="Buscar riesgos..."
                 className="pl-8"
@@ -237,7 +237,7 @@ export default function RiskManagement() {
             </div>
             <div className="flex gap-2">
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Filter className="h-4 w-4 text-primary-blue" />
                 <span className="text-sm">Filtros:</span>
               </div>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -303,7 +303,7 @@ export default function RiskManagement() {
                   <TableCell className="text-right">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
+                        <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
                           <FileText className="mr-2 h-4 w-4" />
                           Detalles
                         </Button>
@@ -353,13 +353,13 @@ export default function RiskManagement() {
                             <div className="space-y-2">
                               <div className="rounded-md border border-primary-blue p-2">
                                 <p className="text-sm font-medium">15/03/2025 - Revisión de medidas</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-primary-blue">
                                   Se verificó la efectividad de las medidas implementadas.
                                 </p>
                               </div>
                               <div className="rounded-md border border-primary-blue p-2">
                                 <p className="text-sm font-medium">01/03/2025 - Implementación inicial</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-primary-blue">
                                   Se registró el riesgo y se definieron las medidas de mitigación.
                                 </p>
                               </div>
@@ -367,8 +367,8 @@ export default function RiskManagement() {
                           </div>
                         </div>
                         <DialogFooter>
-                          <Button variant="outline">Editar</Button>
-                          <Button>Actualizar Estado</Button>
+                          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">Editar</Button>
+                          <Button className="border border-primary-blue text-white bg-primary-blue" >Actualizar Estado</Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
@@ -379,14 +379,14 @@ export default function RiskManagement() {
           </Table>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-primary-blue">
             Mostrando {filteredRisks.length} de {riskData.length} riesgos
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
               Exportar
             </Button>
-            <Button variant="outline" size="sm">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
               Imprimir
             </Button>
           </div>
