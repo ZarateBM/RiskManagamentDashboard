@@ -498,7 +498,7 @@ export default function EnvironmentalMonitoring() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" className="w-full">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
               Programar Mantenimiento
             </Button>
           </CardFooter>
