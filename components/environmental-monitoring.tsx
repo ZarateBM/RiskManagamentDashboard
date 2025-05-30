@@ -364,7 +364,7 @@ export default function EnvironmentalMonitoring() {
           </Tabs>
         </CardContent>
         <CardFooter>
-          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" className="w-full">
+          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
             Ver historial completo
           </Button>
         </CardFooter>
@@ -424,7 +424,7 @@ export default function EnvironmentalMonitoring() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" className="w-full">
+            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" >
               Configurar Alertas
             </Button>
           </CardFooter>
