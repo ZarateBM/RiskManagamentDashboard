@@ -271,12 +271,15 @@ export default function RiskManagementIntegrated() {
     setNotasMaterializacion("")
   }
 
-  const filteredRisks = riesgos.filter((riesgo) => {
-    const matchesSearch = riesgo.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = categoryFilter === "Todos" || riesgo.categoria === categoryFilter
-    const matchesImpact = impactFilter === "Todos" || riesgo.impacto === impactFilter
-    return matchesSearch && matchesCategory && matchesImpact
-  })
+  // Modificar la lógica de filtrado para mostrar la tabla vacía hasta que se busque
+  const filteredRisks = searchTerm === "" 
+    ? [] 
+    : riesgos.filter((riesgo) => {
+        const matchesSearch = riesgo.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesCategory = categoryFilter === "Todos" || riesgo.categoria === categoryFilter
+        const matchesImpact = impactFilter === "Todos" || riesgo.impacto === impactFilter
+        return matchesSearch && matchesCategory && matchesImpact
+      })
 
   const getImpactColor = (impacto: string) => {
     switch (impacto) {
@@ -535,46 +538,56 @@ export default function RiskManagementIntegrated() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRisks.map((riesgo) => (
-                    <TableRow key={riesgo.id_riesgo}>
-                      <TableCell className="font-medium">{riesgo.nombre}</TableCell>
-                      <TableCell>{riesgo.categoria}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={getImpactColor(riesgo.impacto)}>
-                          {riesgo.impacto}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{riesgo.probabilidad}</TableCell>
-                      <TableCell>
-                        <Badge variant={riesgo.estado === "Activo" ? "default" : "outline"}>{riesgo.estado}</Badge>
-                      </TableCell>
-                      <TableCell>{riesgo.responsable?.nombre_completo || "Sin asignar"}</TableCell>
-                      <TableCell>
-                        {riesgo.protocolo ? (
-                          <div className="flex items-center gap-2">
-                            <BookOpen className="h-4 w-4 text-blue-500" />
-                            <span className="text-sm">{riesgo.protocolo.titulo}</span>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-primary-blue">Sin protocolo</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openDetailsModal(riesgo)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Ver
-                          </Button>
-                          {isAdmin && (
-                            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openMaterializeModal(riesgo)}>
-                              <Zap className="mr-2 h-4 w-4" />
-                              Materializar
-                            </Button>
-                          )}
-                        </div>
+                  {filteredRisks.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-6">
+                        {searchTerm === "" 
+                          ? "Ingrese un término de búsqueda para ver los riesgos" 
+                          : "No se encontraron riesgos que coincidan con su búsqueda"}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    filteredRisks.map((riesgo) => (
+                      <TableRow key={riesgo.id_riesgo}>
+                        <TableCell className="font-medium">{riesgo.nombre}</TableCell>
+                        <TableCell>{riesgo.categoria}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={getImpactColor(riesgo.impacto)}>
+                            {riesgo.impacto}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{riesgo.probabilidad}</TableCell>
+                        <TableCell>
+                          <Badge variant={riesgo.estado === "Activo" ? "default" : "outline"}>{riesgo.estado}</Badge>
+                        </TableCell>
+                        <TableCell>{riesgo.responsable?.nombre_completo || "Sin asignar"}</TableCell>
+                        <TableCell>
+                          {riesgo.protocolo ? (
+                            <div className="flex items-center gap-2">
+                              <BookOpen className="h-4 w-4 text-blue-500" />
+                              <span className="text-sm">{riesgo.protocolo.titulo}</span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-primary-blue">Sin protocolo</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openDetailsModal(riesgo)}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              Ver
+                            </Button>
+                            {isAdmin && (
+                              <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openMaterializeModal(riesgo)}>
+                                <Zap className="mr-2 h-4 w-4" />
+                                Materializar
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>

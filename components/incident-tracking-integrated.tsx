@@ -52,6 +52,9 @@ export default function IncidentTrackingIntegrated() {
   const [riesgoId, setRiesgoId] = useState("")
   const [protocoloId, setProtocoloId] = useState("")
 
+  // Agregar este estado en la sección de estados al inicio del componente
+  const [protocolsExpanded, setProtocolsExpanded] = useState(false)
+
   useEffect(() => {
     // Obtener usuario actual
     const userData = localStorage.getItem("usuario")
@@ -211,11 +214,14 @@ export default function IncidentTrackingIntegrated() {
     setProtocoloId("")
   }
 
-  const filteredIncidents = incidentes.filter((incidente) => {
-    const matchesSearch = incidente.titulo.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "Todos" || incidente.estado === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  // Modificar la función de filtrado de incidentes
+  const filteredIncidents = searchTerm === "" 
+    ? [] 
+    : incidentes.filter((incidente) => {
+        const matchesSearch = incidente.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesStatus = statusFilter === "Todos" || incidente.estado === statusFilter
+        return matchesSearch && matchesStatus
+      })
 
   const getSeverityColor = (severidad: string) => {
     switch (severidad) {
@@ -282,37 +288,47 @@ export default function IncidentTrackingIntegrated() {
       {/* Ejecuciones en progreso */}
       {ejecucionesEnProgreso.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle>Protocolos en Ejecución</CardTitle>
-            <CardDescription>Continúe con los protocolos que están en progreso</CardDescription>
+          <CardHeader 
+            className="cursor-pointer flex flex-row items-center justify-between"
+            onClick={() => setProtocolsExpanded(!protocolsExpanded)}
+          >
+            <div>
+              <CardTitle>Protocolos en Ejecución ({ejecucionesEnProgreso.length})</CardTitle>
+              <CardDescription>Continúe con los protocolos que están en progreso</CardDescription>
+            </div>
+            <Button variant="ghost" size="sm">
+              {protocolsExpanded ? "Ocultar" : "Mostrar"}
+            </Button>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {ejecucionesEnProgreso.map((ejecucion) => (
-                <div key={ejecucion.id_ejecucion} className="flex items-center justify-between rounded-md border border-primary-blue p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                      <Play className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium">{ejecucion.protocolo?.titulo}</p>
-                      <p className="text-sm text-primary-blue">Incidente: {ejecucion.incidente?.titulo}</p>
-                      <div className="mt-1 flex items-center gap-2">
-                        <div className="h-2 w-32 overflow-hidden rounded-full bg-muted">
-                          <div className="h-full bg-blue-500" style={{ width: `${ejecucion.progreso}%` }}></div>
+          {protocolsExpanded && (
+            <CardContent>
+              <div className="space-y-3">
+                {ejecucionesEnProgreso.map((ejecucion) => (
+                  <div key={ejecucion.id_ejecucion} className="flex items-center justify-between rounded-md border border-primary-blue p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                        <Play className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{ejecucion.protocolo?.titulo}</p>
+                        <p className="text-sm text-primary-blue">Incidente: {ejecucion.incidente?.titulo}</p>
+                        <div className="mt-1 flex items-center gap-2">
+                          <div className="h-2 w-32 overflow-hidden rounded-full bg-muted">
+                            <div className="h-full bg-blue-500" style={{ width: `${ejecucion.progreso}%` }}></div>
+                          </div>
+                          <span className="text-xs text-primary-blue">{ejecucion.progreso}%</span>
                         </div>
-                        <span className="text-xs text-primary-blue">{ejecucion.progreso}%</span>
                       </div>
                     </div>
+                    <Button className="border border-primary-blue text-white bg-primary-blue" onClick={() => continuarEjecucion(ejecucion.id_ejecucion)} disabled={!isAdmin}>
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                      Continuar
+                    </Button>
                   </div>
-                  <Button className="border border-primary-blue text-white bg-primary-blue"  onClick={() => continuarEjecucion(ejecucion.id_ejecucion)} disabled={!isAdmin}>
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                    Continuar
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
+                ))}
+              </div>
+            </CardContent>
+          )}
         </Card>
       )}
 
@@ -479,57 +495,67 @@ export default function IncidentTrackingIntegrated() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredIncidents.map((incidente) => (
-                <TableRow key={incidente.id_incidente}>
-                  <TableCell className="font-medium">{incidente.titulo}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getSeverityColor(incidente.severidad)}>
-                      {incidente.severidad}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(incidente.estado)}>
-                      {incidente.estado}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {incidente.riesgo ? (
-                      <span className="text-sm">{incidente.riesgo.nombre}</span>
-                    ) : (
-                      <span className="text-sm text-primary-blue">Sin riesgo</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {incidente.protocolo ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">{incidente.protocolo.titulo}</span>
-                        {incidente.protocolo_ejecutado && (
-                          <Badge variant="outline" className="bg-green-100 text-green-800">
-                            Ejecutado
-                          </Badge>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-sm text-primary-blue">Sin protocolo</span>
-                    )}
-                  </TableCell>
-                  <TableCell>{incidente.asignado_a}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      {incidente.protocolo_id && !incidente.protocolo_ejecutado && isAdmin && (
-                        <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" size="sm" onClick={() => ejecutarProtocolo(incidente)}>
-                          <Play className="mr-2 h-4 w-4" />
-                          Ejecutar Protocolo
-                        </Button>
-                      )}
-                      <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" size="sm" onClick={() => openManageModal(incidente)}>
-                        <FileText className="mr-2 h-4 w-4" />
-                        Gestionar
-                      </Button>
-                    </div>
+              {filteredIncidents.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-6">
+                    {searchTerm === "" 
+                      ? "Ingrese un término de búsqueda para ver los incidentes" 
+                      : "No se encontraron incidentes que coincidan con su búsqueda"}
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredIncidents.map((incidente) => (
+                  <TableRow key={incidente.id_incidente}>
+                    <TableCell className="font-medium">{incidente.titulo}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getSeverityColor(incidente.severidad)}>
+                        {incidente.severidad}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getStatusColor(incidente.estado)}>
+                        {incidente.estado}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {incidente.riesgo ? (
+                        <span className="text-sm">{incidente.riesgo.nombre}</span>
+                      ) : (
+                        <span className="text-sm text-primary-blue">Sin riesgo</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {incidente.protocolo ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">{incidente.protocolo.titulo}</span>
+                          {incidente.protocolo_ejecutado && (
+                            <Badge variant="outline" className="bg-green-100 text-green-800">
+                              Ejecutado
+                            </Badge>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-primary-blue">Sin protocolo</span>
+                      )}
+                    </TableCell>
+                    <TableCell>{incidente.asignado_a}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        {incidente.protocolo_id && !incidente.protocolo_ejecutado && isAdmin && (
+                          <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" size="sm" onClick={() => ejecutarProtocolo(incidente)}>
+                            <Play className="mr-2 h-4 w-4" />
+                            Ejecutar Protocolo
+                          </Button>
+                        )}
+                        <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" size="sm" onClick={() => openManageModal(incidente)}>
+                          <FileText className="mr-2 h-4 w-4" />
+                          Gestionar
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
