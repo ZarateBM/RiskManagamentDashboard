@@ -90,6 +90,9 @@ export default function ProtocolsProcedures() {
   const [herramientas, setHerramientas] = useState("")
   const [pasos, setPasos] = useState([{ titulo: "", descripcion: "", tareas: [""] }])
 
+  // Agregar estos estados en la sección de estados
+  const [showAllExecutions, setShowAllExecutions] = useState(false)
+
   useEffect(() => {
     // Obtener usuario actual
     const userData = localStorage.getItem("usuario")
@@ -136,11 +139,14 @@ export default function ProtocolsProcedures() {
   const isAdmin = currentUser?.rol === "ADMINISTRADOR"
 
   // Filtrar protocolos
-  const filteredProcedures = protocolos.filter((protocolo) => {
-    const matchesSearch = protocolo.titulo.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || protocolo.categoria === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  const filteredProcedures = protocolos
+    .filter((protocolo) => {
+      const matchesSearch = protocolo.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesCategory = selectedCategory === "all" || protocolo.categoria === selectedCategory
+      return matchesSearch && matchesCategory
+    })
+    // Limitar a 5 protocolos si no hay búsqueda activa
+    .slice(0, searchTerm === "" ? 5 : undefined)
 
   const handleCreateProtocol = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -533,6 +539,11 @@ export default function ProtocolsProcedures() {
                   </div>
                 </div>
               ))}
+              {searchTerm === "" && protocolos.length > 5 && (
+                <div className="mt-2 text-center text-sm text-primary-blue">
+                  Mostrando 5 de {protocolos.length} protocolos. Busque para ver más.
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -710,48 +721,64 @@ export default function ProtocolsProcedures() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Ejecuciones Recientes</CardTitle>
-          <CardDescription>Últimos protocolos ejecutados o en progreso</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {ejecucionesRecientes.map((ejecucion) => (
-              <div key={ejecucion.id_ejecucion} className="flex items-center justify-between rounded-md border border-primary-blue p-4">
-                <div className="flex items-center gap-3">
-                  {getCategoryIcon(ejecucion.protocolo?.categoria || "")}
-                  <div>
-                    <p className="font-medium">{ejecucion.protocolo?.titulo}</p>
-                    <p className="text-sm text-primary-blue">Incidente: {ejecucion.incidente?.titulo}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="text-sm font-medium">Iniciado: {formatDate(ejecucion.fecha_inicio)}</p>
-                    <p className="text-xs text-primary-blue">Por: {ejecucion.usuario?.nombre_completo}</p>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className={
-                      ejecucion.estado === "Completado"
-                        ? "bg-green-100 text-green-800"
-                        : ejecucion.estado === "En progreso"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-gray-100 text-gray-800"
-                    }
-                  >
-                    {ejecucion.estado} ({ejecucion.progreso}%)
-                  </Badge>
-                </div>
-              </div>
-            ))}
+        <CardHeader 
+          className="cursor-pointer flex flex-row items-center justify-between"
+        >
+          <div>
+            <CardTitle>Ejecuciones Recientes</CardTitle>
+            <CardDescription>Últimos protocolos ejecutados o en progreso</CardDescription>
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" className="w-full">
-            Ver Historial Completo
-          </Button>
-        </CardFooter>
+        </CardHeader>
+
+            <CardContent>
+              <div className="space-y-4">
+                {ejecucionesRecientes
+                  .slice(0, showAllExecutions ? undefined : 3)
+                  .map((ejecucion) => (
+                    <div key={ejecucion.id_ejecucion} className="flex items-center justify-between rounded-md border border-primary-blue p-4">
+                      <div className="flex items-center gap-3">
+                        {getCategoryIcon(ejecucion.protocolo?.categoria || "")}
+                        <div>
+                          <p className="font-medium">{ejecucion.protocolo?.titulo}</p>
+                          <p className="text-sm text-primary-blue">Incidente: {ejecucion.incidente?.titulo}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-sm font-medium">Iniciado: {formatDate(ejecucion.fecha_inicio)}</p>
+                          <p className="text-xs text-primary-blue">Por: {ejecucion.usuario?.nombre_completo}</p>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={
+                            ejecucion.estado === "Completado"
+                              ? "bg-green-100 text-green-800"
+                              : ejecucion.estado === "En progreso"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-gray-100 text-gray-800"
+                          }
+                        >
+                          {ejecucion.estado} ({ejecucion.progreso}%)
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="border border-primary-blue text-white bg-primary-blue w-full" 
+                variant="outline"
+                onClick={() => setShowAllExecutions(!showAllExecutions)}
+              >
+                {showAllExecutions 
+                  ? "Mostrar Solo Recientes" 
+                  : ejecucionesRecientes.length > 3 
+                    ? `Ver Historial Completo (${ejecucionesRecientes.length - 3} más)` 
+                    : "No hay más registros"}
+              </Button>
+            </CardFooter>
+
       </Card>
     </div>
   )
