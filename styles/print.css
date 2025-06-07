@@ -1,0 +1,37 @@
+@media print {
+  /* Ocultar elementos que no deben imprimirse */
+  .hide-to-print {
+    display: none !important;
+  }
+  
+  /* Estilos para mejorar la impresión */
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  /* Asegurar que la tabla se imprima completa */
+  .print-container {
+    width: 100%;
+    overflow: visible !important;
+  }
+  
+  /* Mantener los colores de los badges */
+  .badge-print-friendly {
+    border: 1px solid;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10pt;
+  }
+}

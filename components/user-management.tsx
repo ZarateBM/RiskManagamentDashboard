@@ -115,8 +115,8 @@ export default function UserManagement() {
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!nombreCompleto || !correo || !contraseña) {
-      alert("Por favor completa todos los campos")
-      return
+      alert("Por favor completa todos los campos");
+      return;
     }
 
     setLoading(true)
@@ -183,7 +183,7 @@ export default function UserManagement() {
         rol,
       }
 
-      // Solo actualizar contraseña si se proporcionó una nueva
+      // Solo actualizar contraseña si se proporcioná una nueva
       if (contraseña) {
         updateData.contraseña = contraseña
       }
@@ -262,6 +262,12 @@ export default function UserManagement() {
         </Card>
       </div>
     )
+  }
+
+  // Agregar la función handlePrint justo antes del return
+  const handlePrint = () => {
+    // Opcionalmente podríamos hacer alguna preparación antes de imprimir
+    window.print();
   }
 
   return (
@@ -356,7 +362,13 @@ export default function UserManagement() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 flex flex-col gap-4 md:flex-row">
+          {/* Título que solo aparece en la impresión */}
+          <div className="hidden print:block mb-4">
+            <h1 className="text-2xl font-bold text-center">Listado de Usuarios del Sistema</h1>
+            <p className="text-center text-gray-500">Generado el {new Date().toLocaleDateString()}</p>
+          </div>
+          
+          <div className="mb-4 flex flex-col gap-4 md:flex-row hide-to-print">
             <div className="relative flex-1">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-primary-blue" />
               <Input
@@ -392,7 +404,7 @@ export default function UserManagement() {
               </div>
             </div>
           ) : (
-            <Table>
+            <Table className="print-container">
               <TableHeader>
                 <TableRow>
                   <TableHead>Usuario</TableHead>
@@ -400,7 +412,7 @@ export default function UserManagement() {
                   <TableHead>Rol</TableHead>
                   <TableHead>Último Acceso</TableHead>
                   <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
+                  <TableHead className="text-right hide-to-print">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -408,23 +420,23 @@ export default function UserManagement() {
                   <TableRow key={user.id_usuario}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
-                        {getRoleIcon(user.rol)}
+                        <span className="hide-to-print">{getRoleIcon(user.rol)}</span>
                         {user.nombre_completo}
                       </div>
                     </TableCell>
                     <TableCell>{user.correo}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={getRoleColor(user.rol)}>
+                      <Badge variant="outline" className={`${getRoleColor(user.rol)} badge-print-friendly`}>
                         {user.rol}
                       </Badge>
                     </TableCell>
                     <TableCell>{formatDate(user.ultimo_acceso || "")}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-green-100 text-green-800">
+                      <Badge variant="outline" className="bg-green-100 text-green-800 badge-print-friendly">
                         Activo
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right hide-to-print">
                       <div className="flex justify-end gap-2">
                         <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
                           <DialogTrigger asChild>
@@ -533,7 +545,7 @@ export default function UserManagement() {
             </Table>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between hide-to-print">
           <div className="text-sm text-primary-blue">
             Mostrando {filteredUsers.length} de {usuarios.length} usuarios
           </div>
@@ -541,7 +553,12 @@ export default function UserManagement() {
             <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
               Exportar
             </Button>
-            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
+            <Button 
+              className="border border-primary-blue text-white bg-primary-blue" 
+              variant="outline" 
+              size="sm"
+              onClick={handlePrint}
+            >
               Imprimir
             </Button>
           </div>
