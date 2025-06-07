@@ -59,6 +59,9 @@ export default function RiskManagementIntegrated() {
   const [materializationDetailsOpen, setMaterializationDetailsOpen] = useState(false)
   const [selectedMaterialization, setSelectedMaterialization] = useState<MaterializacionRiesgo | null>(null)
 
+  // Nuevo estado para mostrar todos los riesgos sin filtrar
+  const [showAllWithoutSearch, setShowAllWithoutSearch] = useState(false)
+
   useEffect(() => {
     // Obtener usuario actual
     const userData = localStorage.getItem("usuario")
@@ -136,6 +139,55 @@ export default function RiskManagementIntegrated() {
       return
     }
 
+    if (!nombre) {
+      alert("El nombre del riesgo es obligatorio")
+      return
+    }
+    if (!descripcion) {
+      alert("La descripción del riesgo es obligatoria")
+      return
+    }
+    if (!categoria) {
+      alert("La categoría del riesgo es obligatoria")
+      return
+    }
+    if (!impacto) {
+      alert("El impacto del riesgo es obligatorio")
+      return
+    }
+    if (!probabilidad) {
+      alert("La probabilidad del riesgo es obligatoria")
+      return
+    }
+    if (!responsableId) {
+      alert("Debe seleccionar un responsable para el riesgo")
+      return
+    }
+    if (!medidas) {
+      alert("Las medidas de mitigación son obligatorias")
+      return
+    }
+    if (protocoloId && !protocolos.some((p) => p.id_protocolo === Number.parseInt(protocoloId))) {
+      alert("El protocolo seleccionado no es válido")
+      return
+    }
+    if (impacto !== "Crítico" && impacto !== "Alto" && impacto !== "Medio" && impacto !== "Bajo") {
+      alert("Impacto debe ser 'Crítico', 'Alto', 'Medio' o 'Bajo'")
+      return
+    }
+    if (probabilidad !== "Alta" && probabilidad !== "Media" && probabilidad !== "Baja") {
+      alert("Probabilidad debe ser 'Alta', 'Media' o 'Baja'")
+      return
+    }
+    if (categoria !== "Ambiental" && categoria !== "Seguridad Física" && categoria !== "Operativo" && categoria !== "Digital") {
+      alert("Categoría debe ser 'Ambiental', 'Seguridad Física', 'Operativo' o 'Digital'")
+      return
+    }
+    if (medidas.length < 10) {
+      alert("Las medidas de mitigación deben tener al menos 10 caracteres")
+      return
+    }
+
     try {
       const nuevoRiesgo = {
         nombre,
@@ -170,6 +222,7 @@ export default function RiskManagementIntegrated() {
       alert("Solo los administradores pueden materializar riesgos")
       return
     }
+    
 
     try {
       const acciones = accionesTomadas
@@ -306,10 +359,10 @@ export default function RiskManagementIntegrated() {
   }
 
   // Modificar la lógica de filtrado para mostrar la tabla vacía hasta que se busque
-  const filteredRisks = searchTerm === "" 
+  const filteredRisks = (searchTerm === "" && !showAllWithoutSearch)
     ? [] 
     : riesgos.filter((riesgo) => {
-        const matchesSearch = riesgo.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesSearch = searchTerm === "" ? showAllWithoutSearch : riesgo.nombre.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesCategory = categoryFilter === "Todos" || riesgo.categoria === categoryFilter
         const matchesImpact = impactFilter === "Todos" || riesgo.impacto === impactFilter
         return matchesSearch && matchesCategory && matchesImpact
@@ -516,7 +569,7 @@ export default function RiskManagementIntegrated() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="mb-4 flex flex-col gap-4 md:flex-row">
+              <div className="mb-4 flex flex-col gap-4 md:flex-row items-start">
                 <div className="relative flex-1">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-primary-blue" />
                   <Input
@@ -525,6 +578,18 @@ export default function RiskManagementIntegrated() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
+                  <div className="mt-2 flex items-center">
+                    <input
+                      type="checkbox"
+                      id="show-all"
+                      checked={showAllWithoutSearch}
+                      onChange={(e) => setShowAllWithoutSearch(e.target.checked)}
+                      className="mr-2 h-4 w-4"
+                    />
+                    <Label htmlFor="show-all" className="text-sm text-primary-blue">
+                      Mostrar todos los riesgos
+                    </Label>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <div className="flex items-center gap-2">

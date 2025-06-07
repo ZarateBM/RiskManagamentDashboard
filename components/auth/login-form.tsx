@@ -37,6 +37,7 @@ export default function LoginForm() {
 
       if (dbError || !usuario) {
         setError("Credenciales inválidas")
+        setContraseña("") // Limpiar el campo de contraseña cuando las credenciales son inválidas
         setLoading(false)
         return
       }
@@ -76,6 +77,7 @@ export default function LoginForm() {
     } catch (error) {
       console.error("Error en login:", error)
       setError("Error al iniciar sesión")
+      setContraseña("") // Limpiar el campo de contraseña en caso de error
     } finally {
       setLoading(false)
     }

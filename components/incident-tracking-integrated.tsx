@@ -56,6 +56,9 @@ export default function IncidentTrackingIntegrated() {
   // Agregar este estado en la sección de estados al inicio del componente
   const [protocolsExpanded, setProtocolsExpanded] = useState(false)
 
+  // Agregar este nuevo estado al inicio del componente junto con los otros estados
+  const [showAllIncidents, setShowAllIncidents] = useState(false)
+
   useEffect(() => {
     // Obtener usuario actual
     const userData = localStorage.getItem("usuario")
@@ -140,6 +143,11 @@ export default function IncidentTrackingIntegrated() {
 
     if (!isAdmin) {
       alert("Solo los administradores pueden crear incidentes")
+      return
+    }
+
+    if (!titulo || !descripcion || !categoria || !severidad) {
+      alert("Por favor complete todos los campos obligatorios")
       return
     }
 
@@ -300,11 +308,11 @@ export default function IncidentTrackingIntegrated() {
     setProtocoloId("")
   }
 
-  // Modificar la función de filtrado de incidentes
-  const filteredIncidents = searchTerm === "" 
+  // Modificar la lógica de filtrado de incidentes
+  const filteredIncidents = (searchTerm === "" && !showAllIncidents)
     ? [] 
     : incidentes.filter((incidente) => {
-        const matchesSearch = incidente.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesSearch = searchTerm === "" ? showAllIncidents : incidente.titulo.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesStatus = statusFilter === "Todos" || incidente.estado === statusFilter
         return matchesSearch && matchesStatus
       })
@@ -546,7 +554,7 @@ export default function IncidentTrackingIntegrated() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 flex flex-col gap-4 md:flex-row">
+          <div className="mb-4 flex flex-col items-start gap-4 md:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-primary-blue" />
               <Input
@@ -555,9 +563,21 @@ export default function IncidentTrackingIntegrated() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+              <div className="mt-2 flex items-center">
+                <input
+                  type="checkbox"
+                  id="show-all-incidents"
+                  checked={showAllIncidents}
+                  onChange={(e) => setShowAllIncidents(e.target.checked)}
+                  className="mr-2 h-4 w-4"
+                />
+                <Label htmlFor="show-all-incidents" className="text-sm text-primary-blue">
+                  Mostrar todos los incidentes
+                </Label>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-row items-center justify-center gap-2">
+              <div className="flex ">
                 <Filter className="h-4 w-4 text-primary-blue" />
                 <span className="text-sm">Filtros:</span>
               </div>

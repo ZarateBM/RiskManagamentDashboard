@@ -30,10 +30,12 @@ import {
   Droplets,
   HardDrive,
   Info,
+  Pencil,
   Plus,
   Printer,
   Save,
   Search,
+  Trash,
   Wifi,
   Zap,
 } from "lucide-react"
@@ -92,6 +94,8 @@ export default function ProtocolsProcedures() {
 
   // Agregar estos estados en la sección de estados
   const [showAllExecutions, setShowAllExecutions] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [protocoloParaEditar, setProtocoloParaEditar] = useState<Protocolo | null>(null)
 
   useEffect(() => {
     // Obtener usuario actual
@@ -156,6 +160,41 @@ export default function ProtocolsProcedures() {
       return
     }
 
+    // Validación de campos obligatorios
+    if (!titulo.trim()) {
+      alert("El título del protocolo es obligatorio")
+      return
+    }
+
+    if (!categoria) {
+      alert("Debe seleccionar una categoría para el protocolo")
+      return
+    }
+
+    if (!severidad) {
+      alert("Debe seleccionar un nivel de severidad")
+      return
+    }
+
+    if (!tiempoEstimado.trim()) {
+      alert("El tiempo estimado es obligatorio")
+      return
+    }
+    if (!herramientas.trim()) {
+      alert("Debe ingresar al menos una herramienta necesaria")
+      return
+    }
+
+    // Validar que haya al menos un paso con título y tareas
+    const pasosValidos = pasos.filter(
+      (paso) => paso.titulo.trim() && paso.tareas.some((tarea) => tarea.trim())
+    )
+
+    if (pasosValidos.length === 0) {
+      alert("El protocolo debe contener al menos un paso con título y una tarea")
+      return
+    }
+
     try {
       const herramientasArray = herramientas
         .split(",")
@@ -172,7 +211,7 @@ export default function ProtocolsProcedures() {
             severidad,
             tiempo_estimado: tiempoEstimado,
             herramientas_necesarias: herramientasArray,
-            pasos: pasos.filter((p) => p.titulo && p.tareas.some((t) => t.trim())),
+            pasos: pasosValidos, // Usar solo los pasos válidos
             creado_por: currentUser?.id_usuario,
             activo: true,
           },
@@ -182,26 +221,12 @@ export default function ProtocolsProcedures() {
 
       if (protocoloError) throw protocoloError
 
-      // Crear incidente automáticamente
-      const { error: incidenteError } = await supabase.from("incidentes").insert([
-        {
-          titulo: `Protocolo creado: ${titulo}`,
-          descripcion: `Se ha creado un nuevo protocolo: ${descripcion}`,
-          categoria: categoria,
-          severidad: severidad,
-          estado: "Pendiente",
-          asignado_a: currentUser?.nombre_completo || "Sistema",
-          protocolo_id: protocoloData.id_protocolo,
-          protocolo_ejecutado: false,
-        },
-      ])
-
-      if (incidenteError) throw incidenteError
+      // Eliminar la creación automática de incidente
 
       setCreateModalOpen(false)
       resetForm()
       cargarDatos()
-      alert("Protocolo creado exitosamente e incidente registrado")
+      alert("Protocolo creado exitosamente")
     } catch (error) {
       console.error("Error creando protocolo:", error)
       alert("Error al crear protocolo")
@@ -418,6 +443,149 @@ export default function ProtocolsProcedures() {
       alert("Error al completar el protocolo")
     }
   }
+  const prepararEdicionProtocolo = async (protocolo: Protocolo) => {
+  const resultado = await verificarProtocoloVinculado(protocolo.id_protocolo)
+  
+  if (resultado.vinculado) {
+    alert(`No se puede editar este protocolo porque está vinculado a un ${resultado.tipo}.`)
+    return
+  }
+  
+  // Cargar los datos del protocolo en el formulario
+  setTitulo(protocolo.titulo)
+  setDescripcion(protocolo.descripcion)
+  setCategoria(protocolo.categoria)
+  setSeveridad(protocolo.severidad)
+  setTiempoEstimado(protocolo.tiempo_estimado)
+  setHerramientas(protocolo.herramientas_necesarias.join(", "))
+  setPasos([...protocolo.pasos]) // Clonar para evitar modificar el original
+  
+  setProtocoloParaEditar(protocolo)
+  setEditModalOpen(true)
+}
+
+const handleUpdateProtocol = async (e: React.FormEvent) => {
+  e.preventDefault()
+  
+  if (!isAdmin || !protocoloParaEditar) {
+    alert("Solo los administradores pueden actualizar protocolos")
+    return
+  }
+  
+  // Validación de campos obligatorios (igual que en creación)
+  if (!titulo.trim()) {
+    alert("El título del protocolo es obligatorio")
+    return
+  }
+
+  if (!categoria) {
+    alert("Debe seleccionar una categoría para el protocolo")
+    return
+  }
+
+  if (!severidad) {
+    alert("Debe seleccionar un nivel de severidad")
+    return
+  }
+
+  if (!tiempoEstimado.trim()) {
+    alert("El tiempo estimado es obligatorio")
+    return
+  }
+  
+  if (!herramientas.trim()) {
+    alert("Debe ingresar al menos una herramienta necesaria")
+    return
+  }
+
+  // Validar que haya al menos un paso con título y tareas
+  const pasosValidos = pasos.filter(
+    (paso) => paso.titulo.trim() && paso.tareas.some((tarea) => tarea.trim())
+  )
+
+  if (pasosValidos.length === 0) {
+    alert("El protocolo debe contener al menos un paso con título y una tarea")
+    return
+  }
+  
+  try {
+    // Verificar nuevamente por si ha cambiado el estado de vinculación
+    const resultado = await verificarProtocoloVinculado(protocoloParaEditar.id_protocolo)
+    
+    if (resultado.vinculado) {
+      alert(`No se puede actualizar este protocolo porque está vinculado a un ${resultado.tipo}.`)
+      return
+    }
+    
+    const herramientasArray = herramientas
+      .split(",")
+      .map((h) => h.trim())
+      .filter(Boolean)
+    
+    const { error: protocoloError } = await supabase
+      .from("protocolos")
+      .update({
+        titulo,
+        descripcion,
+        categoria,
+        severidad,
+        tiempo_estimado: tiempoEstimado,
+        herramientas_necesarias: herramientasArray,
+        pasos: pasosValidos,
+      })
+      .eq("id_protocolo", protocoloParaEditar.id_protocolo)
+    
+    if (protocoloError) throw protocoloError
+    
+    setEditModalOpen(false)
+    resetForm()
+    cargarDatos()
+    alert("Protocolo actualizado exitosamente")
+  } catch (error) {
+    console.error("Error actualizando protocolo:", error)
+    alert("Error al actualizar protocolo")
+  }
+}
+
+const handleDeleteProtocol = async (protocolo: Protocolo) => {
+  if (!isAdmin) {
+    alert("Solo los administradores pueden eliminar protocolos")
+    return
+  }
+
+  if (!confirm(`¿Está seguro de eliminar el protocolo "${protocolo.titulo}"? Esta acción no se puede deshacer.`)) {
+    return
+  }
+
+    try {
+      const resultado = await verificarProtocoloVinculado(protocolo.id_protocolo)
+      
+      if (resultado.vinculado) {
+        alert(`No se puede eliminar este protocolo porque está vinculado a un ${resultado.tipo}.`)
+        return
+      }
+      
+      // En lugar de eliminar físicamente, marcamos como inactivo
+      const { error } = await supabase
+        .from("protocolos")
+        .update({ activo: false })
+        .eq("id_protocolo", protocolo.id_protocolo)
+      
+      if (error) throw error
+      
+      cargarDatos()
+      
+      // Si estamos visualizando el protocolo que se eliminó, limpiamos la selección
+      if (activeProcedure === protocolo.id_protocolo) {
+        setActiveProcedure(null)
+      }
+      
+      alert("Protocolo eliminado exitosamente")
+    } catch (error) {
+      console.error("Error eliminando protocolo:", error)
+      alert("Error al eliminar protocolo")
+    }
+  }
 
   const handleCancelProtocol = async (protocolo: Protocolo) => {
     if (!currentUser || !isAdmin) {
@@ -569,6 +737,54 @@ export default function ProtocolsProcedures() {
     return content;
   }
 
+  const verificarProtocoloVinculado = async (idProtocolo: number) => {
+    try {
+      // Verificar si está vinculado a riesgos
+      const { data: riesgosVinculados, error: errorRiesgos } = await supabase
+        .from("riesgos")
+        .select("id_riesgo")
+        .eq("protocolo_id", idProtocolo)
+        .limit(1)
+      
+      if (errorRiesgos) throw errorRiesgos
+      
+      if (riesgosVinculados && riesgosVinculados.length > 0) {
+        return { vinculado: true, tipo: "riesgo" }
+      }
+      
+      // Verificar si está vinculado a incidentes
+      const { data: incidentesVinculados, error: errorIncidentes } = await supabase
+        .from("incidentes")
+        .select("id_incidente")
+        .eq("protocolo_id", idProtocolo)
+        .limit(1)
+      
+      if (errorIncidentes) throw errorIncidentes
+      
+      if (incidentesVinculados && incidentesVinculados.length > 0) {
+        return { vinculado: true, tipo: "incidente" }
+      }
+      
+      // Verificar si tiene ejecuciones
+      const { data: ejecucionesVinculadas, error: errorEjecuciones } = await supabase
+        .from("ejecuciones_protocolo")
+        .select("id_ejecucion")
+        .eq("protocolo_id", idProtocolo)
+        .limit(1)
+      
+      if (errorEjecuciones) throw errorEjecuciones
+      
+      if (ejecucionesVinculadas && ejecucionesVinculadas.length > 0) {
+        return { vinculado: true, tipo: "ejecución" }
+      }
+      
+      return { vinculado: false }
+    } catch (error) {
+      console.error("Error verificando vinculación de protocolo:", error)
+      return { vinculado: true, error: true } // Por seguridad, si hay error, asumimos que está vinculado
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col justify-between gap-4 md:flex-row">
@@ -582,7 +798,7 @@ export default function ProtocolsProcedures() {
               <DialogTrigger asChild>
                 <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
                   <Plus className="mr-2 h-4 w-4" />
-                  Nuevo Procedimiento
+                  Nuevo Protocolos
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
@@ -722,14 +938,16 @@ export default function ProtocolsProcedures() {
                 </form>
               </DialogContent>
             </Dialog>
+            
           )}
+          
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-7">
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Catálogo de Procedimientos</CardTitle>
+            <CardTitle>Catálogo de Protocolos</CardTitle>
             <CardDescription>Seleccione un procedimiento para ver los detalles</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -829,7 +1047,31 @@ export default function ProtocolsProcedures() {
                           <Clipboard className="h-4 w-4 text-primary-blue" />
                           <span>Progreso: {calculateProgress(protocolo.id_protocolo)}%</span>
                         </div>
+                        <div>
+                          {isAdmin && (
+                          <>
+                            <Button
+                              className="border border-primary-blue text-white bg-primary-blue"
+                              variant="outline"
+                              onClick={() => prepararEdicionProtocolo(protocolo)}
+                            >
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Editar
+                            </Button>
+                            <Button
+                              className="border border-red-500 text-white bg-red-500"
+                              variant="outline"
+                              onClick={() => handleDeleteProtocol(protocolo)}
+                            >
+                              <Trash className="mr-2 h-4 w-4" />
+                              Eliminar
+                            </Button>
+                          </>
+                        )}
+                        </div>
+                        
                       </div>
+                      
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div>
@@ -980,6 +1222,7 @@ export default function ProtocolsProcedures() {
                             </Button>
                           </>
                         )}
+                        
                       </div>
                     </CardFooter>
                   </div>
@@ -1059,6 +1302,170 @@ export default function ProtocolsProcedures() {
             </CardFooter>
 
       </Card>
+
+      {/* Modal para edición de protocolo - siempre presente, controlado por estado */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Protocolo</DialogTitle>
+            <DialogDescription>
+              Actualice la información del protocolo.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdateProtocol}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="protocol-title-edit">Título del Protocolo</Label>
+                  <Input
+                    id="protocol-title-edit"
+                    value={titulo}
+                    onChange={(e) => setTitulo(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="protocol-category-edit">Categoría</Label>
+                  <Select value={categoria} onValueChange={setCategoria}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hardware">Hardware</SelectItem>
+                      <SelectItem value="environmental">Ambiental</SelectItem>
+                      <SelectItem value="connectivity">Conectividad</SelectItem>
+                      <SelectItem value="power">Energía</SelectItem>
+                      <SelectItem value="emergency">Emergencia</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="protocol-description-edit">Descripción</Label>
+                <Textarea
+                  id="protocol-description-edit"
+                  value={descripcion}
+                  onChange={(e) => setDescripcion(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="protocol-severity-edit">Severidad</Label>
+                  <Select value={severidad} onValueChange={setSeveridad}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar severidad" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Crítica">Crítica</SelectItem>
+                      <SelectItem value="Alta">Alta</SelectItem>
+                      <SelectItem value="Media">Media</SelectItem>
+                      <SelectItem value="Baja">Baja</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="protocol-time-edit">Tiempo Estimado</Label>
+                  <Input
+                    id="protocol-time-edit"
+                    placeholder="ej: 30-60 min"
+                    value={tiempoEstimado}
+                    onChange={(e) => setTiempoEstimado(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="protocol-tools-edit">Herramientas (separadas por coma)</Label>
+                  <Input
+                    id="protocol-tools-edit"
+                    placeholder="ej: Destornillador, Multímetro"
+                    value={herramientas}
+                    onChange={(e) => setHerramientas(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Pasos del Protocolo</Label>
+                  <Button 
+                    className="border border-primary-blue text-white bg-primary-blue" 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={addStep}
+                  >
+                    Agregar Paso
+                  </Button>
+                </div>
+                {pasos.map((paso, stepIndex) => (
+                  <Card key={stepIndex}>
+                    <CardContent className="pt-4">
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Título del Paso</Label>
+                            <Input
+                              value={paso.titulo}
+                              onChange={(e) => updateStep(stepIndex, "titulo", e.target.value)}
+                              placeholder="ej: Verificación inicial"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Descripción</Label>
+                            <Input
+                              value={paso.descripcion}
+                              onChange={(e) => updateStep(stepIndex, "descripcion", e.target.value)}
+                              placeholder="ej: Comprobar el estado básico"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label>Tareas</Label>
+                            <Button 
+                              className="border border-primary-blue text-white bg-primary-blue" 
+                              type="button" 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => addTask(stepIndex)}
+                            >
+                              Agregar Tarea
+                            </Button>
+                          </div>
+                          {paso.tareas.map((tarea, taskIndex) => (
+                            <Input
+                              key={taskIndex}
+                              value={tarea}
+                              onChange={(e) => updateTask(stepIndex, taskIndex, e.target.value)}
+                              placeholder="ej: Verificar conexiones eléctricas"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                className="border border-primary-blue text-white bg-primary-blue" 
+                type="button" 
+                variant="outline" 
+                onClick={() => setEditModalOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                className="border border-primary-blue text-white bg-primary-blue" 
+                type="submit"
+              >
+                Actualizar Protocolo
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
