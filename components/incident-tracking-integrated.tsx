@@ -36,6 +36,7 @@ export default function IncidentTrackingIntegrated() {
   const [incidentes, setIncidentes] = useState<Incidente[]>([])
   const [riesgos, setRiesgos] = useState<Riesgo[]>([])
   const [protocolos, setProtocolos] = useState<Protocolo[]>([])
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]) // Nuevo estado para usuarios
   const [ejecucionesEnProgreso, setEjecucionesEnProgreso] = useState<EjecucionProtocolo[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -48,7 +49,7 @@ export default function IncidentTrackingIntegrated() {
   const [descripcion, setDescripcion] = useState("")
   const [categoria, setCategoria] = useState("")
   const [severidad, setSeveridad] = useState("")
-  const [asignadoA, setAsignadoA] = useState("")
+  const [asignadoAId, setAsignadoAId] = useState("") // Cambiado de asignadoA a asignadoAId
   const [riesgoId, setRiesgoId] = useState("")
   const [protocoloId, setProtocoloId] = useState("")
 
@@ -66,13 +67,14 @@ export default function IncidentTrackingIntegrated() {
 
   const cargarDatos = async () => {
     try {
-      // Cargar incidentes con riesgos y protocolos
+      // Cargar incidentes con riesgos, protocolos y usuarios asignados
       const { data: incidentesData, error: incidentesError } = await supabase
         .from("incidentes")
         .select(`
           *,
           riesgo:riesgos(*),
-          protocolo:protocolos(*)
+          protocolo:protocolos(*),
+          usuario_asignado:usuarios!incidentes_asignado_a_id_fkey(*)
         `)
         .order("fecha_reporte", { ascending: false })
 
@@ -96,6 +98,15 @@ export default function IncidentTrackingIntegrated() {
 
       if (protocolosError) throw protocolosError
 
+      // Cargar usuarios activos
+      const { data: usuariosData, error: usuariosError } = await supabase
+        .from("usuarios")
+        .select("*")
+        .eq("activo", true)
+        .order("nombre_completo")
+
+      if (usuariosError) throw usuariosError
+
       // Cargar ejecuciones en progreso
       const { data: ejecucionesData, error: ejecucionesError } = await supabase
         .from("ejecuciones_protocolo")
@@ -113,6 +124,7 @@ export default function IncidentTrackingIntegrated() {
       setIncidentes(incidentesData || [])
       setRiesgos(riesgosData || [])
       setProtocolos(protocolosData || [])
+      setUsuarios(usuariosData || [])
       setEjecucionesEnProgreso(ejecucionesData || [])
     } catch (error) {
       console.error("Error cargando datos:", error)
@@ -138,21 +150,95 @@ export default function IncidentTrackingIntegrated() {
         categoria,
         severidad,
         estado: "Pendiente",
-        asignado_a: asignadoA,
+        asignado_a_id: asignadoAId ? Number.parseInt(asignadoAId) : null, // Cambiado a asignado_a_id
         riesgo_id: riesgoId ? Number.parseInt(riesgoId) : null,
         protocolo_id: protocoloId ? Number.parseInt(protocoloId) : null,
         protocolo_ejecutado: false,
       }
 
-      const { error } = await supabase.from("incidentes").insert([nuevoIncidente])
+      const { data: incidenteCreado, error } = await supabase
+        .from("incidentes")
+        .insert([nuevoIncidente])
+        .select()
+        .single()
 
       if (error) throw error
+
+      // Obtener datos adicionales para la notificación
+      let riesgoNombre = "";
+      let protocoloNombre = "";
+      let usuarioAsignado = null;
+
+      // Si hay un riesgo asociado, obtener su nombre
+      if (riesgoId) {
+        const { data: riesgoData } = await supabase
+          .from("riesgos")
+          .select("nombre")
+          .eq("id_riesgo", riesgoId)
+          .single();
+        
+        if (riesgoData) riesgoNombre = riesgoData.nombre;
+      }
+
+      // Si hay un protocolo asociado, obtener su título
+      if (protocoloId) {
+        const { data: protocoloData } = await supabase
+          .from("protocolos")
+          .select("titulo")
+          .eq("id_protocolo", protocoloId)
+          .single();
+        
+        if (protocoloData) protocoloNombre = protocoloData.titulo;
+      }
+
+      // Obtener datos del usuario asignado
+      if (asignadoAId) {
+        const { data: usuarioData } = await supabase
+          .from("usuarios")
+          .select("*")
+          .eq("id_usuario", asignadoAId)
+          .single();
+        
+        if (usuarioData) usuarioAsignado = usuarioData;
+      }
+
+      // Si hay un usuario asignado con correo, enviar notificación
+      if (usuarioAsignado && usuarioAsignado.correo) {
+        try {
+          const emailResponse = await fetch('/api/email/send-incident-notification', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              incidentTitle: titulo,
+              incidentDescription: descripcion,
+              incidentCategory: categoria,
+              incidentSeverity: severidad,
+              assignedTo: usuarioAsignado.nombre_completo,
+              assignedEmail: usuarioAsignado.correo,
+              riskName: riesgoNombre,
+              protocolName: protocoloNombre,
+              createdBy: currentUser?.nombre_completo || "Usuario del sistema"
+            }),
+          });
+
+          if (!emailResponse.ok) {
+            console.error('Error al enviar notificación de incidente');
+          }
+        } catch (emailError) {
+          console.error('Error en la petición de envío de correo de incidente:', emailError);
+          // No interrumpimos el flujo si falla el envío de correo
+        }
+      }
 
       setCreateModalOpen(false)
       resetForm()
       cargarDatos()
+      alert("Incidente creado exitosamente")
     } catch (error) {
       console.error("Error creando incidente:", error)
+      alert("Error al crear incidente")
     }
   }
 
@@ -209,7 +295,7 @@ export default function IncidentTrackingIntegrated() {
     setDescripcion("")
     setCategoria("")
     setSeveridad("")
-    setAsignadoA("")
+    setAsignadoAId("") // Actualizado
     setRiesgoId("")
     setProtocoloId("")
   }
@@ -432,12 +518,19 @@ export default function IncidentTrackingIntegrated() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="incident-assigned">Asignar a</Label>
-                        <Input
-                          id="incident-assigned"
-                          value={asignadoA}
-                          onChange={(e) => setAsignadoA(e.target.value)}
-                        />
+                        <Label htmlFor="incident-assigned">Asignar a Usuario</Label>
+                        <Select value={asignadoAId} onValueChange={setAsignadoAId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar usuario responsable" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {usuarios.map((usuario) => (
+                              <SelectItem key={usuario.id_usuario} value={usuario.id_usuario.toString()}>
+                                {usuario.nombre_completo}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                     <DialogFooter>
@@ -538,7 +631,13 @@ export default function IncidentTrackingIntegrated() {
                         <span className="text-sm text-primary-blue">Sin protocolo</span>
                       )}
                     </TableCell>
-                    <TableCell>{incidente.asignado_a}</TableCell>
+                    <TableCell>
+                      {incidente.usuario_asignado ? (
+                        <span className="text-sm">{incidente.usuario_asignado.nombre_completo}</span>
+                      ) : (
+                        <span className="text-sm text-primary-blue">Sin asignar</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {incidente.protocolo_id && !incidente.protocolo_ejecutado && isAdmin && (
@@ -602,7 +701,13 @@ export default function IncidentTrackingIntegrated() {
                 </div>
                 <div>
                   <h4 className="mb-2 font-medium">Asignado a</h4>
-                  <p className="text-sm">{selectedIncident.asignado_a}</p>
+                  <p className="text-sm">
+                    {selectedIncident.usuario_asignado ? (
+                      <span>{selectedIncident.usuario_asignado.nombre_completo}</span>
+                    ) : (
+                      <span className="text-primary-blue">Sin asignar</span>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>

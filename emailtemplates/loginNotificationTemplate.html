@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Riesgos - Notificación de Inicio de Sesión</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f6f6f6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background-color: #004080;
+            padding: 16px;
+            text-align: center;
+        }
+        .header img {
+            display: block;
+            margin: 0 auto;
+        }
+        .content {
+            padding: 16px;
+        }
+        .alert-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .footer {
+            background-color: #ccc;
+            padding: 16px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .footer img {
+            vertical-align: middle;
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+    <table class="container" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td class="header">
+                <img src="https://ucr-risk-managament-vfte0y-038814-145-223-74-28.traefik.me/firma-tipografica-ucr.png" alt="Logo UCR" width="100" style="display:block; margin:auto;">
+            </td>
+        </tr>
+        <tr>
+            <td class="content">
+                <!-- Contenido del correo -->
+                <p>Estimado {{userName}},</p>
+                <p>Se ha detectado un inicio de sesión en tu cuenta.</p>
+                <div class="alert-info">
+                    <p><strong>Fecha y hora:</strong> {{loginTime}}</p>
+                    <p><strong>Dirección IP:</strong> {{ipAddress}}</p>
+                </div>
+                <p>Si no reconoces esta actividad, por favor contacta al administrador del sistema inmediatamente.</p>
+                <p>Saludos cordiales,</p>
+                <p>Equipo de Gestión de Riesgos</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="footer">
+                <img src="https://ucr-risk-managament-vfte0y-038814-145-223-74-28.traefik.me/firma-tipografica-ucr.png" alt="Logo UCR">
+            </td>
+        </tr>
+        <tr>
+            <td class="footer">
+                <p>Universidad de Costa Rica - Sistema de Gestión de Riesgos</p>
+                <p>© 2023 Todos los derechos reservados.</p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

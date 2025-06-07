@@ -59,7 +59,7 @@ export interface Incidente {
   severidad: "Crítica" | "Alta" | "Media" | "Baja"
   estado: "Pendiente" | "En proceso" | "Resuelto"
   fecha_reporte: string
-  asignado_a: string
+  asignado_a_id?: number // Cambiado de asignado_a (string) a asignado_a_id (number)
   riesgo_id?: number
   protocolo_id?: number
   protocolo_ejecutado: boolean
@@ -68,6 +68,7 @@ export interface Incidente {
   resuelto_por?: number
   riesgo?: Riesgo
   protocolo?: Protocolo
+  usuario_asignado?: Usuario // Nueva relación con usuario
 }
 
 export interface EjecucionProtocolo {

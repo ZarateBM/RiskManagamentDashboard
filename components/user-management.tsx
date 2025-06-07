@@ -134,6 +134,27 @@ export default function UserManagement() {
 
       if (error) throw error
 
+      // Enviar correo de bienvenida al usuario
+      try {
+        const emailResponse = await fetch('/api/email/send-user-registration', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userName: nombreCompleto,
+            userEmail: correo,
+            password: contraseña,
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          console.error('Error al enviar correo de bienvenida');
+        }
+      } catch (emailError) {
+        console.error('Error en la petición de envío de correo:', emailError);
+      }
+
       setCreateModalOpen(false)
       resetForm()
       cargarUsuarios()
@@ -270,23 +291,27 @@ export default function UserManagement() {
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="user-name">Nombre Completo</Label>
+                        <Label htmlFor="name">Nombre Completo</Label>
                         <Input
-                          id="user-name"
+                          id="name"
+                          name="name"
                           placeholder="Ej: Juan Pérez García"
                           value={nombreCompleto}
                           onChange={(e) => setNombreCompleto(e.target.value)}
+                          autoComplete="name"
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="user-email">Correo Electrónico</Label>
+                        <Label htmlFor="email">Correo Electrónico</Label>
                         <Input
-                          id="user-email"
+                          id="email"
+                          name="email"
                           type="email"
                           placeholder="usuario@empresa.com"
                           value={correo}
                           onChange={(e) => setCorreo(e.target.value)}
+                          autoComplete="email"
                           required
                         />
                       </div>

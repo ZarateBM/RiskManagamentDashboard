@@ -315,6 +315,260 @@ export default function ProtocolsProcedures() {
     }).format(date)
   }
 
+  const handleCompleteProtocol = async (protocolo: Protocolo) => {
+    if (!currentUser || !isAdmin) {
+      alert("Solo los administradores pueden completar protocolos")
+      return
+    }
+
+    // Verificar si el usuario quiere completar el protocolo
+    if (!confirm(`¿Está seguro de marcar como completado el protocolo "${protocolo.titulo}"?`)) {
+      return
+    }
+
+    try {
+      // 1. Crear un incidente basado en el protocolo
+      const nuevoIncidente = {
+        titulo: `Protocolo ejecutado: ${protocolo.titulo}`,
+        descripcion: `Se ha ejecutado el protocolo "${protocolo.titulo}". Notas: ${notes[`${protocolo.id_protocolo}`] || 'Sin notas adicionales'}`,
+        categoria: protocolo.categoria,
+        severidad: protocolo.severidad,
+        estado: "Pendiente",
+        asignado_a_id: currentUser.id_usuario, // Asignar al usuario que completa el protocolo
+        protocolo_id: protocolo.id_protocolo,
+        protocolo_ejecutado: true, // Marcar como ejecutado desde el inicio
+      }
+
+      const { data: incidenteCreado, error: incidenteError } = await supabase
+        .from("incidentes")
+        .insert([nuevoIncidente])
+        .select()
+        .single()
+
+      if (incidenteError) throw incidenteError
+
+      // 2. Crear registro de ejecución de protocolo
+      const { error: ejecucionError } = await supabase
+        .from("ejecuciones_protocolo")
+        .insert([
+          {
+            protocolo_id: protocolo.id_protocolo,
+            incidente_id: incidenteCreado.id_incidente,
+            usuario_id: currentUser.id_usuario,
+            estado: "Completado",
+            progreso: 100,
+            pasos_completados: protocolo.pasos.map(p => p.titulo),
+            notas: notes[`${protocolo.id_protocolo}`] || '',
+            fecha_inicio: new Date().toISOString(),
+            fecha_fin: new Date().toISOString()
+          },
+        ])
+
+      if (ejecucionError) throw ejecucionError
+
+      // 3. Intentar notificar al usuario asignado (si es diferente del actual)
+      try {
+        const emailResponse = await fetch('/api/email/send-incident-notification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            incidentTitle: incidenteCreado.titulo,
+            incidentDescription: incidenteCreado.descripcion,
+            incidentCategory: protocolo.categoria,
+            incidentSeverity: protocolo.severidad,
+            assignedTo: currentUser.nombre_completo,
+            assignedEmail: currentUser.correo,
+            protocolName: protocolo.titulo,
+            createdBy: currentUser.nombre_completo,
+            isFromProtocol: true
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          console.error('Error al enviar notificación de incidente generado por protocolo');
+        }
+      } catch (emailError) {
+        console.error('Error en la petición de envío de correo:', emailError);
+        // No interrumpimos el flujo si falla el envío de correo
+      }
+
+      // 4. Resetear el estado local para el protocolo
+      setCompletedSteps((prev) => {
+        const newCompletedSteps = { ...prev };
+        protocolo.pasos.forEach(paso => {
+          delete newCompletedSteps[`${protocolo.id_protocolo}-${paso.titulo}`];
+        });
+        return newCompletedSteps;
+      });
+      
+      setNotes((prev) => {
+        const newNotes = { ...prev };
+        delete newNotes[`${protocolo.id_protocolo}`];
+        return newNotes;
+      });
+
+      alert("Protocolo completado exitosamente y se ha generado un incidente para seguimiento");
+      
+      // 5. Recargar datos
+      cargarDatos();
+    } catch (error) {
+      console.error("Error completando protocolo:", error);
+      alert("Error al completar el protocolo")
+    }
+  }
+
+  const handleCancelProtocol = async (protocolo: Protocolo) => {
+    if (!currentUser || !isAdmin) {
+      alert("Solo los administradores pueden cancelar protocolos")
+      return
+    }
+
+    // Solicitar razón de la cancelación
+    const cancelReason = prompt(
+      `Indique la razón por la que no se puede completar el protocolo "${protocolo.titulo}":`
+    );
+    
+    if (cancelReason === null) {
+      // Usuario canceló el prompt
+      return;
+    }
+
+    if (!cancelReason.trim()) {
+      alert("Debe proporcionar una razón para la cancelación del protocolo");
+      return;
+    }
+
+    try {
+      // 1. Crear un incidente basado en el protocolo cancelado
+      const nuevoIncidente = {
+        titulo: `Protocolo cancelado: ${protocolo.titulo}`,
+        descripcion: `No se pudo completar el protocolo "${protocolo.titulo}". \n\nRazón: ${cancelReason} \n\nNotas adicionales: ${notes[`${protocolo.id_protocolo}`] || 'Sin notas adicionales'}`,
+        categoria: protocolo.categoria,
+        severidad: protocolo.severidad,
+        estado: "Pendiente",
+        asignado_a_id: currentUser.id_usuario,
+        protocolo_id: protocolo.id_protocolo,
+        protocolo_ejecutado: false,
+      }
+
+      const { data: incidenteCreado, error: incidenteError } = await supabase
+        .from("incidentes")
+        .insert([nuevoIncidente])
+        .select()
+        .single()
+
+      if (incidenteError) throw incidenteError
+
+      // 2. Crear registro de ejecución de protocolo como cancelado
+      const { error: ejecucionError } = await supabase
+        .from("ejecuciones_protocolo")
+        .insert([
+          {
+            protocolo_id: protocolo.id_protocolo,
+            incidente_id: incidenteCreado.id_incidente,
+            usuario_id: currentUser.id_usuario,
+            estado: "Cancelado",
+            progreso: calculateProgress(protocolo.id_protocolo), // Guardar el progreso alcanzado
+            pasos_completados: Object.entries(completedSteps)
+              .filter(([key]) => key.startsWith(`${protocolo.id_protocolo}-`))
+              .flatMap(([_, tasks]) => tasks),
+            notas: `${notes[`${protocolo.id_protocolo}`] || ''}\n\nMotivo de cancelación: ${cancelReason}`,
+            fecha_inicio: new Date().toISOString(),
+            fecha_fin: new Date().toISOString()
+          },
+        ])
+
+      if (ejecucionError) throw ejecucionError
+
+      // 3. Intentar notificar al usuario asignado
+      try {
+        const emailResponse = await fetch('/api/email/send-incident-notification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            incidentTitle: incidenteCreado.titulo,
+            incidentDescription: incidenteCreado.descripcion,
+            incidentCategory: protocolo.categoria,
+            incidentSeverity: protocolo.severidad,
+            assignedTo: currentUser.nombre_completo,
+            assignedEmail: currentUser.correo,
+            protocolName: protocolo.titulo,
+            createdBy: currentUser.nombre_completo,
+            isFromProtocol: true,
+            wasCancelled: true,
+            cancellationReason: cancelReason
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          console.error('Error al enviar notificación de protocolo cancelado');
+        }
+      } catch (emailError) {
+        console.error('Error en la petición de envío de correo:', emailError);
+        // No interrumpimos el flujo si falla el envío de correo
+      }
+
+      // 4. Resetear el estado local para el protocolo
+      setCompletedSteps((prev) => {
+        const newCompletedSteps = { ...prev };
+        protocolo.pasos.forEach(paso => {
+          delete newCompletedSteps[`${protocolo.id_protocolo}-${paso.titulo}`];
+        });
+        return newCompletedSteps;
+      });
+      
+      setNotes((prev) => {
+        const newNotes = { ...prev };
+        delete newNotes[`${protocolo.id_protocolo}`];
+        return newNotes;
+      });
+
+      alert("Protocolo cancelado y se ha generado un incidente para seguimiento");
+      
+      // 5. Recargar datos
+      cargarDatos();
+    } catch (error) {
+      console.error("Error cancelando protocolo:", error);
+      alert("Error al registrar la cancelación del protocolo")
+    }
+  }
+
+  // Función para generar el contenido del PDF (simplificada)
+  const generateProtocolPDF = (protocolo: Protocolo) => {
+    // Esta es una versión muy simplificada, en un caso real usarías
+    // una librería como jsPDF o pdfmake para generar un PDF real
+    const content = `
+      PROTOCOLO: ${protocolo.titulo}
+      CATEGORÍA: ${protocolo.categoria}
+      SEVERIDAD: ${protocolo.severidad}
+      DESCRIPCIÓN: ${protocolo.descripcion}
+      TIEMPO ESTIMADO: ${protocolo.tiempo_estimado}
+      
+      HERRAMIENTAS NECESARIAS:
+      ${protocolo.herramientas_necesarias.join(', ')}
+      
+      PASOS:
+      ${protocolo.pasos.map((paso, index) => `
+        ${index + 1}. ${paso.titulo}
+        Descripción: ${paso.descripcion}
+        Tareas:
+        ${paso.tareas.map(tarea => `   - ${tarea}`).join('\n')}
+      `).join('\n')}
+      
+      NOTAS:
+      ${notes[`${protocolo.id_protocolo}`] || 'Sin notas'}
+      
+      Protocolo completado por: ${currentUser?.nombre_completo || 'Usuario del sistema'}
+      Fecha: ${new Date().toLocaleString()}
+    `;
+    
+    return content;
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col justify-between gap-4 md:flex-row">
@@ -693,14 +947,39 @@ export default function ProtocolsProcedures() {
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
+                        <Button 
+                          className="border border-primary-blue text-white bg-primary-blue" 
+                          variant="outline"
+                          onClick={() => {
+                            const blob = new Blob([generateProtocolPDF(protocolo)], { type: 'application/pdf' });
+                            const url = URL.createObjectURL(blob);
+                            window.open(url, '_blank');
+                          }}
+                        >
                           <Printer className="mr-2 h-4 w-4" />
                           Imprimir
                         </Button>
-                        <Button>
-                          <BookOpen className="mr-2 h-4 w-4" />
-                          Generar Reporte
-                        </Button>
+                        {isAdmin && (
+                          <>
+                            <Button
+                              className="border border-red-500 text-white bg-red-500"
+                              variant="outline"
+                              onClick={() => handleCancelProtocol(protocolo)}
+                              disabled={calculateProgress(protocolo.id_protocolo) === 0} // No permite cancelar si no se ha iniciado
+                            >
+                              <AlertTriangle className="mr-2 h-4 w-4" />
+                              Cancelar
+                            </Button>
+                            <Button
+                              className="border border-primary-blue text-white bg-primary-blue"
+                              onClick={() => handleCompleteProtocol(protocolo)}
+                              disabled={calculateProgress(protocolo.id_protocolo) < 100}
+                            >
+                              <CheckCircle2 className="mr-2 h-4 w-4" />
+                              Completar
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </CardFooter>
                   </div>

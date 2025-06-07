@@ -195,9 +195,11 @@ export default function RiskManagementIntegrated() {
 
       if (materializacionError) throw materializacionError
 
+      let incidenteData = null;
+      
       // Si hay protocolo asociado, crear incidente automáticamente
       if (selectedRisk.protocolo_id) {
-        const { data: incidenteData, error: incidenteError } = await supabase
+        const { data: incidenteGenerado, error: incidenteError } = await supabase
           .from("incidentes")
           .insert([
             {
@@ -216,12 +218,44 @@ export default function RiskManagementIntegrated() {
           .single()
 
         if (incidenteError) throw incidenteError
+        
+        incidenteData = incidenteGenerado;
 
         // Actualizar materialización con el incidente generado
         await supabase
           .from("materializaciones_riesgo")
           .update({ incidente_generado_id: incidenteData.id_incidente })
           .eq("id_materializacion", materializacionData.id_materializacion)
+      }
+
+      // Enviar notificación por correo al responsable
+      if (selectedRisk.responsable?.correo) {
+        try {
+          const emailResponse = await fetch('/api/email/send-risk-materialization', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              riskName: selectedRisk.nombre,
+              riskCategory: selectedRisk.categoria,
+              eventDescription: descripcionEvento,
+              realSeverity: severidadReal,
+              reportedBy: currentUser?.nombre_completo || "Usuario del sistema",
+              responsibleName: selectedRisk.responsable.nombre_completo,
+              responsibleEmail: selectedRisk.responsable.correo,
+              protocolName: selectedRisk.protocolo?.titulo || "",
+              hasProtocol: !!selectedRisk.protocolo_id
+            }),
+          });
+
+          if (!emailResponse.ok) {
+            console.error('Error al enviar notificación de materialización de riesgo');
+          }
+        } catch (emailError) {
+          console.error('Error en la petición de envío de correo de materialización:', emailError);
+          // No interrumpimos el flujo si falla el envío de correo
+        }
       }
 
       setMaterializeModalOpen(false)

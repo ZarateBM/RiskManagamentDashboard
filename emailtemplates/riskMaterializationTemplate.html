@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerta de Materialización de Riesgo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f6f6f6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background-color: #004080;
+            padding: 16px;
+            text-align: center;
+        }
+        .header img {
+            display: block;
+            margin: 0 auto;
+        }
+        .content {
+            padding: 16px;
+        }
+        .alert {
+            background-color: #fff0f0;
+            border-left: 4px solid #ff0000;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .severity {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .critical {
+            background-color: #ffebeb;
+            color: #c41e1e;
+        }
+        .high {
+            background-color: #fff4e5;
+            color: #c76a15;
+        }
+        .medium {
+            background-color: #fffbe5;
+            color: #b7a41c;
+        }
+        .low {
+            background-color: #e9f7ea;
+            color: #1e8f2d;
+        }
+        .footer {
+            background-color: #ccc;
+            padding: 16px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .footer img {
+            vertical-align: middle;
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+    <table class="container" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td class="header">
+                <img src="https://ucr-risk-managament-vfte0y-038814-145-223-74-28.traefik.me/firma-tipografica-ucr.png" alt="Logo UCR" width="100" style="display:block; margin:auto;">
+            </td>
+        </tr>
+        <tr>
+            <td class="content">
+                <div class="alert">
+                    <h2 style="margin-top:0">⚠️ Alerta: Riesgo Materializado</h2>
+                    <p>Se ha registrado la materialización de un riesgo bajo su responsabilidad.</p>
+                </div>
+                
+                <h3>Detalles del Riesgo:</h3>
+                <div class="info-box">
+                    <p><strong>Nombre del Riesgo:</strong> {{riskName}}</p>
+                    <p><strong>Categoría:</strong> {{riskCategory}}</p>
+                    <p><strong>Fecha y hora de materialización:</strong> {{materializationTime}}</p>
+                </div>
+                
+                <h3>Detalles del Evento:</h3>
+                <div class="info-box">
+                    <p><strong>Descripción:</strong> {{eventDescription}}</p>
+                    <p><strong>Severidad Real:</strong> <span class="severity {{severityClass}}">{{realSeverity}}</span></p>
+                    <p><strong>Reportado por:</strong> {{reportedBy}}</p>
+                </div>
+                
+                {{#if hasProtocol}}
+                <h3>Protocolo de Respuesta:</h3>
+                <div class="info-box">
+                    <p><strong>Protocolo vinculado:</strong> {{protocolName}}</p>
+                    <p>Se ha generado automáticamente un incidente para seguimiento del protocolo.</p>
+                </div>
+                {{/if}}
+                
+                <p>Por favor, inicie las acciones correspondientes según el protocolo establecido. Puede acceder al sistema para más detalles.</p>
+                
+                <div style="text-align:center; margin-top:20px;">
+                    <a href="https://ucr-risk-managament-vfte0y-038814-145-223-74-28.traefik.me/dashboard" style="background-color:#004080; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Acceder al Sistema</a>
+                </div>
+                
+                <p style="margin-top:20px;">Saludos cordiales,<br>Sistema de Gestión de Riesgos</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="footer">
+                <img src="https://ucr-risk-managament-vfte0y-038814-145-223-74-28.traefik.me/firma-tipografica-ucr.png" alt="Logo UCR">
+            </td>
+        </tr>
+        <tr>
+            <td class="footer">
+                <p>Universidad de Costa Rica - Sistema de Gestión de Riesgos</p>
+                <p>© 2023 Todos los derechos reservados.</p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

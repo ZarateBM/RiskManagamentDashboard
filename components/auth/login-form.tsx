@@ -50,6 +50,27 @@ export default function LoginForm() {
       // Guardar sesión en localStorage
       localStorage.setItem("usuario", JSON.stringify(usuario))
 
+      // Enviar notificación de inicio de sesión
+      try {
+        const emailResponse = await fetch('/api/email/send-login-notification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userName: usuario.nombre_completo,
+            userEmail: usuario.correo,
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          console.error('Error al enviar notificación de inicio de sesión');
+        }
+      } catch (emailError) {
+        console.error('Error en la petición de envío de correo de inicio de sesión:', emailError);
+        // No interrumpimos el flujo de login si falla el envío de correo
+      }
+
       // Redirigir al dashboard
       router.push("/dashboard")
     } catch (error) {
