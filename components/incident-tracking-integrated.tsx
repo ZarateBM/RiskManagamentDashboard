@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Search, Filter, Play, FileText, AlertTriangle, ArrowRight } from "lucide-react"
+import { Plus, Search, Filter, Play, FileText, AlertTriangle, ArrowRight, Printer } from "lucide-react"
 import {
   supabase,
   type Incidente,
@@ -30,6 +30,7 @@ import {
   type EjecucionProtocolo,
 } from "@/lib/supabase"
 import ProtocolExecution from "@/components/protocol-execution"
+import toPDF from 'react-to-pdf';
 
 export default function IncidentTrackingIntegrated() {
   const [executingProtocol, setExecutingProtocol] = useState<number | null>(null)
@@ -59,6 +60,9 @@ export default function IncidentTrackingIntegrated() {
   // Agregar este nuevo estado al inicio del componente junto con los otros estados
   const [showAllIncidents, setShowAllIncidents] = useState(false)
 
+  const incidentPdfRef = useRef(null);
+  const incidentListPdfRef = useRef(null);
+
   useEffect(() => {
     // Obtener usuario actual
     const userData = localStorage.getItem("usuario")
@@ -70,7 +74,7 @@ export default function IncidentTrackingIntegrated() {
 
   const cargarDatos = async () => {
     try {
-      // Cargar incidentes con riesgos, protocolos y usuarios asignados
+      // Cargar incidentes with riesgos, protocolos y usuarios asignados
       const { data: incidentesData, error: incidentesError } = await supabase
         .from("incidentes")
         .select(`
@@ -354,6 +358,239 @@ export default function IncidentTrackingIntegrated() {
     setManageModalOpen(true)
   }
 
+  // Función para imprimir un incidente individual
+  const handlePrintIncident = (incidente: Incidente) => {
+    const options = {
+      filename: `incidente_${incidente.titulo.replace(/\s+/g, '_')}.pdf`,
+      page: { margin: 10 }
+    };
+    
+    if (incidentPdfRef.current) {
+      toPDF(incidentPdfRef, options);
+    }
+  }
+
+  // Función para imprimir la lista de incidentes
+  const handlePrintIncidentList = () => {
+    const options = {
+      filename: `lista_incidentes_${new Date().toISOString().slice(0, 10)}.pdf`,
+      page: { margin: 10 }
+    };
+    
+    if (incidentListPdfRef.current) {
+      toPDF(incidentListPdfRef, options);
+    }
+  }
+
+  // Función para formatear fechas (si no existe ya)
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  // Componente para el PDF de un incidente individual
+  const IncidentPDFContent = ({ incidente }: { incidente: Incidente }) => (
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }} ref={incidentPdfRef}>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h1 style={{ color: '#004080' }}>Incidente: {incidente.titulo}</h1>
+        <p>Sistema de Gestión de Riesgos - Fecha: {new Date().toLocaleDateString()}</p>
+      </div>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div style={{ flex: 1 }}>
+          <h3>Información General:</h3>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            <li><strong>Categoría:</strong> {incidente.categoria}</li>
+            <li><strong>Severidad:</strong> {incidente.severidad}</li>
+            <li><strong>Estado:</strong> {incidente.estado}</li>
+            <li><strong>Fecha de Reporte:</strong> {formatDate(incidente.fecha_reporte)}</li>
+          </ul>
+        </div>
+        <div style={{ flex: 1 }}>
+          <h3>Asignación:</h3>
+          <p><strong>Responsable:</strong> {incidente.usuario_asignado?.nombre_completo || "Sin asignar"}</p>
+          
+          {incidente.fecha_resolucion && (
+            <p><strong>Fecha de Resolución:</strong> {formatDate(incidente.fecha_resolucion)}</p>
+          )}
+        </div>
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Descripción:</h3>
+        <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+          {incidente.descripcion}
+        </p>
+      </div>
+      
+      {incidente.riesgo && (
+        <div style={{ marginBottom: '20px' }}>
+          <h3>Riesgo Relacionado:</h3>
+          <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+            <p><strong>Nombre:</strong> {incidente.riesgo.nombre}</p>
+            <p><strong>Categoría:</strong> {incidente.riesgo.categoria}</p>
+            <p><strong>Impacto:</strong> {incidente.riesgo.impacto}</p>
+            <p><strong>Probabilidad:</strong> {incidente.riesgo.probabilidad}</p>
+          </div>
+        </div>
+      )}
+      
+      {incidente.protocolo && (
+        <div style={{ marginBottom: '20px' }}>
+          <h3>Protocolo Asignado:</h3>
+          <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+            <p><strong>Título:</strong> {incidente.protocolo.titulo}</p>
+            <p><strong>Severidad:</strong> {incidente.protocolo.severidad}</p>
+            <p><strong>Tiempo Estimado:</strong> {incidente.protocolo.tiempo_estimado}</p>
+            <p><strong>Estado de Ejecución:</strong> {incidente.protocolo_ejecutado ? "Ejecutado" : "Pendiente"}</p>
+          </div>
+        </div>
+      )}
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Acciones y Seguimiento:</h3>
+        <div style={{ 
+          padding: '10px', 
+          backgroundColor: '#f9f9f9', 
+          borderRadius: '5px',
+          minHeight: '150px',
+          border: '1px solid #ddd',
+          background: 'repeating-linear-gradient(#f9f9f9, #f9f9f9 24px, #ddd 24px, #ddd 25px)'
+        }}></div>
+      </div>
+      
+      <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ width: '45%' }}>
+          <p><strong>Reportado por:</strong> _______________________________</p>
+        </div>
+        <div style={{ width: '45%', textAlign: 'right' }}>
+          <p><strong>Fecha:</strong> _______________________________</p>
+        </div>
+      </div>
+      
+      <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ width: '45%' }}>
+          <p><strong>Firma responsable:</strong> _______________________________</p>
+        </div>
+        <div style={{ width: '45%', textAlign: 'right' }}>
+          <p><strong>Verificado por:</strong> _______________________________</p>
+        </div>
+      </div>
+      
+      <div style={{ marginTop: '20px', fontSize: '12px', textAlign: 'center', color: '#666' }}>
+        <p>Universidad de Costa Rica - Sistema de Gestión de Riesgos</p>
+        <p>© {new Date().getFullYear()} Todos los derechos reservados.</p>
+      </div>
+    </div>
+  );
+
+  // Componente para el PDF de la lista de incidentes
+  const IncidentListPDFContent = ({ incidentes }: { incidentes: Incidente[] }) => (
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }} ref={incidentListPdfRef}>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h1 style={{ color: '#004080' }}>Listado de Incidentes</h1>
+        <p>Sistema de Gestión de Riesgos - Fecha: {new Date().toLocaleDateString()}</p>
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Filtros aplicados:</h3>
+        <ul>
+          <li>Estado: {statusFilter === 'Todos' ? 'Todos los estados' : statusFilter}</li>
+          <li>Búsqueda: {searchTerm || 'Sin término de búsqueda'}</li>
+        </ul>
+      </div>
+      
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ backgroundColor: '#f2f2f2' }}>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Título</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Categoría</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Severidad</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Estado</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Riesgo</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Responsable</th>
+          </tr>
+        </thead>
+        <tbody>
+          {incidentes.length > 0 ? (
+            incidentes.map((incidente) => (
+              <tr key={incidente.id_incidente}>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  {incidente.titulo}
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  {incidente.categoria}
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '3px 8px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    backgroundColor: 
+                      incidente.severidad === 'Crítica' ? '#ffebeb' : 
+                      incidente.severidad === 'Alta' ? '#fff4e5' : 
+                      incidente.severidad === 'Media' ? '#fffde7' : '#e9f7ea',
+                    color: 
+                      incidente.severidad === 'Crítica' ? '#c41e1e' : 
+                      incidente.severidad === 'Alta' ? '#c76a15' : 
+                      incidente.severidad === 'Media' ? '#a68a00' : '#1e8f2d'
+                  }}>
+                    {incidente.severidad}
+                  </span>
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '3px 8px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    backgroundColor: 
+                      incidente.estado === 'Pendiente' ? '#ffebeb' : 
+                      incidente.estado === 'En proceso' ? '#e7f5ff' : 
+                      '#e9f7ea',
+                    color: 
+                      incidente.estado === 'Pendiente' ? '#c41e1e' : 
+                      incidente.estado === 'En proceso' ? '#1e6fc4' : 
+                      '#1e8f2d'
+                  }}>
+                    {incidente.estado}
+                  </span>
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  {incidente.riesgo?.nombre || "Sin riesgo"}
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  {incidente.usuario_asignado?.nombre_completo || "Sin asignar"}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={6} style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                No hay incidentes que mostrar con los filtros seleccionados.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      
+      <div style={{ marginTop: '20px', fontSize: '12px', textAlign: 'center', color: '#666' }}>
+        <p>Universidad de Costa Rica - Sistema de Gestión de Riesgos</p>
+        <p>© {new Date().getFullYear()} Todos los derechos reservados.</p>
+      </div>
+    </div>
+  );
+
   if (executingProtocol) {
     return (
       <ProtocolExecution
@@ -576,8 +813,8 @@ export default function IncidentTrackingIntegrated() {
                 </Label>
               </div>
             </div>
-            <div className="flex flex-row items-center justify-center gap-2">
-              <div className="flex ">
+            <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-primary-blue" />
                 <span className="text-sm">Filtros:</span>
               </div>
@@ -592,6 +829,14 @@ export default function IncidentTrackingIntegrated() {
                   <SelectItem value="Resuelto">Resuelto</SelectItem>
                 </SelectContent>
               </Select>
+              <Button 
+                className="border border-primary-blue text-white bg-primary-blue" 
+                variant="outline"
+                onClick={handlePrintIncidentList}
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                Exportar PDF
+              </Button>
             </div>
           </div>
 
@@ -736,6 +981,14 @@ export default function IncidentTrackingIntegrated() {
             <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" onClick={() => setManageModalOpen(false)}>
               Cerrar
             </Button>
+            <Button 
+              className="border border-primary-blue text-white bg-primary-blue" 
+              variant="outline"
+              onClick={() => selectedIncident && handlePrintIncident(selectedIncident)}
+            >
+              <Printer className="mr-2 h-4 w-4" />
+              Imprimir
+            </Button>
             {selectedIncident?.protocolo_id && !selectedIncident.protocolo_ejecutado && isAdmin && (
               <Button className="border border-primary-blue text-white bg-primary-blue" 
                 onClick={() => {
@@ -749,6 +1002,16 @@ export default function IncidentTrackingIntegrated() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Componentes ocultos para el PDF */}
+      {selectedIncident && (
+        <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+          <IncidentPDFContent incidente={selectedIncident} />
+        </div>
+      )}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <IncidentListPDFContent incidentes={filteredIncidents} />
+      </div>
     </div>
   )
 }

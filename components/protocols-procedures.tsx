@@ -809,28 +809,59 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
           <div key={index} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
             <h4 style={{ margin: '0 0 10px 0' }}>{index + 1}. {paso.titulo}</h4>
             <p><em>{paso.descripcion}</em></p>
-            <ul>
+            <div>
               {paso.tareas.map((tarea, taskIndex) => (
-                <li key={taskIndex}>{tarea}</li>
+                <div key={taskIndex} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' , flexDirection: 'row' }}>
+                  <div style={{ 
+                    width: '14px', 
+                    height: '14px', 
+                    border: '1px solid #000', 
+                  }}></div>
+                  <span>{tarea}</span>
+                </div>
               ))}
-            </ul>
+            </div>
+            <div style={{ marginTop: '10px', borderTop: '1px dashed #ddd', paddingTop: '10px' }}>
+              <p style={{ margin: '0 0 5px 0', fontSize: '14px' }}><strong>Notas para este paso:</strong></p>
+              <div style={{ 
+                height: '60px', 
+                width: '100%', 
+                border: '1px solid #ddd', 
+                borderRadius: '4px',
+                background: 'repeating-linear-gradient(#fff, #fff 24px, #ddd 24px, #ddd 25px)'
+              }}></div>
+            </div>
           </div>
         ))}
       </div>
       
       <div style={{ marginBottom: '20px' }}>
-        <h3>Notas y Observaciones:</h3>
-        <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px', minHeight: '50px' }}>
-          {notes[`${protocolo.id_protocolo}`] || 'Sin notas adicionales'}
-        </p>
+        <h3>Notas y Observaciones Generales:</h3>
+        <div style={{ 
+          padding: '10px', 
+          backgroundColor: '#f9f9f9', 
+          borderRadius: '5px', 
+          minHeight: '150px',
+          border: '1px solid #ddd',
+          background: 'repeating-linear-gradient(#f9f9f9, #f9f9f9 24px, #ddd 24px, #ddd 25px)'
+        }}></div>
       </div>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
-        <div>
-          <p><strong>Generado por:</strong> {currentUser?.nombre_completo || 'Usuario del sistema'}</p>
+      <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ width: '45%' }}>
+          <p><strong>Ejecutado por:</strong> _______________________________</p>
         </div>
-        <div>
-          <p><strong>Fecha:</strong> {new Date().toLocaleString()}</p>
+        <div style={{ width: '45%', textAlign: 'left' }}>
+          <p><strong>Fecha y hora:</strong> _______________________________</p>
+        </div>
+      </div>
+      
+      <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ width: '45%' }}>
+          <p><strong>Firma:</strong> _______________________________</p>
+        </div>
+        <div style={{ width: '45%', textAlign: 'left' }}>
+          <p><strong>Supervisado por:</strong> _______________________________</p>
         </div>
       </div>
       

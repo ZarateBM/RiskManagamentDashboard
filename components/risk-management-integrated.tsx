@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -21,8 +21,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Search, Filter, FileText, AlertTriangle, BookOpen, Zap, Eye, Play } from "lucide-react"
+import { Plus, Search, Filter, FileText, AlertTriangle, BookOpen, Zap, Eye, Play, Printer } from "lucide-react"
 import { supabase, type Riesgo, type Protocolo, type Usuario, type MaterializacionRiesgo } from "@/lib/supabase"
+import toPDF from 'react-to-pdf';
 
 export default function RiskManagementIntegrated() {
   const [riesgos, setRiesgos] = useState<Riesgo[]>([])
@@ -61,6 +62,10 @@ export default function RiskManagementIntegrated() {
 
   // Nuevo estado para mostrar todos los riesgos sin filtrar
   const [showAllWithoutSearch, setShowAllWithoutSearch] = useState(false)
+
+  // Referencias para los PDFs
+  const riskPdfRef = useRef<HTMLDivElement>(null)
+  const riskListPdfRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // Obtener usuario actual
@@ -407,6 +412,192 @@ export default function RiskManagementIntegrated() {
     }).format(date)
   }
 
+  // Función para imprimir un riesgo individual
+  const handlePrintRisk = (riesgo: Riesgo) => {
+    const options = {
+      filename: `riesgo_${riesgo.nombre.replace(/\s+/g, '_')}.pdf`,
+      page: { margin: 10 }
+    };
+    
+    if (riskPdfRef.current) {
+      toPDF(riskPdfRef, options);
+    }
+  }
+
+  // Función para imprimir la lista de riesgos
+  const handlePrintRiskList = () => {
+    const options = {
+      filename: `lista_riesgos_${new Date().toISOString().slice(0, 10)}.pdf`,
+      page: { margin: 10 }
+    };
+    
+    if (riskListPdfRef.current) {
+      toPDF(riskListPdfRef, options);
+    }
+  }
+
+  // Componente para el PDF de un riesgo individual
+  const RiskPDFContent = ({ riesgo }: { riesgo: Riesgo }) => (
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }} ref={riskPdfRef}>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h1 style={{ color: '#004080' }}>Riesgo: {riesgo.nombre}</h1>
+        <p>Sistema de Gestión de Riesgos - Fecha: {new Date().toLocaleDateString()}</p>
+      </div>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div style={{ flex: 1 }}>
+          <h3>Información General:</h3>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            <li><strong>Categoría:</strong> {riesgo.categoria}</li>
+            <li><strong>Impacto:</strong> {riesgo.impacto}</li>
+            <li><strong>Probabilidad:</strong> {riesgo.probabilidad}</li>
+            <li><strong>Estado:</strong> {riesgo.estado}</li>
+          </ul>
+        </div>
+        <div style={{ flex: 1 }}>
+          <h3>Responsable:</h3>
+          <p>{riesgo.responsable?.nombre_completo || "Sin asignar"}</p>
+          <h3>Fecha de Creación:</h3>
+          <p>{formatDate(riesgo.fecha_creacion)}</p>
+        </div>
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Descripción:</h3>
+        <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+          {riesgo.descripcion}
+        </p>
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Medidas de Mitigación:</h3>
+        <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+          {riesgo.medidas_mitigacion}
+        </p>
+      </div>
+      
+      {riesgo.protocolo && (
+        <div style={{ marginBottom: '20px' }}>
+          <h3>Protocolo Vinculado:</h3>
+          <div style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
+            <p><strong>Título:</strong> {riesgo.protocolo.titulo}</p>
+            <p><strong>Descripción:</strong> {riesgo.protocolo.descripcion}</p>
+            <p><strong>Severidad:</strong> {riesgo.protocolo.severidad}</p>
+          </div>
+        </div>
+      )}
+      
+      <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ width: '45%' }}>
+          <p><strong>Generado por:</strong> {currentUser?.nombre_completo || 'Usuario del sistema'}</p>
+        </div>
+        <div style={{ width: '45%', textAlign: 'right' }}>
+          <p><strong>Fecha:</strong> {new Date().toLocaleString()}</p>
+        </div>
+      </div>
+      
+      <div style={{ marginTop: '20px', fontSize: '12px', textAlign: 'center', color: '#666' }}>
+        <p>Universidad de Costa Rica - Sistema de Gestión de Riesgos</p>
+        <p>© {new Date().getFullYear()} Todos los derechos reservados.</p>
+      </div>
+    </div>
+  );
+
+  // Componente para el PDF de la lista de riesgos
+  const RiskListPDFContent = ({ riesgos }: { riesgos: Riesgo[] }) => (
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }} ref={riskListPdfRef}>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h1 style={{ color: '#004080' }}>Listado de Riesgos</h1>
+        <p>Sistema de Gestión de Riesgos - Fecha: {new Date().toLocaleDateString()}</p>
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Filtros aplicados:</h3>
+        <ul>
+          <li>Categoría: {categoryFilter === 'Todos' ? 'Todas' : categoryFilter}</li>
+          <li>Impacto: {impactFilter === 'Todos' ? 'Todos' : impactFilter}</li>
+          <li>Búsqueda: {searchTerm || 'Sin término de búsqueda'}</li>
+        </ul>
+      </div>
+      
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ backgroundColor: '#f2f2f2' }}>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Nombre</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Categoría</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Impacto</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Probabilidad</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Estado</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Responsable</th>
+          </tr>
+        </thead>
+        <tbody>
+          {riesgos.length > 0 ? (
+            riesgos.map((riesgo) => (
+              <tr key={riesgo.id_riesgo}>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  {riesgo.nombre}
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  {riesgo.categoria}
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '3px 8px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    backgroundColor: 
+                      riesgo.impacto === 'Crítico' ? '#ffebeb' : 
+                      riesgo.impacto === 'Alto' ? '#fff4e5' : 
+                      riesgo.impacto === 'Medio' ? '#fffde7' : '#e9f7ea',
+                    color: 
+                      riesgo.impacto === 'Crítico' ? '#c41e1e' : 
+                      riesgo.impacto === 'Alto' ? '#c76a15' : 
+                      riesgo.impacto === 'Medio' ? '#a68a00' : '#1e8f2d'
+                  }}>
+                    {riesgo.impacto}
+                  </span>
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  {riesgo.probabilidad}
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '3px 8px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    backgroundColor: riesgo.estado === 'Activo' ? '#ffebeb' : '#e9f7ea',
+                    color: riesgo.estado === 'Activo' ? '#c41e1e' : '#1e8f2d'
+                  }}>
+                    {riesgo.estado}
+                  </span>
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  {riesgo.responsable?.nombre_completo || "Sin asignar"}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={6} style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                No hay riesgos que mostrar con los filtros seleccionados.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      
+      <div style={{ marginTop: '20px', fontSize: '12px', textAlign: 'center', color: '#666' }}>
+        <p>Universidad de Costa Rica - Sistema de Gestión de Riesgos</p>
+        <p>© {new Date().getFullYear()} Todos los derechos reservados.</p>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -620,6 +811,14 @@ export default function RiskManagementIntegrated() {
                       <SelectItem value="Bajo">Bajo</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Button 
+                    className="border border-primary-blue text-white bg-primary-blue" 
+                    variant="outline"
+                    onClick={handlePrintRiskList}
+                  >
+                    <Printer className="mr-2 h-4 w-4" />
+                    Exportar PDF
+                  </Button>
                 </div>
               </div>
 
@@ -900,6 +1099,14 @@ export default function RiskManagementIntegrated() {
             <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" onClick={() => setDetailsModalOpen(false)}>
               Cerrar
             </Button>
+            <Button 
+              className="border border-primary-blue text-white bg-primary-blue" 
+              variant="outline"
+              onClick={() => selectedRisk && handlePrintRisk(selectedRisk)}
+            >
+              <Printer className="mr-2 h-4 w-4" />
+              Imprimir
+            </Button>
             {isAdmin && selectedRisk && (
               <Button className="border border-primary-blue text-white bg-primary-blue" onClick={() => openMaterializeModal(selectedRisk)}>
                 <Zap className="mr-2 h-4 w-4" />
@@ -993,6 +1200,16 @@ export default function RiskManagementIntegrated() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Componentes ocultos para el PDF */}
+      {selectedRisk && (
+        <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+          <RiskPDFContent riesgo={selectedRisk} />
+        </div>
+      )}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <RiskListPDFContent riesgos={filteredRisks} />
+      </div>
     </div>
   )
 }
