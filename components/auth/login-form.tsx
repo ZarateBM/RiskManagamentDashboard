@@ -20,6 +20,29 @@ export default function LoginForm() {
   const [error, setError] = useState("")
   const router = useRouter()
 
+  // Función asíncrona para enviar notificación de inicio de sesión
+  const enviarNotificacionLogin = async (nombre: string, email: string) => {
+    try {
+      const emailResponse = await fetch('/api/email/send-login-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userName: nombre,
+          userEmail: email,
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        console.error('Error al enviar notificación de inicio de sesión');
+      }
+    } catch (emailError) {
+      console.error('Error en la petición de envío de correo de inicio de sesión:', emailError);
+      // No interrumpimos el flujo de login si falla el envío de correo
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -51,26 +74,8 @@ export default function LoginForm() {
       // Guardar sesión en localStorage
       localStorage.setItem("usuario", JSON.stringify(usuario))
 
-      // Enviar notificación de inicio de sesión
-      try {
-        const emailResponse = await fetch('/api/email/send-login-notification', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userName: usuario.nombre_completo,
-            userEmail: usuario.correo,
-          }),
-        });
-
-        if (!emailResponse.ok) {
-          console.error('Error al enviar notificación de inicio de sesión');
-        }
-      } catch (emailError) {
-        console.error('Error en la petición de envío de correo de inicio de sesión:', emailError);
-        // No interrumpimos el flujo de login si falla el envío de correo
-      }
+      // Enviar notificación de inicio de sesión (llamada a la función asíncrona)
+      enviarNotificacionLogin(usuario.nombre_completo, usuario.correo);
 
       // Redirigir al dashboard
       router.push("/dashboard")

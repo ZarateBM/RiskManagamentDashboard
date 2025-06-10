@@ -251,10 +251,7 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
               onChange={(e) => setNotes(e.target.value)}
               className="min-h-[100px]"
             />
-            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={handleSaveNotes}>
-              <Save className="mr-2 h-4 w-4" />
-              Guardar Notas
-            </Button>
+           
           </div>
 
           {progress === 100 && (

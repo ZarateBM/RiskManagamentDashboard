@@ -447,6 +447,7 @@ export default function RiskManagementIntegrated() {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div style={{ flex: 1 }}>
           <h3>Información General:</h3>
+          <br />
           <ul style={{ listStyleType: 'none', padding: 0 }}>
             <li><strong>Categoría:</strong> {riesgo.categoria}</li>
             <li><strong>Impacto:</strong> {riesgo.impacto}</li>
@@ -456,6 +457,7 @@ export default function RiskManagementIntegrated() {
         </div>
         <div style={{ flex: 1 }}>
           <h3>Responsable:</h3>
+          <br />
           <p>{riesgo.responsable?.nombre_completo || "Sin asignar"}</p>
           <h3>Fecha de Creación:</h3>
           <p>{formatDate(riesgo.fecha_creacion)}</p>
@@ -464,6 +466,7 @@ export default function RiskManagementIntegrated() {
       
       <div style={{ marginBottom: '20px' }}>
         <h3>Descripción:</h3>
+        <br />
         <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
           {riesgo.descripcion}
         </p>
@@ -471,6 +474,7 @@ export default function RiskManagementIntegrated() {
       
       <div style={{ marginBottom: '20px' }}>
         <h3>Medidas de Mitigación:</h3>
+        <br />
         <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
           {riesgo.medidas_mitigacion}
         </p>
@@ -479,6 +483,7 @@ export default function RiskManagementIntegrated() {
       {riesgo.protocolo && (
         <div style={{ marginBottom: '20px' }}>
           <h3>Protocolo Vinculado:</h3>
+          <br />
           <div style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
             <p><strong>Título:</strong> {riesgo.protocolo.titulo}</p>
             <p><strong>Descripción:</strong> {riesgo.protocolo.descripcion}</p>

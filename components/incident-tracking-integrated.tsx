@@ -425,6 +425,7 @@ export default function IncidentTrackingIntegrated() {
       
       <div style={{ marginBottom: '20px' }}>
         <h3>Descripción:</h3>
+        <br />
         <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
           {incidente.descripcion}
         </p>
@@ -433,6 +434,7 @@ export default function IncidentTrackingIntegrated() {
       {incidente.riesgo && (
         <div style={{ marginBottom: '20px' }}>
           <h3>Riesgo Relacionado:</h3>
+          <br />
           <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
             <p><strong>Nombre:</strong> {incidente.riesgo.nombre}</p>
             <p><strong>Categoría:</strong> {incidente.riesgo.categoria}</p>
@@ -445,6 +447,7 @@ export default function IncidentTrackingIntegrated() {
       {incidente.protocolo && (
         <div style={{ marginBottom: '20px' }}>
           <h3>Protocolo Asignado:</h3>
+          <br />
           <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
             <p><strong>Título:</strong> {incidente.protocolo.titulo}</p>
             <p><strong>Severidad:</strong> {incidente.protocolo.severidad}</p>
@@ -456,6 +459,7 @@ export default function IncidentTrackingIntegrated() {
       
       <div style={{ marginBottom: '20px' }}>
         <h3>Acciones y Seguimiento:</h3>
+        <br />
         <div style={{ 
           padding: '10px', 
           backgroundColor: '#f9f9f9', 
@@ -466,20 +470,29 @@ export default function IncidentTrackingIntegrated() {
         }}></div>
       </div>
       
-      <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'space-between' }}>
-        <div style={{ width: '45%' }}>
-          <p><strong>Reportado por:</strong> _______________________________</p>
+      {/* Sección de firmas agrupada para evitar separación en páginas */}
+      <div style={{ 
+        marginTop: '30px', 
+        display: 'table',
+        pageBreakInside: 'avoid', // Evita que esta sección se divida entre páginas
+        border: '1px solid #eee',
+        padding: '15px',
+        borderRadius: '5px'
+      }}>
+        <div style={{ marginBottom: '20px' }}>
+          <p><strong>Asignación:</strong> Responsable: {incidente.usuario_asignado?.nombre_completo || "Juan Pereira"}</p>
         </div>
-        <div style={{ width: '45%', textAlign: 'right' }}>
-          <p><strong>Fecha:</strong> _______________________________</p>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div style={{ width: '45%' }}>
+            <p><strong>Firma responsable:</strong> _______________________________</p>
+          </div>
+          <div style={{ width: '45%', textAlign: 'right' }}>
+            <p><strong>Fecha:</strong> _______________________________</p>
+          </div>
         </div>
-      </div>
-      
-      <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
-        <div style={{ width: '45%' }}>
-          <p><strong>Firma responsable:</strong> _______________________________</p>
-        </div>
-        <div style={{ width: '45%', textAlign: 'right' }}>
+        
+        <div style={{ width: '100%' }}>
           <p><strong>Verificado por:</strong> _______________________________</p>
         </div>
       </div>

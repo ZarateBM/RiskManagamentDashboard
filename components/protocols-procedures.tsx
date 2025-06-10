@@ -1125,18 +1125,21 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
                         </Badge>
                       </div>
                       <CardDescription>{protocolo.descripcion}</CardDescription>
-                      <div className="mt-2 flex flex-wrap gap-4">
-                        <div className="flex items-center gap-1 text-sm">
-                          <Clock className="h-4 w-4 text-primary-blue" />
-                          <span>Tiempo estimado: {protocolo.tiempo_estimado}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Clipboard className="h-4 w-4 text-primary-blue" />
-                          <span>Progreso: {calculateProgress(protocolo.id_protocolo)}%</span>
-                        </div>
+                      <div className="mt-2 flex flex-wrap gap-4 justify-between">
                         <div>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Clock className="h-4 w-4 text-primary-blue" />
+                            <span>Tiempo estimado: {protocolo.tiempo_estimado}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Clipboard className="h-4 w-4 text-primary-blue" />
+                            <span>Progreso: {calculateProgress(protocolo.id_protocolo)}%</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
                           {isAdmin && (
-                          <>
+                          < >
                             <Button
                               className="border border-primary-blue text-white bg-primary-blue"
                               variant="outline"
@@ -1250,17 +1253,7 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
                             onChange={(e) => handleSaveNotes(protocolo.id_protocolo, e.target.value)}
                             className="min-h-[100px]"
                           />
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleSaveNotes(protocolo.id_protocolo, notes[`${protocolo.id_protocolo}`] || "")
-                            }
-                            className="mt-2"
-                          >
-                            <Save className="mr-2 h-4 w-4" />
-                            Guardar Notas
-                          </Button>
+                         
                         </div>
                       )}
                     </CardContent>
