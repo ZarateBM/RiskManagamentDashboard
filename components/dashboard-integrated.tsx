@@ -12,6 +12,7 @@ import RiskManagementIntegrated from "@/components/risk-management-integrated"
 import IncidentTrackingIntegrated from "@/components/incident-tracking-integrated"
 import ProtocolsProcedures from "@/components/protocols-procedures"
 import UserManagement from "@/components/user-management"
+import Bitacora from "./bitacora"
 
 export default function DashboardIntegrated() {
   const [activeTab, setActiveTab] = useState("overview")
@@ -120,6 +121,7 @@ export default function DashboardIntegrated() {
               <TabsTrigger value="risks">Gestión de Riesgos</TabsTrigger>
               <TabsTrigger value="incidents">Seguimiento de Incidentes</TabsTrigger>
               <TabsTrigger value="protocols">Protocolos</TabsTrigger>
+              <TabsTrigger value="bitacora">Bitácora</TabsTrigger>
               {usuario.rol === "ADMINISTRADOR" && <TabsTrigger value="users">Usuarios</TabsTrigger>}
             </TabsList>
 
@@ -210,6 +212,11 @@ export default function DashboardIntegrated() {
             <TabsContent value="protocols">
               <ProtocolsProcedures />
             </TabsContent>
+
+           <TabsContent value="bitacora">
+              <Bitacora />
+            </TabsContent>
+            
 
             {usuario.rol === "ADMINISTRADOR" && (
               <TabsContent value="users">

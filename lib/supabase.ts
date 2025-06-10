@@ -15,6 +15,15 @@ export interface Usuario {
   ultimo_acceso?: string
   activo: boolean
 }
+export interface Bitacora {
+  id_entrada: number
+  fecha_hora: string
+  tipo_evento: "Sistema" | "Seguridad" | "Operación" | "Manual" | "Mantenimiento"
+  severidad: "Informativo" | "Advertencia" | "Crítico"
+  descripcion: string
+  usuario_id: number
+  usuario?: Pick<Usuario, "nombre_completo">
+}
 
 export interface Protocolo {
   id_protocolo: number

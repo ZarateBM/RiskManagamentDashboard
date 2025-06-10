@@ -1,6 +1,8 @@
 "use client"
 
 import type React from "react"
+import toPDF from 'react-to-pdf';
+import { useRef } from "react"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -96,6 +98,9 @@ export default function ProtocolsProcedures() {
   const [showAllExecutions, setShowAllExecutions] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [protocoloParaEditar, setProtocoloParaEditar] = useState<Protocolo | null>(null)
+
+  // Agregar la referencia junto con los otros estados
+  const pdfRef = useRef(null);
 
   useEffect(() => {
     // Obtener usuario actual
@@ -706,35 +711,15 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
   }
 
   // Función para generar el contenido del PDF (simplificada)
-  const generateProtocolPDF = (protocolo: Protocolo) => {
-    // Esta es una versión muy simplificada, en un caso real usarías
-    // una librería como jsPDF o pdfmake para generar un PDF real
-    const content = `
-      PROTOCOLO: ${protocolo.titulo}
-      CATEGORÍA: ${protocolo.categoria}
-      SEVERIDAD: ${protocolo.severidad}
-      DESCRIPCIÓN: ${protocolo.descripcion}
-      TIEMPO ESTIMADO: ${protocolo.tiempo_estimado}
-      
-      HERRAMIENTAS NECESARIAS:
-      ${protocolo.herramientas_necesarias.join(', ')}
-      
-      PASOS:
-      ${protocolo.pasos.map((paso, index) => `
-        ${index + 1}. ${paso.titulo}
-        Descripción: ${paso.descripcion}
-        Tareas:
-        ${paso.tareas.map(tarea => `   - ${tarea}`).join('\n')}
-      `).join('\n')}
-      
-      NOTAS:
-      ${notes[`${protocolo.id_protocolo}`] || 'Sin notas'}
-      
-      Protocolo completado por: ${currentUser?.nombre_completo || 'Usuario del sistema'}
-      Fecha: ${new Date().toLocaleString()}
-    `;
+  const handlePrintProtocol = (protocolo: Protocolo) => {
+    const options = {
+      filename: `protocolo_${protocolo.titulo.replace(/\s+/g, '_')}.pdf`,
+      page: { margin: 10 }
+    };
     
-    return content;
+    if (pdfRef.current) {
+      toPDF(pdfRef, options);
+    }
   }
 
   const verificarProtocoloVinculado = async (idProtocolo: number) => {
@@ -784,6 +769,77 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
       return { vinculado: true, error: true } // Por seguridad, si hay error, asumimos que está vinculado
     }
   }
+
+  const ProtocolPDFContent = ({ protocolo }: { protocolo: Protocolo }) => (
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }} ref={pdfRef}>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h1 style={{ color: '#004080' }}>Protocolo: {protocolo.titulo}</h1>
+        <p>Sistema de Gestión de Riesgos - Fecha: {new Date().toLocaleDateString()}</p>
+      </div>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div style={{ flex: 1 }}>
+          <h3>Información General:</h3>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            <li><strong>Categoría:</strong> {protocolo.categoria}</li>
+            <li><strong>Severidad:</strong> {protocolo.severidad}</li>
+            <li><strong>Tiempo Estimado:</strong> {protocolo.tiempo_estimado}</li>
+          </ul>
+        </div>
+        <div style={{ flex: 1 }}>
+          <h3>Herramientas Necesarias:</h3>
+          <ul>
+            {protocolo.herramientas_necesarias.map((tool, index) => (
+              <li key={index}>{tool}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Descripción:</h3>
+        <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+          {protocolo.descripcion}
+        </p>
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Pasos del Protocolo:</h3>
+        {protocolo.pasos.map((paso, index) => (
+          <div key={index} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
+            <h4 style={{ margin: '0 0 10px 0' }}>{index + 1}. {paso.titulo}</h4>
+            <p><em>{paso.descripcion}</em></p>
+            <ul>
+              {paso.tareas.map((tarea, taskIndex) => (
+                <li key={taskIndex}>{tarea}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Notas y Observaciones:</h3>
+        <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px', minHeight: '50px' }}>
+          {notes[`${protocolo.id_protocolo}`] || 'Sin notas adicionales'}
+        </p>
+      </div>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
+        <div>
+          <p><strong>Generado por:</strong> {currentUser?.nombre_completo || 'Usuario del sistema'}</p>
+        </div>
+        <div>
+          <p><strong>Fecha:</strong> {new Date().toLocaleString()}</p>
+        </div>
+      </div>
+      
+      <div style={{ marginTop: '20px', fontSize: '12px', textAlign: 'center', color: '#666' }}>
+        <p>Universidad de Costa Rica - Sistema de Gestión de Riesgos</p>
+        <p>© {new Date().getFullYear()} Todos los derechos reservados.</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -1192,11 +1248,7 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
                         <Button 
                           className="border border-primary-blue text-white bg-primary-blue" 
                           variant="outline"
-                          onClick={() => {
-                            const blob = new Blob([generateProtocolPDF(protocolo)], { type: 'application/pdf' });
-                            const url = URL.createObjectURL(blob);
-                            window.open(url, '_blank');
-                          }}
+                          onClick={() => handlePrintProtocol(protocolo)}
                         >
                           <Printer className="mr-2 h-4 w-4" />
                           Imprimir
@@ -1282,9 +1334,10 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
                         >
                           {ejecucion.estado} ({ejecucion.progreso}%)
                         </Badge>
-                      </div>
                     </div>
-                  ))}
+
+                  </div>
+                ))}
               </div>
             </CardContent>
             <CardFooter>
@@ -1466,6 +1519,13 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Componente oculto para el PDF */}
+      {activeProcedure && protocolos.filter(p => p.id_protocolo === activeProcedure).map(protocolo => (
+        <div key={protocolo.id_protocolo} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+          <ProtocolPDFContent protocolo={protocolo} />
+        </div>
+      ))}
     </div>
   )
 }
