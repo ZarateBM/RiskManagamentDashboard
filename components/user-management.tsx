@@ -60,18 +60,28 @@ export default function UserManagement() {
 
   const cargarUsuarios = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: usuarios, error } = await supabase
         .from("usuarios")
-        .select("*")
+        .select(`
+          *,
+          riesgos:riesgos(id_riesgo)
+        `)
         .eq("activo", true)
-        .order("fecha_creacion", { ascending: false })
+        .order("fecha_creacion", { ascending: false });
 
-      if (error) throw error
-      setUsuarios(data || [])
+      if (error) throw error;
+      
+      // Transformar los datos para incluir la información de mitigador
+      const usuariosConMitigador = usuarios.map(usuario => ({
+        ...usuario,
+        es_mitigador: usuario.riesgos && usuario.riesgos.length > 0
+      }));
+
+      setUsuarios(usuariosConMitigador);
     } catch (error) {
-      console.error("Error cargando usuarios:", error)
+      console.error("Error cargando usuarios:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -118,6 +128,12 @@ export default function UserManagement() {
       alert("Por favor completa todos los campos");
       return;
     }
+
+    if (contraseña.length < 6 || contraseña.length > 20) {
+      alert("La contraseña debe tener entre 6 y 20 caracteres");
+      return;
+    }
+    
 
     setLoading(true)
 
@@ -171,6 +187,12 @@ export default function UserManagement() {
     e.preventDefault()
     if (!selectedUser || !nombreCompleto || !correo) {
       alert("Por favor completa todos los campos")
+      return
+    }
+  
+    // Verificar si el usuario está intentando cambiar su propio rol
+    if (currentUser?.id_usuario === selectedUser.id_usuario && rol !== selectedUser.rol) {
+      alert("No puedes modificar tu propio rol de usuario")
       return
     }
 
@@ -426,9 +448,16 @@ export default function UserManagement() {
                     </TableCell>
                     <TableCell>{user.correo}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={`${getRoleColor(user.rol)} badge-print-friendly`}>
-                        {user.rol}
-                      </Badge>
+                      <div className="flex gap-2">
+                        <Badge variant="outline" className={`${getRoleColor(user.rol)} badge-print-friendly`}>
+                          {user.rol}
+                        </Badge>
+                        {user.es_mitigador && (
+                          <Badge variant="outline" className="bg-yellow-100 text-yellow-800 badge-print-friendly">
+                            Mitigador
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>{formatDate(user.ultimo_acceso || "")}</TableCell>
                     <TableCell>

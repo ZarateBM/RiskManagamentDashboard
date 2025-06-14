@@ -120,14 +120,10 @@ body {
   color: #666;
 }
 
-
-
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
+@layer components {
+  [data-state="open"].fixed.inset-0.z-50 {
+    background-color: rgb(65 173 231 / 0.2);
+    backdrop-filter: blur(4px);
+    @apply data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0;
   }
 }

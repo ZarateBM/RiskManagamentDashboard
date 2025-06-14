@@ -24,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Search, Filter, FileText, AlertTriangle, BookOpen, Zap, Eye, Play, Printer } from "lucide-react"
 import { supabase, type Riesgo, type Protocolo, type Usuario, type MaterializacionRiesgo } from "@/lib/supabase"
 import toPDF from 'react-to-pdf';
+import { set } from "date-fns"
 
 export default function RiskManagementIntegrated() {
   const [riesgos, setRiesgos] = useState<Riesgo[]>([])
@@ -31,6 +32,7 @@ export default function RiskManagementIntegrated() {
   const [protocolos, setProtocolos] = useState<Protocolo[]>([])
   const [materializaciones, setMaterializaciones] = useState<MaterializacionRiesgo[]>([])
   const [loading, setLoading] = useState(true)
+  const [creatingRisk, setCreatingRisk] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("Todos")
   const [impactFilter, setImpactFilter] = useState("Todos")
@@ -59,6 +61,14 @@ export default function RiskManagementIntegrated() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false)
   const [materializationDetailsOpen, setMaterializationDetailsOpen] = useState(false)
   const [selectedMaterialization, setSelectedMaterialization] = useState<MaterializacionRiesgo | null>(null)
+  const [editModalOpen, setEditModalOpen] = useState(false) // Nuevo estado para modal de edición
+
+  // Estado para edición de riesgo
+  const [editMedidas, setEditMedidas] = useState("")
+  const [editEstado, setEditEstado] = useState("")
+  const [editResponsableId, setEditResponsableId] = useState("")
+  const [editProtocoloId, setEditProtocoloId] = useState("")
+  const [updatingRisk, setUpdatingRisk] = useState(false)
 
   // Nuevo estado para mostrar todos los riesgos sin filtrar
   const [showAllWithoutSearch, setShowAllWithoutSearch] = useState(false)
@@ -138,7 +148,7 @@ export default function RiskManagementIntegrated() {
 
   const handleCreateRisk = async (e: React.FormEvent) => {
     e.preventDefault()
-
+    setCreatingRisk(true)
     if (!isAdmin) {
       alert("Solo los administradores pueden crear riesgos")
       return
@@ -217,6 +227,8 @@ export default function RiskManagementIntegrated() {
     } catch (error) {
       console.error("Error creando riesgo:", error)
       alert("Error al crear riesgo")
+    } finally {
+      setCreatingRisk(false)
     }
   }
 
@@ -345,6 +357,94 @@ export default function RiskManagementIntegrated() {
     setMaterializationDetailsOpen(true)
   }
 
+  const openEditModal = (riesgo: Riesgo) => {
+    setSelectedRisk(riesgo)
+    // Cargar datos actuales del riesgo en el formulario
+    setEditMedidas(riesgo.medidas_mitigacion)
+    setEditEstado(riesgo.estado)
+    setEditResponsableId(riesgo.responsable_id?.toString() || "")
+    setEditProtocoloId(riesgo.protocolo_id?.toString() || "")
+    setEditModalOpen(true)
+  }
+
+  const handleUpdateRisk = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setUpdatingRisk(true)
+    
+    if (!selectedRisk || !isAdmin) {
+      alert("Solo los administradores pueden actualizar riesgos")
+      setUpdatingRisk(false)
+      return
+    }
+
+    if (!editEstado) {
+      alert("El estado del riesgo es obligatorio")
+      setUpdatingRisk(false)
+      return
+    }
+
+    if (!editResponsableId) {
+      alert("Debe seleccionar un responsable para el riesgo")
+      setUpdatingRisk(false)
+      return
+    }
+
+    if (!editMedidas || editMedidas.length < 10) {
+      alert("Las medidas de mitigación deben tener al menos 10 caracteres")
+      setUpdatingRisk(false)
+      return
+    }
+
+    try {
+      const actualizacionRiesgo = {
+        estado: editEstado,
+        medidas_mitigacion: editMedidas,
+        responsable_id: Number.parseInt(editResponsableId),
+        protocolo_id: editProtocoloId ? Number.parseInt(editProtocoloId) : null,
+      }
+
+      const { error } = await supabase
+        .from("riesgos")
+        .update(actualizacionRiesgo)
+        .eq("id_riesgo", selectedRisk.id_riesgo)
+
+      if (error) throw error
+
+      setEditModalOpen(false)
+      setDetailsModalOpen(false)
+      cargarDatos()
+      alert("Riesgo actualizado exitosamente")
+    } catch (error) {
+      console.error("Error actualizando riesgo:", error)
+      alert("Error al actualizar riesgo")
+    } finally {
+      setUpdatingRisk(false)
+    }
+  }
+
+  // Función para cambiar solo el estado del riesgo
+  const handleChangeRiskState = async (riesgoId: number, nuevoEstado: string) => {
+    if (!isAdmin) {
+      alert("Solo los administradores pueden cambiar el estado de los riesgos")
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from("riesgos")
+        .update({ estado: nuevoEstado })
+        .eq("id_riesgo", riesgoId)
+
+      if (error) throw error
+
+      cargarDatos()
+      alert(`Estado del riesgo actualizado a: ${nuevoEstado}`)
+    } catch (error) {
+      console.error("Error cambiando estado del riesgo:", error)
+      alert("Error al cambiar el estado del riesgo")
+    }
+  }
+
   const resetForm = () => {
     setNombre("")
     setDescripcion("")
@@ -391,11 +491,19 @@ export default function RiskManagementIntegrated() {
   const getStatusColor = (estado: string) => {
     switch (estado) {
       case "Activo":
+      case "Identificado":
         return "bg-red-100 text-red-800"
+      case "Planificado":
       case "En seguimiento":
         return "bg-blue-100 text-blue-800"
-      case "Resuelto":
+      case "Mitigado":
         return "bg-green-100 text-green-800"
+      case "Monitoreo":
+        return "bg-yellow-100 text-yellow-800" 
+      case "Cerrado":
+        return "bg-gray-100 text-gray-800"
+      case "Reactivado":
+        return "bg-purple-100 text-purple-800"
       default:
         return ""
     }
@@ -569,20 +677,54 @@ export default function RiskManagementIntegrated() {
                   {riesgo.probabilidad}
                 </td>
                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                  <span style={{
-                    display: 'inline-block',
-                    padding: '3px 8px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    backgroundColor: riesgo.estado === 'Activo' ? '#ffebeb' : '#e9f7ea',
-                    color: riesgo.estado === 'Activo' ? '#c41e1e' : '#1e8f2d'
-                  }}>
+                  <Badge variant={riesgo.estado === "Activo" ? "default" : "outline"} className={getStatusColor(riesgo.estado)}>
                     {riesgo.estado}
-                  </span>
+                  </Badge>
+                  {isAdmin && (
+                    <Select 
+                      value={riesgo.estado} 
+                      onValueChange={(value) => handleChangeRiskState(riesgo.id_riesgo, value)}
+                    >
+                      <SelectTrigger className="h-7 px-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Identificado">Identificado</SelectItem>
+                        <SelectItem value="Planificado">Planificado</SelectItem>
+                        <SelectItem value="Mitigado">Mitigado</SelectItem>
+                        <SelectItem value="Monitoreo">Monitoreo</SelectItem>
+                        <SelectItem value="Cerrado">Cerrado</SelectItem>
+                        <SelectItem value="Reactivado">Reactivado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </td>
                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>
                   {riesgo.responsable?.nombre_completo || "Sin asignar"}
+                </td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  {riesgo.protocolo ? (
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm">{riesgo.protocolo.titulo}</span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-primary-blue">Sin protocolo</span>
+                  )}
+                </td>
+                <td className="text-right" style={{ border: '1px solid #ddd', padding: '8px' }}>
+                  <div className="flex justify-end gap-2">
+                    <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openDetailsModal(riesgo)}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      Ver
+                    </Button>
+                    {isAdmin && (
+                      <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openMaterializeModal(riesgo)}>
+                        <Zap className="mr-2 h-4 w-4" />
+                        Materializar
+                      </Button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))
@@ -756,7 +898,7 @@ export default function RiskManagementIntegrated() {
                           <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
                             Cancelar
                           </Button>
-                          <Button className="border border-primary-blue text-white bg-primary-blue" type="submit">Guardar Riesgo</Button>
+                          <Button className="border border-primary-blue text-white bg-primary-blue" type="submit" disabled={creatingRisk}>Guardar Riesgo</Button>
                         </DialogFooter>
                       </form>
                     </DialogContent>
@@ -861,7 +1003,27 @@ export default function RiskManagementIntegrated() {
                         </TableCell>
                         <TableCell>{riesgo.probabilidad}</TableCell>
                         <TableCell>
-                          <Badge variant={riesgo.estado === "Activo" ? "default" : "outline"}>{riesgo.estado}</Badge>
+                          <Badge variant={riesgo.estado === "Activo" ? "default" : "outline"} className={getStatusColor(riesgo.estado)}>
+                            {riesgo.estado}
+                          </Badge>
+                          {isAdmin && (
+                            <Select 
+                              value={riesgo.estado} 
+                              onValueChange={(value) => handleChangeRiskState(riesgo.id_riesgo, value)}
+                            >
+                              <SelectTrigger className="h-7 px-2">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Identificado">Identificado</SelectItem>
+                                <SelectItem value="Planificado">Planificado</SelectItem>
+                                <SelectItem value="Mitigado">Mitigado</SelectItem>
+                                <SelectItem value="Monitoreo">Monitoreo</SelectItem>
+                                <SelectItem value="Cerrado">Cerrado</SelectItem>
+                                <SelectItem value="Reactivado">Reactivado</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
                         </TableCell>
                         <TableCell>{riesgo.responsable?.nombre_completo || "Sin asignar"}</TableCell>
                         <TableCell>
@@ -1113,10 +1275,15 @@ export default function RiskManagementIntegrated() {
               Imprimir
             </Button>
             {isAdmin && selectedRisk && (
-              <Button className="border border-primary-blue text-white bg-primary-blue" onClick={() => openMaterializeModal(selectedRisk)}>
-                <Zap className="mr-2 h-4 w-4" />
-                Materializar
-              </Button>
+              <>
+                <Button className="border border-primary-blue text-white bg-primary-blue" onClick={() => openEditModal(selectedRisk)}>
+                  Editar
+                </Button>
+                <Button className="border border-primary-blue text-white bg-primary-blue" onClick={() => openMaterializeModal(selectedRisk)}>
+                  <Zap className="mr-2 h-4 w-4" />
+                  Materializar
+                </Button>
+              </>
             )}
           </DialogFooter>
         </DialogContent>
@@ -1203,6 +1370,124 @@ export default function RiskManagementIntegrated() {
               </Button>
             )}
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de edición de riesgo */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Editar Riesgo</DialogTitle>
+            <DialogDescription>Actualice la información no fundamental del riesgo</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdateRisk}>
+            <div className="grid gap-4 py-4">
+              {selectedRisk && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="mb-2 font-semibold">Nombre del Riesgo</h4>
+                      <p className="text-sm text-gray-500">{selectedRisk.nombre}</p>
+                    </div>
+                    <div>
+                      <h4 className="mb-2 font-semibold">Categoría</h4>
+                      <p className="text-sm text-gray-500">{selectedRisk.categoria}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="mb-2 font-semibold">Descripción</h4>
+                    <p className="text-sm text-gray-500">{selectedRisk.descripcion}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="mb-2 font-semibold">Impacto</h4>
+                      <p className="text-sm text-gray-500">{selectedRisk.impacto}</p>
+                    </div>
+                    <div>
+                      <h4 className="mb-2 font-semibold">Probabilidad</h4>
+                      <p className="text-sm text-gray-500">{selectedRisk.probabilidad}</p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="risk-state">Estado del Riesgo</Label>
+                <Select value={editEstado} onValueChange={setEditEstado}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Identificado">Identificado</SelectItem>
+                    <SelectItem value="Planificado">Planificado</SelectItem>
+                    <SelectItem value="Mitigado">Mitigado</SelectItem>
+                    <SelectItem value="Monitoreo">Monitoreo</SelectItem>
+                    <SelectItem value="Cerrado">Cerrado</SelectItem>
+                    <SelectItem value="Reactivado">Reactivado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="risk-responsible">Responsable</Label>
+                  <Select value={editResponsableId} onValueChange={setEditResponsableId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar responsable" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {usuarios.map((usuario) => (
+                        <SelectItem key={usuario.id_usuario} value={usuario.id_usuario.toString()}>
+                          {usuario.nombre_completo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="risk-protocol">Protocolo de Respuesta</Label>
+                  <Select value={editProtocoloId} onValueChange={setEditProtocoloId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar protocolo (opcional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {protocolos.map((protocolo) => (
+                        <SelectItem key={protocolo.id_protocolo} value={protocolo.id_protocolo.toString()}>
+                          {protocolo.titulo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="risk-mitigation">Medidas de Mitigación</Label>
+                <Textarea
+                  id="risk-mitigation"
+                  value={editMedidas}
+                  onChange={(e) => setEditMedidas(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                className="border border-primary-blue text-white bg-primary-blue" 
+                type="button" 
+                variant="outline" 
+                onClick={() => setEditModalOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                className="border border-primary-blue text-white bg-primary-blue" 
+                type="submit" 
+                disabled={updatingRisk}
+              >
+                {updatingRisk ? "Actualizando..." : "Actualizar Riesgo"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 

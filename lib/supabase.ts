@@ -14,6 +14,7 @@ export interface Usuario {
   fecha_creacion: string
   ultimo_acceso?: string
   activo: boolean
+  es_mitigador?: boolean // Nuevo campo para identificar mitigadores
 }
 export interface Bitacora {
   id_entrada: number
@@ -50,7 +51,7 @@ export interface Riesgo {
   categoria: string
   impacto: "Crítico" | "Alto" | "Medio" | "Bajo"
   probabilidad: "Alta" | "Media" | "Baja"
-  estado: "Activo" | "Mitigado" | "Resuelto"
+  estado: "Identificado" | "Planificado" | "Mitigado" | "Monitoreo" | "Cerrado" | "Reactivado"
   medidas_mitigacion: string
   responsable_id: number
   protocolo_id?: number

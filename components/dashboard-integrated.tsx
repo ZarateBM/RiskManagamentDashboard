@@ -121,7 +121,9 @@ export default function DashboardIntegrated() {
               <TabsTrigger value="risks">Gestión de Riesgos</TabsTrigger>
               <TabsTrigger value="incidents">Seguimiento de Incidentes</TabsTrigger>
               <TabsTrigger value="protocols">Protocolos</TabsTrigger>
-              <TabsTrigger value="bitacora">Bitácora</TabsTrigger>
+              {usuario.rol === "ADMINISTRADOR" && (
+                <TabsTrigger value="bitacora">Bitácora</TabsTrigger>
+              )}
               {usuario.rol === "ADMINISTRADOR" && <TabsTrigger value="users">Usuarios</TabsTrigger>}
             </TabsList>
 
@@ -212,11 +214,12 @@ export default function DashboardIntegrated() {
             <TabsContent value="protocols">
               <ProtocolsProcedures />
             </TabsContent>
+           {usuario.rol === "ADMINISTRADOR" && (
+              <TabsContent value="bitacora">
+                <Bitacora />
+              </TabsContent>
+           )}
 
-           <TabsContent value="bitacora">
-              <Bitacora />
-            </TabsContent>
-            
 
             {usuario.rol === "ADMINISTRADOR" && (
               <TabsContent value="users">

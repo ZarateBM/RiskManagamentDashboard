@@ -127,7 +127,7 @@ export default function ProtocolExecution({ ejecucionId, onBack }: ProtocolExecu
     return (
       <div className="text-center py-8">
         <p className="text-primary-blue">No se pudo cargar la ejecución del protocolo</p>
-        <Button className="border border-primary-blue text-white bg-primary-blue" onClick={onBack} className="mt-4">
+        <Button className="border border-primary-blue text-white bg-primary-blue mt-4" onClick={onBack} >
           Volver
         </Button>
       </div>

@@ -242,7 +242,7 @@ export default function ReportsAnalytics() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="border border-primary-blue text-white bg-primary-blue" className="w-full">Generar Nuevo Informe</Button>
+              <Button className="border border-primary-blue text-white bg-primary-blue">Generar Nuevo Informe</Button>
             </CardFooter>
           </Card>
         </TabsContent>

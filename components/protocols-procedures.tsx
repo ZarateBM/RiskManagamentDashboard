@@ -885,7 +885,7 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
               <DialogTrigger asChild>
                 <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline">
                   <Plus className="mr-2 h-4 w-4" />
-                  Nuevo Protocolos
+                  Nuevo Protocolo
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
