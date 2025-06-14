@@ -24,7 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Search, Filter, FileText, AlertTriangle, BookOpen, Zap, Eye, Play, Printer } from "lucide-react"
 import { supabase, type Riesgo, type Protocolo, type Usuario, type MaterializacionRiesgo } from "@/lib/supabase"
 import toPDF from 'react-to-pdf';
-import { set } from "date-fns"
+import Logger from "@/lib/logger"
 
 export default function RiskManagementIntegrated() {
   const [riesgos, setRiesgos] = useState<Riesgo[]>([])
@@ -149,6 +149,7 @@ export default function RiskManagementIntegrated() {
   const handleCreateRisk = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreatingRisk(true)
+    Logger.operacion("Intento de creación de riesgo", "Informativo", currentUser?.id_usuario)
     if (!isAdmin) {
       alert("Solo los administradores pueden crear riesgos")
       return
@@ -218,13 +219,18 @@ export default function RiskManagementIntegrated() {
 
       const { error } = await supabase.from("riesgos").insert([nuevoRiesgo])
 
-      if (error) throw error
+      if (error) {
+        Logger.seguridad("Error al crear riesgo", "Crítico", currentUser?.id_usuario)
+        throw error
+      }
+      Logger.operacion(`Riesgo ${nombre} creado exitosamente`, "Informativo", currentUser?.id_usuario)
 
       setCreateModalOpen(false)
       resetForm()
       cargarDatos()
       alert("Riesgo creado exitosamente")
     } catch (error) {
+      Logger.seguridad("Error al crear riesgo", "Crítico", currentUser?.id_usuario)
       console.error("Error creando riesgo:", error)
       alert("Error al crear riesgo")
     } finally {
@@ -234,6 +240,7 @@ export default function RiskManagementIntegrated() {
 
   const handleMaterializeRisk = async (e: React.FormEvent) => {
     e.preventDefault()
+    Logger.operacion("Intento de materialización de riesgo", "Informativo", currentUser?.id_usuario)
 
     if (!selectedRisk || !isAdmin) {
       alert("Solo los administradores pueden materializar riesgos")
@@ -287,8 +294,11 @@ export default function RiskManagementIntegrated() {
           .select()
           .single()
 
-        if (incidenteError) throw incidenteError
-        
+        if (incidenteError) {
+          Logger.seguridad("Error al crear incidente", "Crítico", currentUser?.id_usuario)
+          throw incidenteError
+        }
+        Logger.operacion(`Incidente generado para riesgo ${selectedRisk.nombre}`, "Informativo", currentUser?.id_usuario) 
         incidenteData = incidenteGenerado;
 
         // Actualizar materialización con el incidente generado
@@ -370,7 +380,7 @@ export default function RiskManagementIntegrated() {
   const handleUpdateRisk = async (e: React.FormEvent) => {
     e.preventDefault()
     setUpdatingRisk(true)
-    
+    Logger.operacion("Intento de actualización de riesgo", "Informativo", currentUser?.id_usuario)
     if (!selectedRisk || !isAdmin) {
       alert("Solo los administradores pueden actualizar riesgos")
       setUpdatingRisk(false)
@@ -408,7 +418,12 @@ export default function RiskManagementIntegrated() {
         .update(actualizacionRiesgo)
         .eq("id_riesgo", selectedRisk.id_riesgo)
 
-      if (error) throw error
+      if (error) {
+        Logger.seguridad("Error al actualizar riesgo", "Crítico", currentUser?.id_usuario)
+        throw error
+      } 
+
+      Logger.operacion(`Riesgo ${selectedRisk.nombre} actualizado exitosamente`, "Informativo", currentUser?.id_usuario)
 
       setEditModalOpen(false)
       setDetailsModalOpen(false)
@@ -428,6 +443,7 @@ export default function RiskManagementIntegrated() {
       alert("Solo los administradores pueden cambiar el estado de los riesgos")
       return
     }
+    Logger.operacion(`Cambio de estado del riesgo ${riesgoId} a ${nuevoEstado}`, "Informativo", currentUser?.id_usuario)
 
     try {
       const { error } = await supabase
@@ -435,8 +451,11 @@ export default function RiskManagementIntegrated() {
         .update({ estado: nuevoEstado })
         .eq("id_riesgo", riesgoId)
 
-      if (error) throw error
-
+      if (error) {
+        Logger.seguridad("Error al cambiar estado de riesgo", "Crítico", currentUser?.id_usuario)
+        throw error
+      }
+      Logger.operacion(`Estado del riesgo ${riesgoId} cambiado a ${nuevoEstado}`, "Informativo", currentUser?.id_usuario)
       cargarDatos()
       alert(`Estado del riesgo actualizado a: ${nuevoEstado}`)
     } catch (error) {
@@ -677,7 +696,7 @@ export default function RiskManagementIntegrated() {
                   {riesgo.probabilidad}
                 </td>
                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                  <Badge variant={riesgo.estado === "Activo" ? "default" : "outline"} className={getStatusColor(riesgo.estado)}>
+                  <Badge variant="outline" className={getStatusColor(riesgo.estado)}>
                     {riesgo.estado}
                   </Badge>
                   {isAdmin && (

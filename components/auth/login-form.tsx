@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Server, Eye, EyeOff } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import Logger from "@/lib/logger"
 
 export default function LoginForm() {
   const [correo, setCorreo] = useState("")
@@ -49,6 +50,7 @@ export default function LoginForm() {
     setError("")
 
     try {
+      Logger.operacion("Intento de inicio de sesión", "Informativo")
       // Verificar credenciales en la base de datos
       const { data: usuario, error: dbError } = await supabase
         .from("usuarios")
@@ -59,11 +61,13 @@ export default function LoginForm() {
         .single()
 
       if (dbError || !usuario) {
+        Logger.seguridad("Credenciales inválidas o usuario no encontrado", "Crítico")
         setError("Credenciales inválidas")
         setContraseña("") // Limpiar el campo de contraseña cuando las credenciales son inválidas
         setLoading(false)
         return
       }
+      Logger.operacion(`Usuario ${usuario.nombre_completo} ha iniciado sesión`, "Informativo", usuario.id_usuario)
 
       // Actualizar último acceso
       await supabase
@@ -80,6 +84,7 @@ export default function LoginForm() {
       // Redirigir al dashboard
       router.push("/dashboard")
     } catch (error) {
+      Logger.seguridad("Error al iniciar sesión", "Crítico")
       console.error("Error en login:", error)
       setError("Error al iniciar sesión")
       setContraseña("") // Limpiar el campo de contraseña en caso de error
