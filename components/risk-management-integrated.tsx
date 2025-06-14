@@ -211,7 +211,7 @@ export default function RiskManagementIntegrated() {
         categoria,
         impacto,
         probabilidad,
-        estado: "Activo",
+        estado: "Identificado", // Estado inicial al crear un riesgo
         medidas_mitigacion: medidas,
         responsable_id: Number.parseInt(responsableId),
         protocolo_id: protocoloId ? Number.parseInt(protocoloId) : null,
