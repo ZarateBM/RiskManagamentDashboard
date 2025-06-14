@@ -1022,7 +1022,7 @@ export default function RiskManagementIntegrated() {
                         </TableCell>
                         <TableCell>{riesgo.probabilidad}</TableCell>
                         <TableCell>
-                          <Badge variant={riesgo.estado === "Activo" ? "default" : "outline"} className={getStatusColor(riesgo.estado)}>
+                          <Badge variant="outline" className={getStatusColor(riesgo.estado)}>
                             {riesgo.estado}
                           </Badge>
                           {isAdmin && (

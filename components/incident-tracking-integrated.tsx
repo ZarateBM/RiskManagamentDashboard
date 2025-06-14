@@ -31,6 +31,7 @@ import {
 } from "@/lib/supabase"
 import ProtocolExecution from "@/components/protocol-execution"
 import toPDF from 'react-to-pdf';
+import Logger from "@/lib/logger"
 
 export default function IncidentTrackingIntegrated() {
   const [executingProtocol, setExecutingProtocol] = useState<number | null>(null)
@@ -150,6 +151,8 @@ export default function IncidentTrackingIntegrated() {
       return
     }
 
+    Logger.operacion(`Creando incidente: ${titulo}`, "Informativo", currentUser?.id_usuario)
+
     if (!titulo || !descripcion || !categoria || !severidad) {
       alert("Por favor complete todos los campos obligatorios")
       return
@@ -262,6 +265,8 @@ export default function IncidentTrackingIntegrated() {
       }
       return
     }
+
+    Logger.operacion(`Ejecutando protocolo para incidente ${incidente.titulo}`, "Informativo", currentUser?.id_usuario) 
 
     try {
       // Crear ejecución de protocolo

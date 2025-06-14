@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Edit, Filter, Plus, Search, Trash2, User, UserCheck, Users } from "lucide-react"
 import { supabase, type Usuario } from "@/lib/supabase"
+import Logger from "@/lib/logger"
 
 export default function UserManagement() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
@@ -124,6 +125,7 @@ export default function UserManagement() {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault()
+    Logger.operacion(`Creando usuario: ${nombreCompleto}`, "Informativo", currentUser?.id_usuario)
     if (!nombreCompleto || !correo || !contraseña) {
       alert("Por favor completa todos los campos");
       return;
@@ -148,8 +150,11 @@ export default function UserManagement() {
         },
       ])
 
-      if (error) throw error
-
+      if (error) {
+        Logger.seguridad("Error al crear usuario", "Crítico", currentUser?.id_usuario)
+        throw error
+      }
+      Logger.operacion(`Usuario creado exitosamente: ${nombreCompleto}`, "Informativo", currentUser?.id_usuario)
       // Enviar correo de bienvenida al usuario
       try {
         const emailResponse = await fetch('/api/email/send-user-registration', {
@@ -197,7 +202,11 @@ export default function UserManagement() {
     }
 
     setLoading(true)
-
+    Logger.operacion(`Editando usuario: ${selectedUser.nombre_completo}`, "Informativo", currentUser?.id_usuario)
+    if (contraseña && (contraseña.length < 6 || contraseña.length > 20)) {
+      alert("La contraseña debe tener entre 6 y 20 caracteres")
+      return
+    }
     try {
       const updateData: any = {
         nombre_completo: nombreCompleto,
@@ -212,7 +221,11 @@ export default function UserManagement() {
 
       const { error } = await supabase.from("usuarios").update(updateData).eq("id_usuario", selectedUser.id_usuario)
 
-      if (error) throw error
+      if (error) {
+        Logger.seguridad("Error al actualizar usuario", "Crítico", currentUser?.id_usuario)
+        throw error
+      }
+      Logger.operacion(`Usuario actualizado exitosamente: ${nombreCompleto}`, "Informativo", currentUser?.id_usuario)
 
       setEditModalOpen(false)
       resetForm()
@@ -233,7 +246,10 @@ export default function UserManagement() {
     try {
       const { error } = await supabase.from("usuarios").update({ activo: false }).eq("id_usuario", userId)
 
-      if (error) throw error
+      if (error) {
+        Logger.seguridad("Error al desactivar usuario", "Crítico", currentUser?.id_usuario)
+        throw error
+      }
 
       cargarUsuarios()
       alert("Usuario desactivado exitosamente")

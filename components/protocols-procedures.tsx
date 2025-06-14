@@ -43,6 +43,7 @@ import {
 } from "lucide-react"
 
 import { supabase, type Protocolo, type Usuario, type EjecucionProtocolo } from "@/lib/supabase"
+import Logger from "@/lib/logger";
 
 // Tipos de procedimientos
 const procedureCategories = [
@@ -602,6 +603,7 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
     const cancelReason = prompt(
       `Indique la razón por la que no se puede completar el protocolo "${protocolo.titulo}":`
     );
+    Logger.operacion(`Usuario ${currentUser.nombre_completo} ha solicitado cancelar el protocolo ${protocolo.titulo}`, "Informativo", currentUser.id_usuario);
     
     if (cancelReason === null) {
       // Usuario canceló el prompt
@@ -632,7 +634,11 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
         .select()
         .single()
 
-      if (incidenteError) throw incidenteError
+      if (incidenteError) {
+        Logger.seguridad("Error al crear incidente", "Crítico", currentUser?.id_usuario)
+        throw incidenteError
+      }
+      Logger.operacion(`Incidente creado por cancelación de protocolo: ${incidenteCreado.titulo}`, "Informativo", currentUser?.id_usuario)
 
       // 2. Crear registro de ejecución de protocolo como cancelado
       const { error: ejecucionError } = await supabase
@@ -653,7 +659,11 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
           },
         ])
 
-      if (ejecucionError) throw ejecucionError
+      if (ejecucionError) {
+        Logger.seguridad("Error al crear ejecución de protocolo", "Crítico", currentUser?.id_usuario)
+        throw ejecucionError
+      }
+      Logger.operacion(`Ejecución de protocolo cancelada: ${protocolo.titulo}`, "Informativo", currentUser?.id_usuario)
 
       // 3. Intentar notificar al usuario asignado
       try {
@@ -1050,8 +1060,9 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
 
             <div className="flex flex-wrap gap-2">
               <Button
-                variant={selectedCategory === "all" ? "default" : "outline"}
+                variant="outline"
                 size="sm"
+                className={`flex items-center gap-1 text-primary ${selectedCategory === "all" ? "text-white bg-primary-blue" : ""}`}
                 onClick={() => setSelectedCategory("all")}
               >
                 Todos
@@ -1059,10 +1070,10 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
               {procedureCategories.map((category) => (
                 <Button
                   key={category.id}
-                  variant={selectedCategory === category.id ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
                   onClick={() => setSelectedCategory(category.id)}
-                  className="flex items-center gap-1"
+                  className={`flex items-center gap-1 text-primary ${selectedCategory === category.id ? "text-white bg-primary-blue" : ""}`}
                 >
                   {category.icon}
                   <span className="ml-1">{category.name}</span>

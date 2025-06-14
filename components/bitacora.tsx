@@ -199,7 +199,7 @@ export default function Bitacora() {
             <BookText className="h-6 w-6 text-primary-blue" />
             Bitácora de Novedades
           </CardTitle>
-          <Button variant="outline" onClick={handleExportPDF}>
+          <Button className="border border-primary-blue text-white bg-primary-blue"  variant="outline" onClick={handleExportPDF}>
             <FileDown className="mr-2 h-4 w-4" />
             Exportar PDF
           </Button>
@@ -248,7 +248,7 @@ export default function Bitacora() {
                 onChange={(e) => setFiltros({ ...filtros, fecha: e.target.value })}
               />
             </div>
-            <Button onClick={fetchEntradas}>
+            <Button className="border border-primary-blue text-white bg-primary-blue"  onClick={fetchEntradas}>
               <Search className="mr-2 h-4 w-4" />
               Filtrar
             </Button>
@@ -283,7 +283,7 @@ export default function Bitacora() {
                       <SelectItem value="Crítico">Crítico</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button onClick={handleAgregarEntrada} className="w-full">
+                  <Button className="border border-primary-blue text-white bg-primary-blue w-full" onClick={handleAgregarEntrada}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Registrar Entrada
                   </Button>
