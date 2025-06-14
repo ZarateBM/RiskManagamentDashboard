@@ -1254,7 +1254,7 @@ export default function RiskManagementIntegrated() {
                 </div>
                 <div>
                   <h4 className="mb-2 font-semibold">Estado</h4>
-                  <Badge variant={selectedRisk.estado === "Activo" ? "default" : "outline"}>
+                  <Badge variant="outline" className={getStatusColor(selectedRisk.estado)}>
                     {selectedRisk.estado}
                   </Badge>
                 </div>
