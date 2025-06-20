@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -30,9 +30,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Edit, Filter, Plus, Search, Trash2, User, UserCheck, Users } from "lucide-react"
+import { Edit, Filter, Plus, Search, Trash2, User, UserCheck, Users, Printer } from "lucide-react"
 import { supabase, type Usuario } from "@/lib/supabase"
 import Logger from "@/lib/logger"
+import toPDF from 'react-to-pdf'
 
 export default function UserManagement() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
@@ -323,10 +324,57 @@ export default function UserManagement() {
     )
   }
 
+  const userListPdfRef = useRef(null)
+
+  const UserListPDFContent = ({ usuarios }: { usuarios: Usuario[] }) => (
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }} ref={userListPdfRef}>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h1 style={{ color: '#004080' }}>Listado de Usuarios</h1>
+        <p>Sistema de Gestión de Riesgos - Fecha: {new Date().toLocaleDateString()}</p>
+      </div>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ backgroundColor: '#f2f2f2' }}>
+            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Nombre</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Correo</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Rol</th>
+            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Mitigador</th>
+          </tr>
+        </thead>
+        <tbody>
+          {usuarios.map((user) => (
+            <tr key={user.id_usuario}>
+              <td style={{ border: '1px solid #ddd', padding: '8px' }}>{user.nombre_completo}</td>
+              <td style={{ border: '1px solid #ddd', padding: '8px' }}>{user.correo}</td>
+              <td style={{ border: '1px solid #ddd', padding: '8px' }}>{user.rol}</td>
+              <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                {user.es_mitigador ? "Sí" : "No"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div style={{ marginTop: '20px', fontSize: '12px', textAlign: 'center', color: '#666' }}>
+        <p>Universidad de Costa Rica - Sistema de Gestión de Riesgos</p>
+        <p>© {new Date().getFullYear()} Todos los derechos reservados.</p>
+      </div>
+    </div>
+  )
+
   // Agregar la función handlePrint justo antes del return
   const handlePrint = () => {
     // Opcionalmente podríamos hacer alguna preparación antes de imprimir
     window.print();
+  }
+
+  const handlePrintUserList = () => {
+    const options = {
+      filename: `usuarios_${new Date().toISOString().slice(0, 10)}.pdf`,
+      page: { margin: 10 }
+    }
+    if (userListPdfRef.current) {
+      toPDF(userListPdfRef, options)
+    }
   }
 
   return (
@@ -623,13 +671,19 @@ export default function UserManagement() {
               className="border border-primary-blue text-white bg-primary-blue" 
               variant="outline" 
               size="sm"
-              onClick={handlePrint}
+              onClick={handlePrintUserList}
             >
-              Imprimir
+              <Printer className="mr-2 h-4 w-4" />
+              Imprimir PDF
             </Button>
           </div>
         </CardFooter>
       </Card>
+
+      {/* Componente oculto para el PDF */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <UserListPDFContent usuarios={filteredUsers} />
+      </div>
     </div>
   )
 }
