@@ -145,7 +145,7 @@ export default function UserManagement() {
         {
           nombre_completo: nombreCompleto,
           correo: correolowerCase,
-          contraseña, // En producción, esto debería estar hasheado
+          contraseña, 
           rol,
           activo: true,
         },
