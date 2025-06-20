@@ -665,9 +665,6 @@ export default function UserManagement() {
             Mostrando {filteredUsers.length} de {usuarios.length} usuarios
           </div>
           <div className="flex gap-2">
-            <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm">
-              Exportar
-            </Button>
             <Button 
               className="border border-primary-blue text-white bg-primary-blue" 
               variant="outline" 
