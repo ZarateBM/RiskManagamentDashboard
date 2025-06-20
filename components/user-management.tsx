@@ -44,6 +44,7 @@ export default function UserManagement() {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<Usuario | null>(null)
   const [currentUser, setCurrentUser] = useState<Usuario | null>(null)
+  const userListPdfRef = useRef(null)
 
   // Campos para formulario
   const [nombreCompleto, setNombreCompleto] = useState("")
@@ -324,7 +325,7 @@ export default function UserManagement() {
     )
   }
 
-  const userListPdfRef = useRef(null)
+
 
   const UserListPDFContent = ({ usuarios }: { usuarios: Usuario[] }) => (
     <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }} ref={userListPdfRef}>
