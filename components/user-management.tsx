@@ -34,6 +34,7 @@ import { Edit, Filter, Plus, Search, Trash2, User, UserCheck, Users, Printer } f
 import { supabase, type Usuario } from "@/lib/supabase"
 import Logger from "@/lib/logger"
 import toPDF from 'react-to-pdf'
+import { set } from "date-fns"
 
 export default function UserManagement() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
@@ -41,6 +42,7 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [roleFilter, setRoleFilter] = useState("Todos")
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<Usuario | null>(null)
   const [currentUser, setCurrentUser] = useState<Usuario | null>(null)
@@ -127,6 +129,7 @@ export default function UserManagement() {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsCreating(true)
     Logger.operacion(`Creando usuario: ${nombreCompleto}`, "Informativo", currentUser?.id_usuario)
     if (!nombreCompleto || !correo || !contraseña) {
       alert("Por favor completa todos los campos");
@@ -145,16 +148,11 @@ export default function UserManagement() {
     }
     const correoToLower = correo.toLowerCase()
     // Verificar si el correo ya está registrado
-    const { data: existingUser, error: emailError } = await supabase
+    const { data: existingUser } = await supabase
       .from("usuarios")
       .select("id_usuario")
       .eq("correo", correoToLower)
       .single()
-    if (emailError) {
-      console.error("Error verificando correo:", emailError)
-      alert("Error al verificar el correo electrónico")
-      return
-    }
     if (existingUser) {
       alert("El correo electrónico ya está registrado")
       return
@@ -208,6 +206,7 @@ export default function UserManagement() {
       alert("Error al crear usuario")
     } finally {
       setLoading(false)
+      setIsCreating(false)
     }
   }
 
@@ -460,8 +459,8 @@ export default function UserManagement() {
                     <Button className="border border-primary-blue text-white bg-primary-blue" type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button className="border border-primary-blue text-white bg-primary-blue" type="submit" disabled={loading}>
-                      {loading ? "Guardando..." : "Guardar Usuario"}
+                    <Button className="border border-primary-blue text-white bg-primary-blue" type="submit" disabled={isCreating}>
+                      {isCreating ? "Guardando..." : "Guardar Usuario"}
                     </Button>
                   </DialogFooter>
                 </form>
