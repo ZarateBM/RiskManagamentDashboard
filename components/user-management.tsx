@@ -136,7 +136,27 @@ export default function UserManagement() {
       return;
     }
 
-    const correolowerCase = correo.toLowerCase()
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(correo)) {
+      alert("Por favor ingresa un correo electrónico válido");
+      return;
+    }
+    const correoToLower = correo.toLowerCase()
+    // Verificar si el correo ya está registrado
+    const { data: existingUser, error: emailError } = await supabase
+      .from("usuarios")
+      .select("id_usuario")
+      .eq("correo", correoToLower)
+      .single()
+    if (emailError) {
+      console.error("Error verificando correo:", emailError)
+      alert("Error al verificar el correo electrónico")
+      return
+    }
+    if (existingUser) {
+      alert("El correo electrónico ya está registrado")
+      return
+    }
 
     setLoading(true)
 
@@ -144,7 +164,7 @@ export default function UserManagement() {
       const { error } = await supabase.from("usuarios").insert([
         {
           nombre_completo: nombreCompleto,
-          correo: correolowerCase,
+          correo: correo,
           contraseña, 
           rol,
           activo: true,
