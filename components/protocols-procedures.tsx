@@ -808,6 +808,7 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
       
       <div style={{ marginBottom: '20px' }}>
         <h3>Descripción:</h3>
+        <br />
         <p style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
           {protocolo.descripcion}
         </p>
@@ -815,6 +816,7 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
       
       <div style={{ marginBottom: '20px' }}>
         <h3>Pasos del Protocolo:</h3>
+        <br />
         {protocolo.pasos.map((paso, index) => (
           <div key={index} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
             <h4 style={{ margin: '0 0 10px 0' }}>{index + 1}. {paso.titulo}</h4>
@@ -822,12 +824,7 @@ const handleDeleteProtocol = async (protocolo: Protocolo) => {
             <div>
               {paso.tareas.map((tarea, taskIndex) => (
                 <div key={taskIndex} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' , flexDirection: 'row' }}>
-                  <div style={{ 
-                    width: '14px', 
-                    height: '14px', 
-                    border: '1px solid #000', 
-                  }}></div>
-                  <span>{tarea}</span>
+                  <span> □{"  "}{tarea}</span>
                 </div>
               ))}
             </div>
