@@ -159,6 +159,11 @@ export default function IncidentTrackingIntegrated() {
       return
     }
 
+    if (!asignadoAId) {
+      alert("Debe asignar el incidente a un usuario")
+      return
+    }
+
     try {
       const nuevoIncidente = {
         titulo,
