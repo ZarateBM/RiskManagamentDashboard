@@ -524,6 +524,15 @@ export default function UserManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {filteredUsers.length === 0 && (
+                    <TableRow>  
+                      <TableCell colSpan={6} className="text-center"></TableCell>
+                        <div className="py-4">
+                          <p className="text-gray-500">No se encontraron usuarios que coincidan con los criterios de búsqueda.</p>
+                        </div>
+                    </TableRow>
+                  )
+                }
                 {filteredUsers.map((user: Usuario) => (
                   <TableRow key={user.id_usuario}>
                     <TableCell className="font-medium">
