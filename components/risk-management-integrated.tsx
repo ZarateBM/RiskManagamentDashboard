@@ -107,6 +107,7 @@ export default function RiskManagementIntegrated() {
         .from("usuarios")
         .select("*")
         .eq("activo", true)
+        .eq("rol", "ADMINISTRADOR")
         .order("nombre_completo")
 
       if (usuariosError) throw usuariosError
@@ -458,6 +459,27 @@ export default function RiskManagementIntegrated() {
       Logger.operacion(`Estado del riesgo ${riesgoId} cambiado a ${nuevoEstado}`, "Informativo", currentUser?.id_usuario)
       cargarDatos()
       alert(`Estado del riesgo actualizado a: ${nuevoEstado}`)
+
+      // --- ENVÍO DE CORREO AL RESPONSABLE ---
+      const riesgo = riesgos.find(r => r.id_riesgo === riesgoId)
+      if (riesgo?.responsable?.correo) {
+        try {
+          await fetch('/api/email/send-risk-state-change', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              riskName: riesgo.nombre,
+              newState: nuevoEstado,
+              responsibleName: riesgo.responsable.nombre_completo,
+              responsibleEmail: riesgo.responsable.correo,
+              changedBy: currentUser?.nombre_completo || "Usuario del sistema"
+            }),
+          })
+        } catch (emailError) {
+          console.error('Error enviando correo de cambio de estado:', emailError)
+        }
+      }
+      // --- FIN ENVÍO DE CORREO ---
     } catch (error) {
       console.error("Error cambiando estado del riesgo:", error)
       alert("Error al cambiar el estado del riesgo")

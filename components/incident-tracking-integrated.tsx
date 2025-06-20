@@ -92,7 +92,7 @@ export default function IncidentTrackingIntegrated() {
       const { data: riesgosData, error: riesgosError } = await supabase
         .from("riesgos")
         .select("*")
-        .eq("estado", "Activo")
+        .not("estado", "eq", "Cerrado")
         .order("nombre")
 
       if (riesgosError) throw riesgosError
@@ -111,6 +111,7 @@ export default function IncidentTrackingIntegrated() {
         .from("usuarios")
         .select("*")
         .eq("activo", true)
+        .eq("rol", "ADMINISTRADOR") 
         .order("nombre_completo")
 
       if (usuariosError) throw usuariosError
