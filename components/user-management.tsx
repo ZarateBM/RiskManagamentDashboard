@@ -135,7 +135,8 @@ export default function UserManagement() {
       alert("La contraseña debe tener entre 6 y 20 caracteres");
       return;
     }
-    
+
+    const correolowerCase = correo.toLowerCase()
 
     setLoading(true)
 
@@ -143,7 +144,7 @@ export default function UserManagement() {
       const { error } = await supabase.from("usuarios").insert([
         {
           nombre_completo: nombreCompleto,
-          correo,
+          correo: correolowerCase,
           contraseña, // En producción, esto debería estar hasheado
           rol,
           activo: true,
