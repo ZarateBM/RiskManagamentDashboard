@@ -237,6 +237,7 @@ export default function RiskManagementIntegrated() {
     } finally {
       setCreatingRisk(false)
     }
+    setCreatingRisk(false)
   }
 
   const handleMaterializeRisk = async (e: React.FormEvent) => {
