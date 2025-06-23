@@ -153,55 +153,68 @@ export default function RiskManagementIntegrated() {
     Logger.operacion("Intento de creación de riesgo", "Informativo", currentUser?.id_usuario)
     if (!isAdmin) {
       alert("Solo los administradores pueden crear riesgos")
+      setCreatingRisk(false)
       return
     }
 
     if (!nombre) {
       alert("El nombre del riesgo es obligatorio")
+      setCreatingRisk(false)
       return
     }
     if (!descripcion) {
       alert("La descripción del riesgo es obligatoria")
+      setCreatingRisk(false)
       return
     }
     if (!categoria) {
       alert("La categoría del riesgo es obligatoria")
+      setCreatingRisk(false)
       return
     }
     if (!impacto) {
       alert("El impacto del riesgo es obligatorio")
+      setCreatingRisk(false)
       return
     }
     if (!probabilidad) {
       alert("La probabilidad del riesgo es obligatoria")
+      setCreatingRisk(false)
       return
     }
     if (!responsableId) {
       alert("Debe seleccionar un responsable para el riesgo")
+      setCreatingRisk(false)
       return
     }
     if (!medidas) {
       alert("Las medidas de mitigación son obligatorias")
+      setCreatingRisk(false)
       return
     }
     if (protocoloId && !protocolos.some((p) => p.id_protocolo === Number.parseInt(protocoloId))) {
       alert("El protocolo seleccionado no es válido")
+      setCreatingRisk(false)
       return
     }
     if (impacto !== "Crítico" && impacto !== "Alto" && impacto !== "Medio" && impacto !== "Bajo") {
       alert("Impacto debe ser 'Crítico', 'Alto', 'Medio' o 'Bajo'")
+      setCreatingRisk(false)
       return
     }
     if (probabilidad !== "Alta" && probabilidad !== "Media" && probabilidad !== "Baja") {
       alert("Probabilidad debe ser 'Alta', 'Media' o 'Baja'")
+      setCreatingRisk(false)
       return
     }
     if (categoria !== "Ambiental" && categoria !== "Seguridad Física" && categoria !== "Operativo" && categoria !== "Digital") {
       alert("Categoría debe ser 'Ambiental', 'Seguridad Física', 'Operativo' o 'Digital'")
+      setCreatingRisk(false)
       return
     }
     if (medidas.length < 10) {
       alert("Las medidas de mitigación deben tener al menos 10 caracteres")
+      setCreatingRisk(false)
       return
     }
 
