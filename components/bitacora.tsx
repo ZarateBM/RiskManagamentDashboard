@@ -23,7 +23,8 @@ export default function Bitacora() {
   const [filtros, setFiltros] = useState({
     tipo: "todos",
     severidad: "todas",
-    fecha: "",
+    fechaInicio: "",
+    fechaFin: "",
   })
   
   // Referencia para el PDF
@@ -51,8 +52,11 @@ export default function Bitacora() {
       if (filtros.severidad !== "todas") {
         query = query.eq("severidad", filtros.severidad)
       }
-      if (filtros.fecha) {
-        query = query.gte("fecha_hora", `${filtros.fecha}T00:00:00Z`).lte("fecha_hora", `${filtros.fecha}T23:59:59Z`)
+      if (filtros.fechaInicio) {
+        query = query.gte("fecha_hora", `${filtros.fechaInicio}T00:00:00Z`)
+      }
+      if (filtros.fechaFin) {
+        query = query.lte("fecha_hora", `${filtros.fechaFin}T23:59:59Z`)
       }
 
       const { data, error } = await query
@@ -129,7 +133,7 @@ export default function Bitacora() {
         <ul>
           <li>Tipo de evento: {filtros.tipo === 'todos' ? 'Todos' : filtros.tipo}</li>
           <li>Severidad: {filtros.severidad === 'todas' ? 'Todas' : filtros.severidad}</li>
-          <li>Fecha: {filtros.fecha || 'Sin filtro de fecha'}</li>
+          <li>Rango de fechas: {filtros.fechaInicio ? `Del ${filtros.fechaInicio}` : 'Sin fecha inicial'} {filtros.fechaFin ? `al ${filtros.fechaFin}` : 'sin fecha final'}</li>
         </ul>
       </div>
       
@@ -241,14 +245,22 @@ export default function Bitacora() {
               </Select>
             </div>
             <div className="flex-1 min-w-[150px]">
-              <label className="text-sm font-medium">Fecha</label>
+              <label className="text-sm font-medium">Fecha inicial</label>
               <Input
                 type="date"
-                value={filtros.fecha}
-                onChange={(e) => setFiltros({ ...filtros, fecha: e.target.value })}
+                value={filtros.fechaInicio}
+                onChange={(e) => setFiltros({ ...filtros, fechaInicio: e.target.value })}
               />
             </div>
-            <Button className="border border-primary-blue text-white bg-primary-blue"  onClick={fetchEntradas}>
+            <div className="flex-1 min-w-[150px]">
+              <label className="text-sm font-medium">Fecha final</label>
+              <Input
+                type="date"
+                value={filtros.fechaFin}
+                onChange={(e) => setFiltros({ ...filtros, fechaFin: e.target.value })}
+              />
+            </div>
+            <Button className="border border-primary-blue text-white bg-primary-blue" onClick={fetchEntradas}>
               <Search className="mr-2 h-4 w-4" />
               Filtrar
             </Button>

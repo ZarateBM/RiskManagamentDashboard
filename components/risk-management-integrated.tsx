@@ -1146,7 +1146,7 @@ export default function RiskManagementIntegrated() {
                             {materializacion.severidad_real}
                           </Badge>
                           <Badge variant="outline" className={getStatusColor(materializacion.estado)}>
-                            {materializacion.estado}
+                            {materializacion.estado? materializacion.estado : "Sin estado"}
                           </Badge>
                         </div>
                       </div>
@@ -1155,7 +1155,7 @@ export default function RiskManagementIntegrated() {
                       <div className="text-right">
                         <p className="text-sm font-medium">{formatDate(materializacion.fecha_materializacion)}</p>
                         <p className="text-xs text-primary-blue">
-                          Por: {materializacion.usuario_reporta?.nombre_completo}
+                          Por: {materializacion.usuario_reporta?.nombre_completo || "Usuario del sistema"}
                         </p>
                       </div>
                       <Button className="border border-primary-blue text-white bg-primary-blue" variant="outline" size="sm" onClick={() => openMaterializationDetails(materializacion)}>
